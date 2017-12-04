@@ -3,6 +3,7 @@ set -e
 OUTPUT=/dev/null
 
 function main {
+
   read-settings
   init-ca ca /CN=$clusterName                 # Generate CA for kubernetes components.
   init-ca etcd-ca /CN=etcd                    # Generate CA for etcd components.
@@ -116,7 +117,8 @@ function etcd-host {
   set-hostname $sshIp $name
 
   generate-cert etcd-ca etcd /CN=etcd "IP:$privateIp,DNS:$name"
-  copy-file $sshIp "pki/etcd-ca.pem pki/etcd-ca-key.pem pki/etcd.pem pki/etcd-key.pem"
+  generate-cert etcd-ca etcd-peer /CN=etcd-peer "IP:$privateIp,DNS:$name"
+  copy-file $sshIp "pki/etcd*"
   cmd $sshIp "sudo mv *.pem /etc/ssl"
   install-etcd $sshIp "3.2.10"
   install-service etcd $sshIp "$(etcd-exec $name $privateIp $initialCluster)"
@@ -274,8 +276,8 @@ function etcd-exec {
   --name ${name} \\
   --cert-file=/etc/ssl/etcd.pem \\
   --key-file=/etc/ssl/etcd-key.pem \\
-  --peer-cert-file=/etc/ssl/etcd.pem \\
-  --peer-key-file=/etc/ssl/etcd-key.pem \\
+  --peer-cert-file=/etc/ssl/etcd-peer.pem \\
+  --peer-key-file=/etc/ssl/etcd-peer-key.pem \\
   --trusted-ca-file=/etc/ssl/etcd-ca.pem \\
   --peer-trusted-ca-file=/etc/ssl/etcd-ca.pem \\
   --peer-client-cert-auth \\
