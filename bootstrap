@@ -202,13 +202,13 @@ EOF
 }
 
 function install-etcd {
-  local publicIp=$1
+  local sshIp=$1
   local version=$2
   local baseUrl="https://github.com/coreos/etcd/releases/download/v$version"
   local folder="etcd-v$version-linux-amd64"
   local file="$folder.tar.gz"
   echo "$logPrefix Downloading and installing etcd v$version."
-  cmd $publicIp <<EOF
+  cmd $sshIp <<EOF
 sudo mkdir -p /var/lib/etcd
 wget -q $baseUrl/$file
 tar xf $file
@@ -218,12 +218,12 @@ EOF
 }
 
 function install-k8s {
-  local publicIp=$1
+  local sshIp=$1
   local name=$2
   local version=$3
   local baseUrl="https://storage.googleapis.com/kubernetes-release/release/v$version"
   echo "$logPrefix Downloading and installing $name v$version."
-  cmd $publicIp <<EOF
+  cmd $sshIp <<EOF
 wget -q $baseUrl/bin/linux/amd64/$name
 chmod +x $name
 sudo mkdir -p /usr/local/bin
@@ -232,20 +232,20 @@ EOF
 }
 
 function install-socat {
-  local publicIp=$1
-  cmd $publicIp <<EOF
+  local sshIp=$1
+  cmd $sshIp <<EOF
 sudo apt-get update -qq
 sudo apt-get install socat -yqq
 EOF
 }
 
 function install-cni-plugins {
-  local publicIp=$1
+  local sshIp=$1
   local version=$2
   local baseUrl="https://github.com/containernetworking/plugins/releases/download/v$version"
   local file="cni-plugins-amd64-v$version.tgz"
   echo "$logPrefix Downloading and installing cni plugins v$version."
-  cmd $publicIp <<EOF
+  cmd $sshIp <<EOF
 wget -q $baseUrl/$file
 sudo mkdir -p /opt/cni/bin /etc/cni/net.d
 sudo tar xf $file --directory /opt/cni/bin
@@ -253,12 +253,12 @@ EOF
 }
 
 function install-cri {
-  local publicIp=$1
+  local sshIp=$1
   local version=$2
   local baseUrl="https://github.com/kubernetes-incubator/cri-containerd/releases/download/v$version"
   local file="cri-containerd-$version.tar.gz"
   echo "$logPrefix Downloading and installing containerd v$version."
-  cmd $publicIp <<EOF
+  cmd $sshIp <<EOF
 wget -q $baseUrl/$file
 sudo mkdir -p /usr/local/bin
 sudo tar xf $file --directory /
@@ -459,7 +459,7 @@ function install-service {
   local requires=$5
 
   echo "$logPrefix Installing, enabling and starting ${name} service."
-  copy-var $publicIp "/etc/systemd/system/$name.service" "$(cat <<EOF
+  copy-var $sshIp "/etc/systemd/system/$name.service" "$(cat <<EOF
 [Unit]
 Description=${name}
 After=${after}
@@ -474,7 +474,7 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
 )"
-  cmd $publicIp <<EOF
+  cmd $sshIp <<EOF
 sudo systemctl daemon-reload
 sudo systemctl enable $name
 sudo systemctl restart $name
@@ -482,9 +482,9 @@ EOF
 }
 
 function set-hostname {
-  publicIp=$1
+  sshIp=$1
   name=$2
-  cmd $publicIp <<EOF
+  cmd $sshIp <<EOF
 sudo grep -q -F "127.0.0.1 $name" /etc/hosts || (echo "127.0.0.1 $name" | sudo tee -a /etc/hosts)
 sudo hostname $name
 EOF
