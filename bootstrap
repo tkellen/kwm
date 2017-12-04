@@ -1,0 +1,578 @@
+#!/bin/bash
+set -e
+OUTPUT=/dev/null
+
+function main {
+  read-settings
+  init-ca ca /CN=$clusterName                 # Generate CA for kubernetes components.
+  init-ca etcd-ca /CN=etcd                    # Generate CA for etcd components.
+  kubectl-root-access $clusterName $apiserver # Generate kubeconfig for local control of cluster.
+  for idx in ${!etcdNames[@]}; do             # Boostrap etcd cluster.
+    etcd-host \
+      ${etcdNames[$idx]} \
+      ${etcdSshIps[$idx]} \
+      ${etcdPrivateIps[$idx]} \
+      $initialCluster
+  done
+
+  for idx in ${!controllerNames[@]}; do       # Bootstrap control plane.
+    controller-host \
+      $clusterName \
+      ${controllerNames[$idx]} \
+      ${controllerSshIps[$idx]} \
+      ${controllerPrivateIps[$idx]} \
+      $etcdHosts \
+      $podCidr \
+      $serviceCidr
+  done
+
+  for idx in ${!nodeNames[@]}; do             # Bootstrap worker nodes.
+    node \
+      $clusterName \
+      ${nodeNames[$idx]} \
+      ${nodeSshIps[$idx]} \
+      ${nodePrivateIps[$idx]} \
+      $podCidr
+  done
+}
+
+function read-settings {
+  source settings
+
+  mkdir -p pki
+
+  # Convert settings into bash arrays
+  controllerNames=(${CONTROLLER_NAMES//,/ })
+  controllerSshIps=(${CONTROLLER_SSH_IPS//,/ })
+  controllerPrivateIps=(${CONTROLLER_PRIVATE_IPS//,/ })
+  etcdNames=(${ETCD_NAMES//,/ })
+  etcdSshIps=(${ETCD_SSH_IPS//,/ })
+  etcdPrivateIps=(${ETCD_PRIVATE_IPS//,/ })
+  nodeNames=(${NODE_NAMES//,/ })
+  nodeSshIps=(${NODE_SSH_IPS//,/ })
+  nodePrivateIps=(${NODE_PRIVATE_IPS//,/ })
+  for idx in ${!etcdNames[@]}; do
+    initialCluster+=",${etcdNames[$idx]}=https://${etcdPrivateIps[$idx]}:2380"
+    etcdHosts+=",https://${etcdPrivateIps[$idx]}:2379"
+  done
+
+  # Name of cluster.
+  clusterName=${CLUSTER_NAME}
+
+  # Network to use for Pods
+  podCidr=${POD_CIDR}
+
+  # Network to use for Services.
+  serviceCidr=${SERVICE_CIDR}
+
+  # Public IP of first controller VM.
+  apiserver=${controllerSshIps[0]}
+
+  # All etcd host/ips for bootstrapping etcd, as comma delimited string.
+  # Used as command line argument for starting etcd.
+  initialCluster=${initialCluster:1}
+
+  # All etcd hosts, for kube-apiserver, as comma delimited string.
+  # Used as command line argument for starting etcd.
+  etcdHosts=${etcdHosts:1}
+
+  # Global variable for logging.
+  logPrefix=""
+}
+
+function kubectl-root-access {
+  local clusterName=$1
+  local apiserver=$2
+  generate-cert ca root /CN=root/O=system:masters
+  {
+    kubectl config set-cluster $clusterName \
+      --certificate-authority=pki/ca.pem \
+      --embed-certs=true \
+      --server=https://$apiserver:6443
+
+    kubectl config set-credentials root \
+      --client-certificate=pki/root.pem \
+      --client-key=pki/root-key.pem \
+      --embed-certs=true
+
+    kubectl config set-context default \
+      --cluster=$clusterName \
+      --user=root
+
+    kubectl config use-context default
+  } &> $OUTPUT
+}
+
+function etcd-host {
+  local name=$1
+  local sshIp=$2
+  local privateIp=$3
+  local initialCluster=$4
+
+  logPrefix="[etcd] ($sshIp)"
+
+  echo "$logPrefix Bootstrapping $name."
+
+  set-hostname $sshIp $name
+
+  generate-cert etcd-ca etcd /CN=etcd "IP:$privateIp,DNS:$name"
+  copy-file $sshIp "pki/etcd-ca.pem pki/etcd-ca-key.pem pki/etcd.pem pki/etcd-key.pem"
+  cmd $sshIp "sudo mv *.pem /etc/ssl"
+  install-etcd $sshIp "3.2.10"
+  install-service etcd $sshIp "$(etcd-exec $name $privateIp $initialCluster)"
+  echo "$logPrefix Done."
+}
+
+function controller-host {
+  local clusterName=$1
+  local name=$2
+  local sshIp=$3
+  local privateIp=$4
+  local etcdHosts=$5
+  local podCidr=$6
+  local serviceCidr=$7
+
+  logPrefix="[controller] ($sshIp)"
+
+  echo "$logPrefix Bootstrapping $name."
+  set-hostname $sshIp $name
+
+  # TODO: remove sshIp when load balancer is in place
+  generate-cert ca apiserver /CN=kube-apiserver "IP:$sshIp,IP:$privateIp,DNS:$name,DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.cluster,DNS:kubernetes.default.svc.cluster.local"
+  generate-cert ca apiserver-to-kubelet /CN=kube-apiserver-client/O=system:masters
+
+  copy-file $sshIp "pki/ca.pem pki/ca-key.pem pki/apiserver.pem pki/apiserver-key.pem pki/apiserver-to-kubelet.pem pki/apiserver-to-kubelet-key.pem"
+  cmd $sshIp "sudo mv *.pem /etc/ssl"
+
+  install-k8s $sshIp kube-apiserver 1.8.4
+  install-service kube-apiserver $sshIp "$(apiserver-exec $privateIp $etcdHosts $serviceCidr)"
+
+  install-k8s $sshIp kube-controller-manager 1.8.4
+  install-service kube-controller-manager $sshIp "$(controller-manager-exec $clusterName $podCidr $serviceCidr)"
+
+  install-k8s $sshIp kube-scheduler 1.8.4
+  install-service kube-scheduler $sshIp "$(scheduler-exec)"
+
+  install-k8s $sshIp kubectl 1.8.4
+
+  echo "$logPrefix Done."
+}
+
+function node {
+  local clusterName=$1
+  local name=$2
+  local sshIp=$3
+  local privateIp=$4
+  local podCidr=$5
+
+  logPrefix="[node] ($sshIp)"
+
+  echo "$logPrefix Bootstrapping $name."
+  set-hostname $sshIp $name
+  generate-cert ca kubelet /CN=system:node:$name/O=system:nodes "IP:$privateIp,DNS:$name"
+  generate-cert ca kube-proxy /CN=kube-proxy
+  copy-file $sshIp "pki/ca.pem pki/kubelet-key.pem pki/kubelet.pem pki/kube-proxy-key.pem pki/kube-proxy.pem"
+  cmd $sshIp "sudo mv *.pem /etc/ssl"
+
+  install-cni-plugins $sshIp 0.6.0
+  cmd $sshIp <<EOF
+sudo apt-get update
+sudo apt-get install docker.io -y
+EOF
+  copy-var $sshIp /etc/cni/net.d/10-bridge.conf "$(cni-bridge $podCidr)"
+  copy-var $sshIp /etc/cni/net.d/99-loopback.conf
+
+  # Install kubectl.
+  install-k8s $sshIp kubectl 1.8.4
+
+  # Install and configure kube-proxy.
+  install-socat $sshIp
+  install-k8s $sshIp kube-proxy 1.8.4
+  cmd $sshIp "sudo mkdir -p /var/lib/kube-proxy"
+  copy-var $sshIp /var/lib/kube-proxy/kubeconfig "$(kubeconfig $clusterName kube-proxy kube-proxy $apiserver)"
+  install-service kube-proxy $sshIp "$(kube-proxy-exec $podCidr)"
+
+  # Install and configure kubelet.
+  install-k8s $sshIp kubelet 1.8.4
+  cmd $sshIp "sudo mkdir -p /var/lib/kubelet"
+  copy-var $sshIp /var/lib/kubelet/kubeconfig "$(kubeconfig $clusterName kubelet system:node:$name $apiserver)"
+  install-service kubelet $sshIp "$(kubelet-exec $podCidr)"
+
+  echo "$logPrefix Done."
+}
+
+function install-etcd {
+  local publicIp=$1
+  local version=$2
+  local baseUrl="https://github.com/coreos/etcd/releases/download/v$version"
+  local folder="etcd-v$version-linux-amd64"
+  local file="$folder.tar.gz"
+  echo "$logPrefix Downloading and installing etcd v$version."
+  cmd $publicIp <<EOF
+sudo mkdir -p /var/lib/etcd
+wget -q $baseUrl/$file
+tar xf $file
+sudo mkdir -p /usr/local/bin
+sudo mv $folder/etcd* /usr/local/bin
+EOF
+}
+
+function install-k8s {
+  local publicIp=$1
+  local name=$2
+  local version=$3
+  local baseUrl="https://storage.googleapis.com/kubernetes-release/release/v$version"
+  echo "$logPrefix Downloading and installing $name v$version."
+  cmd $publicIp <<EOF
+wget -q $baseUrl/bin/linux/amd64/$name
+chmod +x $name
+sudo mkdir -p /usr/local/bin
+sudo mv $name /usr/local/bin
+EOF
+}
+
+function install-socat {
+  local publicIp=$1
+  cmd $publicIp <<EOF
+sudo apt-get update -qq
+sudo apt-get install socat -yqq
+EOF
+}
+
+function install-cni-plugins {
+  local publicIp=$1
+  local version=$2
+  local baseUrl="https://github.com/containernetworking/plugins/releases/download/v$version"
+  local file="cni-plugins-amd64-v$version.tgz"
+  echo "$logPrefix Downloading and installing cni plugins v$version."
+  cmd $publicIp <<EOF
+wget -q $baseUrl/$file
+sudo mkdir -p /opt/cni/bin /etc/cni/net.d
+sudo tar xf $file --directory /opt/cni/bin
+EOF
+}
+
+function install-cri {
+  local publicIp=$1
+  local version=$2
+  local baseUrl="https://github.com/kubernetes-incubator/cri-containerd/releases/download/v$version"
+  local file="cri-containerd-$version.tar.gz"
+  echo "$logPrefix Downloading and installing containerd v$version."
+  cmd $publicIp <<EOF
+wget -q $baseUrl/$file
+sudo mkdir -p /usr/local/bin
+sudo tar xf $file --directory /
+EOF
+}
+
+function etcd-exec {
+  local name=$1
+  local privateIp=$2
+  local initialCluster=$3
+  cat <<EOF
+/usr/local/bin/etcd \\
+  --name ${name} \\
+  --cert-file=/etc/ssl/etcd.pem \\
+  --key-file=/etc/ssl/etcd-key.pem \\
+  --peer-cert-file=/etc/ssl/etcd.pem \\
+  --peer-key-file=/etc/ssl/etcd-key.pem \\
+  --trusted-ca-file=/etc/ssl/etcd-ca.pem \\
+  --peer-trusted-ca-file=/etc/ssl/etcd-ca.pem \\
+  --peer-client-cert-auth \\
+  --client-cert-auth \\
+  --initial-advertise-peer-urls https://${privateIp}:2380 \\
+  --listen-peer-urls https://${privateIp}:2380 \\
+  --listen-client-urls https://${privateIp}:2379,http://127.0.0.1:2379 \\
+  --advertise-client-urls https://${privateIp}:2379 \\
+  --initial-cluster-token etcd-cluster-0 \\
+  --initial-cluster ${initialCluster} \\
+  --initial-cluster-state new \\
+  --data-dir=/var/lib/etcd
+EOF
+}
+
+function apiserver-exec {
+  local privateIp=$1
+  local etcdHosts=$2
+  local serviceCidr=$3
+  cat <<EOF
+/usr/local/bin/kube-apiserver \\
+  --admission-control=Initializers,NamespaceLifecycle,NodeRestriction,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota \\
+  --advertise-address=${privateIp} \\
+  --allow-privileged=true \\
+  --apiserver-count=3 \\
+  --audit-log-maxage=30 \\
+  --audit-log-maxbackup=3 \\
+  --audit-log-maxsize=100 \\
+  --audit-log-path=/var/log/audit.log \\
+  --authorization-mode=Node,RBAC \\
+  --bind-address=0.0.0.0 \\
+  --client-ca-file=/etc/ssl/ca.pem \\
+  --enable-swagger-ui=true \\
+  --etcd-cafile=/etc/ssl/etcd-ca.pem \\
+  --etcd-certfile=/etc/ssl/etcd.pem \\
+  --etcd-keyfile=/etc/ssl/etcd-key.pem \\
+  --etcd-servers=${etcdHosts} \\
+  --event-ttl=1h \\
+  --insecure-bind-address=127.0.0.1 \\
+  --kubelet-certificate-authority=/etc/ssl/ca.pem \\
+  --kubelet-client-certificate=/etc/ssl/apiserver-to-kubelet.pem \\
+  --kubelet-client-key=/etc/ssl/apiserver-to-kubelet-key.pem \\
+  --kubelet-preferred-address-types=InternalIP,Hostname,ExternalIP \\
+  --kubelet-https=true \\
+  --runtime-config=api/all \\
+  --service-account-key-file=/etc/ssl/ca-key.pem \\
+  --service-cluster-ip-range=${serviceCidr} \\
+  --service-node-port-range=30000-32767 \\
+  --tls-ca-file=/etc/ssl/ca.pem \\
+  --tls-cert-file=/etc/ssl/apiserver.pem \\
+  --tls-private-key-file=/etc/ssl/apiserver-key.pem \\
+  --v=2
+EOF
+}
+
+function controller-manager-exec {
+  name=$1
+  podCidr=$2
+  serviceCidr=$3
+  cat <<EOF
+/usr/local/bin/kube-controller-manager \\
+  --address=0.0.0.0 \\
+  --cluster-cidr=${podCidr} \\
+  --cluster-name=${name} \\
+  --cluster-signing-cert-file=/etc/ssl/ca.pem \\
+  --cluster-signing-key-file=/etc/ssl/ca-key.pem \\
+  --leader-elect=true \\
+  --master=http://127.0.0.1:8080 \\
+  --root-ca-file=/etc/ssl/ca.pem \\
+  --service-account-private-key-file=/etc/ssl/ca-key.pem \\
+  --service-cluster-ip-range=${serviceCidr} \\
+  --v=2
+EOF
+}
+
+function scheduler-exec {
+  cat <<EOF
+/usr/local/bin/kube-scheduler \\
+  --leader-elect=true \\
+  --master=http://127.0.0.1:8080 \\
+  --v=2
+EOF
+}
+
+function cni-bridge {
+  podCidr=$1
+  cat <<EOF
+{
+  "cniVersion": "0.3.1",
+  "name": "bridge",
+  "type": "bridge",
+  "bridge": "cnio0",
+  "isGateway": true,
+  "ipMasq": true,
+  "ipam": {
+    "type": "host-local",
+    "ranges": [
+      [{"subnet": "${podCidr}"}]
+    ],
+    "routes": [{"dst": "0.0.0.0/0"}]
+  }
+}
+EOF
+}
+
+function cni-loopback {
+  cat <<EOF
+{
+  "cniVersion": "0.3.1",
+  "type": "loopback"
+}
+EOF
+}
+
+function kubelet-exec {
+  local podCidr=$1
+  cat <<EOF
+/usr/local/bin/kubelet \\
+  --allow-privileged=true \\
+  --anonymous-auth=false \\
+  --authorization-mode=Webhook \\
+  --client-ca-file=/etc/ssl/ca.pem \\
+  --cluster-dns=10.32.0.10 \\
+  --cluster-domain=cluster.local \\
+  --image-pull-progress-deadline=2m \\
+  --kubeconfig=/var/lib/kubelet/kubeconfig \\
+  --network-plugin=cni \\
+  --cni-bin-dir=/opt/cni/bin \\
+  --pod-cidr=${podCidr} \\
+  --register-node=true \\
+  --runtime-request-timeout=15m \\
+  --tls-cert-file=/etc/ssl/kubelet.pem \\
+  --tls-private-key-file=/etc/ssl/kubelet-key.pem \\
+  --v=2
+EOF
+}
+
+function kubeconfig {
+  clusterName=$1
+  name=$2
+  user=$3
+  apiserver=$4
+  cat <<EOF
+apiVersion: v1
+kind: Config
+current-context: default
+clusters:
+  - cluster:
+      certificate-authority: /etc/ssl/ca.pem
+      server: https://${apiserver}:6443
+    name: ${clusterName}
+contexts:
+  - context:
+      cluster: ${clusterName}
+      user: ${user}
+    name: default
+users:
+  - name: ${user}
+    user:
+      client-certificate: /etc/ssl/${name}.pem
+      client-key: /etc/ssl/${name}-key.pem
+EOF
+}
+
+function kube-proxy-exec {
+  podCidr=$1
+  cat <<EOF
+/usr/local/bin/kube-proxy \\
+  --cluster-cidr=${podCidr} \\
+  --kubeconfig=/var/lib/kube-proxy/kubeconfig \\
+  --proxy-mode=iptables \\
+  --v=2
+EOF
+}
+
+function install-service {
+  local name=$1
+  local host=$2
+  local start=$3
+  local after=$4
+  local requires=$5
+
+  echo "$logPrefix Installing, enabling and starting ${name} service."
+  copy-var $publicIp "/etc/systemd/system/$name.service" "$(cat <<EOF
+[Unit]
+Description=${name}
+After=${after}
+Requires=${requires}
+
+[Service]
+ExecStart=${start}
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+)"
+  cmd $publicIp <<EOF
+sudo systemctl daemon-reload
+sudo systemctl enable $name
+sudo systemctl restart $name
+EOF
+}
+
+function set-hostname {
+  publicIp=$1
+  name=$2
+  cmd $publicIp <<EOF
+sudo grep -q -F "127.0.0.1 $name" /etc/hosts || (echo "127.0.0.1 $name" | sudo tee -a /etc/hosts)
+sudo hostname $name
+EOF
+}
+
+function init-ca {
+  local name=$1
+  local subj=$2
+  {
+    openssl ecparam -name secp521r1 -genkey -noout -out pki/$name-key.pem
+    openssl req -x509 -new -sha256 -nodes -days 3650 \
+      -key pki/$name-key.pem \
+      -out pki/$name.pem \
+      -subj "$subj" \
+      -extensions ext \
+      -config <(echo "
+[req]
+distinguished_name = default
+[default]
+[ext]
+basicConstraints = critical, CA:TRUE
+keyUsage = critical, digitalSignature, keyEncipherment, keyCertSign
+")
+} &> $OUTPUT
+}
+
+function generate-cert {
+  local ca=$1
+  local name=$2
+  local subj=$3
+  local san=$4
+  {
+    openssl ecparam -name secp521r1 -genkey -noout -out pki/$name-key.pem
+    openssl req -new -sha256 -key pki/$name-key.pem -subj "$subj" | \
+      openssl x509 -req -sha256 \
+        -CA pki/$ca.pem \
+        -CAkey pki/$ca-key.pem \
+        -CAcreateserial \
+        -out pki/$name.pem \
+        -days 3650 \
+        -extensions ext \
+        -extfile <(echo "
+[req]
+distinguished_name = default
+[default]
+[ext]
+basicConstraints = critical, CA:FALSE
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth, clientAuth
+$(if [ -n "$san" ]; then echo "subjectAltName = $san" ; fi)
+")
+} &> $OUTPUT
+}
+
+function copy-var {
+  local host=$1
+  local dest=$2
+  local data=$3
+  echo "$data" | ssh -q \
+    -o StrictHostKeyChecking=no \
+    -o UserKnownHostsFile=/dev/null \
+    ubuntu@${host} "sudo tee ${dest} > /dev/null"
+}
+
+function copy-file {
+  local host=$1
+  local file=$2
+  {
+    scp -q \
+      -o StrictHostKeyChecking=no \
+      -o UserKnownHostsFile=/dev/null \
+      ${file} \
+      ubuntu@${host}:~/
+  } &> $OUTPUT
+}
+
+function cmd {
+  local host=$1
+  local cmd=$2
+  if [ -z "$cmd" ]; then
+    cmd=`cat`
+  fi
+  {
+    ssh -q \
+      -o StrictHostKeyChecking=no \
+      -o UserKnownHostsFile=/dev/null \
+      ubuntu@${host} "$cmd"
+  } &> $OUTPUT
+}
+
+main "$@"

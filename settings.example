@@ -1,0 +1,88 @@
+# This files aims to statically define the minimum requirements needed to
+# bootstrap a Kubernetes cluster in any environment where SSH access and
+# passwordless sudo control of the target hosts is possible.
+#
+# It is expected that this file will be generated ahead of bootstrapping using
+# whatever means are most applicable for the target environment. For an example
+# of this, see `hack/aws/settings`.
+
+# Used in places where a top level name for the cluster is helpful for clarity.
+CLUSTER_NAME=kubernetes
+
+# The domain used for the cluster.
+# TODO: describe in more detail
+CLUSTER_DOMAIN=aeivtas.io
+
+# The network used by all Pods. Configures a network bridge on each Node for
+# for communication into Pods. Also used by kubelet, kube-controller-manager
+# and kube-proxy (not sure specifically what for).
+POD_CIDR=10.200.0.0/16
+
+# The network used by all Services.
+# Used by kube-controller and kube-apiserver (not sure specifically what for).
+SERVICE_CIDR=10.32.0.0/24
+
+# User with passwordless sudo access to the servers being bootstrapped. During
+# setup it is assumed that you have ssh-agent running with the private key for
+# the specified user loaded (or that the private key is already available in a
+# default location (e.g. ``~/ssh/id_rsa`)).
+# To validate, run the following:
+# `ssh username@ip_of_host sudo -n uname -r`
+# The response should *not* indicate that a password is required.
+SSH_USER=ubuntu
+
+# The hostnames of your controllers. The bootstrap script will ensure these are
+# actually set, and that the needed self-referential entries are present in
+# /etc/hosts (this may be redundant for some environments).
+CONTROLLER_HOSTNAMES=controller0,controller1,controller2
+
+# A comma delimited list of IPs for SSH access to each controller host during
+# bootstrapping. This will likely be the same as the public IP for cloud
+# providers.
+CONTROLLER_SSH_IPS=52.87.233.217,52.91.161.141,35.153.208.49
+
+# A comma delimited list of private IPs for each controller host. Used by
+# kube-apiserver as the IP to listen on.
+CONTROLLER_PRIVATE_IPS=10.100.0.10,10.100.1.10,10.100.2.10
+
+# The hostnames of your etcd members. The bootstrap script ensures these are
+# actually set and that the needed self-referential entries are present in
+# /etc/hosts (this may be redundant for some environments).
+# Used by etcd for pre-defining each cluster member during bootstrapping.
+ETCD_HOSTNAMES=etcd0,etcd1,etcd2
+
+# A comma delimited list of IPs for SSH access to each etcd host during
+# bootstrapping. This will likely be the same as the public IP for cloud
+# providers.
+ETCD_SSH_IPS=52.87.234.217,52.92.161.141,35.154.208.49
+
+# A comma delimited list of private IPs for etcd host. Used by etcd as the IP
+# to listen on.
+ETCD_PRIVATE_IPS=10.100.0.15,10.100.1.15,10.100.2.15
+
+# The hostnames of your worker nodes. The bootstrap script ensures these are
+# actually set and that the needed self-referential entries are present in
+# /etc/hosts (this may be redundant for some environments).
+# Used in TLS certificate as subjectAltName and organization name to facilitate
+# secure registration with the cluster.
+NODE_HOSTNAMES=node-0,node-1,node-2
+
+# A comma delimited list of IPs for SSH access to each node host during
+# bootstrapping. This will likely be the same as the public IP for cloud
+# providers.
+# TODO: describe in more detail the usage.
+NODE_SSH_IPS=54.91.188.135,204.236.201.146,54.164.73.251
+
+# A comma delimited list of private IPs for worker nodes.
+# TODO: describe in more detail the usage.
+NODE_PRIVATE_IPS=10.100.0.222,10.100.1.121,10.100.2.49
+
+# A comma delimited list of public IPs for load balancer.
+# TODO: describe in more detail the usage.
+LOAD_BALANCER_PUBLIC_IPS=55.87.234.217,57.92.161.141,33.154.208.49
+
+# A comma delimited list of IPs for SSH access to each load balancer host during
+# bootstrapping. This will likely be the same as the public IP for cloud
+# providers.
+# TODO: describe in more detail the usage.
+LOAD_BALANCER_SSH_IPS=55.87.234.217,57.92.161.141,33.154.208.49

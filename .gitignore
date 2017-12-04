@@ -1,0 +1,4 @@
+pki
+hack/aws/.terraform
+hack/aws/terraform.tfstate*
+settings
