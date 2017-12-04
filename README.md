@@ -13,7 +13,7 @@ Kubernetes cluster that can hopefully be used in any hosting environment.
 4. Run `./bootstrap`.
 
 ### Verification
-Run `kubectl get componentstatuses`
+`kubectl get componentstatuses`
 
 ### TODO
 1. Figure out how to run kube-dns.
@@ -24,9 +24,16 @@ It would be cool to incorporate [Bootkube]-like capabilities (running Kubernetes
 in Kubernetes) without using [Bootkube] itself.
 
 ### Acknowledgements
-https://github.com/kelseyhightower/kubernetes-the-hard-way
-https://nixaid.com/deploying-kubernetes-cluster-from-scratch/
-https://github.com/kahkhang/kube-linode
+It was quite a challenge learning how to do this. Here are some critical resources I used along the way:
+
+* [Kubernetes Documentation]
+* [Kubernetes the Hard Way]
+* [Deploying Kubernetes from Scratch]
+* [Kube-Linode]
 
 [Bootkube]: https://github.com/kubernetes-incubator/bootkube
 [Traefik]: https://github.com/containous/traefik
+[Kubernetes Documentation]: https://kubernetes.io/docs/home/
+[Kubernetes the Hard Way]: https://github.com/kelseyhightower/kubernetes-the-hard-way
+[Deploying Kubernetes from Scratch]: https://nixaid.com/deploying-kubernetes-cluster-from-scratch/
+[Kube-Linode]: https://github.com/kahkhang/kube-linode
