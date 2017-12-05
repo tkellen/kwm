@@ -17,6 +17,8 @@ data "aws_ami" "ubuntu" {
 locals {
   name = "aevitas"
   cidr = "10.100.0.0/16"
+  controller_count = 3
+  node_count = 3
   subnetCidrs = [
     "${cidrsubnet(local.cidr, 8, 0)}",
     "${cidrsubnet(local.cidr, 8, 1)}",
@@ -201,7 +203,7 @@ resource "aws_security_group" "node" {
 }
 
 resource "aws_instance" "controller" {
-  count = 3
+  count = "${local.controller_count}"
   ami = "${data.aws_ami.ubuntu.id}"
   instance_type = "t2.medium"
   key_name = "default"
@@ -216,7 +218,7 @@ resource "aws_instance" "controller" {
 }
 
 resource "aws_instance" "node" {
-  count = 3
+  count = "${local.node_count}"
   ami = "${data.aws_ami.ubuntu.id}"
   instance_type = "t2.nano"
   key_name = "default"
