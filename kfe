@@ -436,6 +436,7 @@ EOF
 function kubelet-exec {
   local privateIp=$1
   local podCidr=$2
+  local dnsIp=$3
   cat <<EOF
 /usr/local/bin/kubelet \\
   --node-ip=${privateIp} \\

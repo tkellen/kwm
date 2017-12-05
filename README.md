@@ -1,17 +1,19 @@
-# YAKB
-> Yet Another Kubernetes Bootstrap
+# KFE
+> Kubernetes for Everyone
 
 ## Description
-This is a learning exercise in operationalizing Kubernetes. The goal of this
-project is to provide a single-file bootstrap script for configuring a highly
-available Kubernetes cluster that can be used in any hosting environment. It
-intentionally avoids cloud-provider-specific functionality.
+This is a learning exercise in operationalizing Kubernetes.
+
+The goal of this project is to provide a single-file bootstrap script for
+configuring a production-ready high availability Kubernetes cluster that can
+be used in any hosting environment. It also aims to document the process so
+thoroughly that anyone could understand it.
 
 ## TODO
 1. Finish getting DNS running.
 2. Front the whole thing with [Traefik].
 3. Finish writing docs.
-4. Parameterize yakb, right now it runs everything at once.
+4. Parameterize kfe, right now it runs everything at once.
 5. Start actually using this.
 
 ## Setup
@@ -38,7 +40,7 @@ echo $SSH_USER
 
 **Build your PKI:**
 ```shell
-./yakb pki
+./kfe pki
 ```
 
 TODO: Show commands to validate the output, explaining each item and why it is
@@ -53,7 +55,7 @@ required.
 
 **Build your etcd cluster:**
 ```shell
-./yakb etcd
+./kfe etcd
 ```
 
 **Check to see if the cluster bootstrapped successfully:**
@@ -109,7 +111,7 @@ hello
 
 **Build your control plane:**
 ```shell
-./yakb control-plane
+./kfe control-plane
 ```
 
 **Check control plane components to ensure they are running:**
@@ -135,7 +137,7 @@ etcd-2               Healthy   {"health": "true"}
 
 **Build your nodes:**
 ```shell
-./yakb node
+./kfe node
 ```
 
 **Confirm your Nodes are registered and ready to run Pods:**
@@ -260,7 +262,7 @@ ssh $SSH_USER@$NODE_SSH_IP sudo nsenter -t $CONTAINER_PID -n ip addr
 
 **Build in support for DNS:**
 ```
-./yakb dns
+./kfe dns
 ```
 
 **Additional Reading**
