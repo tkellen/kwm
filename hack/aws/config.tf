@@ -1,5 +1,5 @@
+# To use, export AWS_PROFILE=<desired profile>
 provider "aws" {
-  profile = "aevitas"
   region = "us-east-1"
 }
 
@@ -15,7 +15,7 @@ data "aws_ami" "ubuntu" {
 }
 
 locals {
-  name = "aevitas"
+  name = "aws"
   cidr = "10.100.0.0/16"
   controller_count = 3
   node_count = 3
@@ -24,6 +24,10 @@ locals {
     "${cidrsubnet(local.cidr, 8, 1)}",
     "${cidrsubnet(local.cidr, 8, 2)}"
   ]
+}
+
+output "NAME" {
+  value = "${local.name}"
 }
 
 output "CONTROLLER_NAMES" {

@@ -57,7 +57,6 @@ required.
 
 **Check to see if the cluster bootstrapped successfully:**
 ```shell
-source settings
 ETCD_HOST=$(echo $ETCD_SSH_IPS | cut -d ',' -f 1)
 ssh $SSH_USER@$ETCD_HOST ETCDCTL_API=3 etcdctl member list
 ```
@@ -70,7 +69,6 @@ c7506878d20491a2, started, etcd-0, https://10.100.0.10:2380, https://10.100.0.10
 
 **Confirm you can store data (set the key `test` to the value `hello`):**
 ```shell
-source settings
 ETCD_HOST=$(echo $ETCD_SSH_IPS | cut -d ',' -f 1)
 ssh $SSH_USER@$ETCD_HOST ETCDCTL_API=3 etcdctl put test hello
 ```
@@ -81,7 +79,6 @@ OK
 
 **Get the value of the key you just set from the same etcd host:**
 ```shell
-source settings
 ETCD_HOST=$(echo $ETCD_SSH_IPS | cut -d ',' -f 1)
 ssh $SSH_USER@$ETCD_HOST ETCDCTL_API=3 etcdctl get test
 ```
@@ -93,7 +90,6 @@ hello
 
 **Get the value of the key you just set from a different etcd host:**
 ```shell
-source settings
 ETCD_HOST=$(echo $ETCD_SSH_IPS | cut -d ',' -f 2)
 ssh $SSH_USER@$ETCD_HOST ETCDCTL_API=3 etcdctl get test
 ```
@@ -174,7 +170,6 @@ bin   dev   etc   home  proc  root  sys   tmp   usr   var
 
 **Start busybox on specific Node:**
 ```shell
-source settings
 NODE_NAME=$(echo $NODE_NAMES | cut -d ',' -f 1)
 kubectl run networktest \
   --image=busybox \
@@ -194,7 +189,6 @@ networktest-56fc4fb64c-skxqx   1/1       Running   0          4s        10.244.0
 
 **Confirm Node-to-Pod communication:**
 ```shell
-source settings
 NODE_SSH_IP=$(echo $NODE_SSH_IPS | cut -d ',' -f 1)
 POD_NAME=$(kubectl get pods -l run=networktest -o jsonpath="{.items[0].metadata.name}")
 POD_IP=$(kubectl get pod $POD_NAME -o jsonpath="{.status.podIP}")
@@ -235,7 +229,6 @@ If you don't see a command prompt, try pressing enter.
 
 **List network interfaces inside Pod, from Node:**
 ```shell
-source settings
 POD_NAME=$(kubectl get pods -l run=networktest -o jsonpath="{.items[0].metadata.name}")
 CONTAINER_ID=$(kubectl get pod $POD_NAME -o jsonpath='{.status.containerStatuses[0].containerID}' | awk -F/ '{print $3}')
 CONTAINER_PID=$(echo $(ssh $SSH_USER@$NODE_SSH_IP sudo runc list | grep $CONTAINER_ID) | awk '{print $2}')

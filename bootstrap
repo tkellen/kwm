@@ -5,7 +5,6 @@ OUTPUT=/dev/null
 ################################################################################
 # TODO: Configuration Explanation
 #
-source settings
 
 # Convert settings into bash arrays
 controllerNames=(${CONTROLLER_NAMES//,/ })
@@ -21,6 +20,9 @@ for idx in ${!etcdNames[@]}; do
   initialCluster+=",${etcdNames[$idx]}=https://${etcdPrivateIps[$idx]}:2380"
   etcdHosts+=",https://${etcdPrivateIps[$idx]}:2379"
 done
+
+# User to SSH as
+sshUser=${SSH_USER}
 
 # Name of cluster.
 clusterName=${CLUSTER_NAME}
@@ -44,9 +46,9 @@ etcdHosts=${etcdHosts:1}
 
 # Global variable for logging.
 logPrefix=""
-clusterPath=$clusterName
-manifestPath=$clusterName/manifests
-pkiPath=$clusterName/pki
+clusterPath=cluster/$clusterName
+manifestPath=cluster/$clusterName/manifests
+pkiPath=cluster/$clusterName/pki
 
 ################################################################################
 # TOOD: Code explanation.
@@ -55,14 +57,14 @@ function main {
   pki
   etcd
   control-plane
+  nodes
   # TODO: figure out why system:kube-proxy doesn't work as a user
   kubectl create clusterrolebinding proxy-binding --clusterrole=cluster-admin --user=kube-proxy
-  nodes
-  dns
+  #dns
 }
 
 function pki {
-  mkdir -p $clusterPath/pki
+  mkdir -p $pkiPath
 
   # Create CA for kubernetes components.
   init-ca ca /CN=$clusterName
@@ -136,14 +138,14 @@ function kubectl-root-access {
       --embed-certs=true \
       --server=https://$apiserver:6443
 
-    kubectl config set-credentials root \
+    kubectl config set-credentials $clusterName-root \
       --client-certificate=$pkiPath/root.pem \
       --client-key=$pkiPath/root-key.pem \
       --embed-certs=true
 
     kubectl config set-context $clusterName \
       --cluster=$clusterName \
-      --user=root
+      --user=$clusterName-root
 
     kubectl config use-context $clusterName
   } &> $OUTPUT
@@ -227,7 +229,7 @@ EOF
   cmd $sshIp "sudo mkdir -p /var/lib/kube-router"
   copy-var $sshIp /var/lib/kube-router/kubeconfig "$(kubeconfig $clusterName kube-router kube-router $apiserver)"
   install-kube-router $sshIp 0.0.19
-  install-service $sshIp kube-router "$(kube-router-exec $podCidr)"
+  install-service $sshIp kube-router "$(kube-router-exec $privateIp $podCidr)"
 
   # Install kubectl.
   install-k8s $sshIp kubectl 1.8.4
@@ -236,7 +238,7 @@ EOF
   install-k8s $sshIp kubelet 1.8.4
   cmd $sshIp "sudo mkdir -p /var/lib/kubelet"
   copy-var $sshIp /var/lib/kubelet/kubeconfig "$(kubeconfig $clusterName kubelet system:node:$name $apiserver)"
-  install-service $sshIp kubelet "$(kubelet-exec $podCidr)"
+  install-service $sshIp kubelet "$(kubelet-exec $privateIp $podCidr)"
 
   echo "$logPrefix Done."
 }
@@ -382,10 +384,10 @@ function apiserver-exec {
   --etcd-servers=${etcdHosts} \\
   --event-ttl=1h \\
   --insecure-bind-address=127.0.0.1 \\
+  --kubelet-preferred-address-types=InternalIP,Hostname,ExternalIP \\
   --kubelet-certificate-authority=/etc/ssl/ca.pem \\
   --kubelet-client-certificate=/etc/ssl/apiserver-to-kubelet.pem \\
   --kubelet-client-key=/etc/ssl/apiserver-to-kubelet-key.pem \\
-  --kubelet-preferred-address-types=InternalIP,Hostname,ExternalIP \\
   --kubelet-https=true \\
   --runtime-config=api/all \\
   --service-account-key-file=/etc/ssl/ca-key.pem \\
@@ -429,9 +431,11 @@ EOF
 }
 
 function kubelet-exec {
-  local podCidr=$1
+  local privateIp=$1
+  local podCidr=$2
   cat <<EOF
 /usr/local/bin/kubelet \\
+  --node-ip=${privateIp} \\
   --allow-privileged=true \\
   --anonymous-auth=false \\
   --authorization-mode=Webhook \\
@@ -480,7 +484,8 @@ EOF
 }
 
 function kube-router-exec {
-  podCidr=$1
+  local privateip=$1
+  local podCidr=$2
   cat <<EOF
 /usr/local/bin/kube-router \\
   --run-router=true \\
@@ -522,10 +527,12 @@ EOF
 }
 
 function set-hostname {
+  # Ensure hostname is set and loopback entry is present for hosts that need
+  # it. The current use-case for this is AWS support.
   sshIp=$1
   name=$2
   cmd $sshIp <<EOF
-sudo grep -q -F "127.0.0.1 $name" /etc/hosts || (echo "127.0.0.1 $name" | sudo tee -a /etc/hosts)
+sudo grep -q -F "$name" /etc/hosts || (echo "127.0.0.1 $name" | sudo tee -a /etc/hosts)
 sudo hostname $name
 EOF
 }
@@ -586,7 +593,7 @@ function copy-var {
   echo "$data" | ssh -q \
     -o StrictHostKeyChecking=no \
     -o UserKnownHostsFile=/dev/null \
-    ubuntu@${host} "sudo tee ${dest} > /dev/null"
+    $sshUser@$host "sudo tee $dest > /dev/null"
 }
 
 function copy-files {
@@ -596,7 +603,7 @@ function copy-files {
   {
     rsync -av \
       -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
-      --rsync-path="sudo rsync" $glob ubuntu@$host:$dest
+      --rsync-path="sudo rsync" $glob $sshUser@$host:$dest
   } &> $OUTPUT
 }
 
@@ -610,7 +617,7 @@ function cmd {
     ssh -q \
       -o StrictHostKeyChecking=no \
       -o UserKnownHostsFile=/dev/null \
-      ubuntu@${host} "$cmd"
+      $sshUser@$host "$cmd"
   } &> $OUTPUT
 }
 

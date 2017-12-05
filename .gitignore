@@ -1,4 +1,5 @@
 pki
-hack/aws/.terraform*
-hack/aws/terraform.tfstate*
+**.terraform*
+**terraform.tfstate*
 settings
+cluster
