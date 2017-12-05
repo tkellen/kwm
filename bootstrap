@@ -22,16 +22,18 @@ for idx in ${!etcdNames[@]}; do
 done
 
 # User to SSH as
-sshUser=${SSH_USER}
+sshUser=${SSH_USER?'not defined.'}
 
 # Name of cluster.
-clusterName=${CLUSTER_NAME}
+clusterName=${CLUSTER_NAME?'not defined.'}
 
 # Network to use for Pods
-podCidr=${POD_CIDR}
+podCidr=${POD_CIDR?'not defined.'}
 
 # Network to use for Services.
-serviceCidr=${SERVICE_CIDR}
+serviceCidr=${SERVICE_CIDR?'not defined.'}
+
+kubernetesServiceIp=${KUBERNETES_SERVICE_IP?'not defined.'}
 
 # Public IP of first controller VM.
 apiserver=${controllerSshIps[0]}
@@ -44,14 +46,15 @@ initialCluster=${initialCluster:1}
 # Used as command line argument for starting etcd.
 etcdHosts=${etcdHosts:1}
 
-# Global variable for logging.
+# Global variables for logging.
 logPrefix=""
 clusterPath=cluster/$clusterName
 manifestPath=cluster/$clusterName/manifests
 pkiPath=cluster/$clusterName/pki
+configPath=/etc/kubernetes
 
 ################################################################################
-# TOOD: Code explanation.
+# Code explanation.
 #
 function main {
   pki
@@ -60,45 +63,65 @@ function main {
   nodes
   # TODO: figure out why system:kube-proxy doesn't work as a user
   kubectl create clusterrolebinding proxy-binding --clusterrole=cluster-admin --user=kube-proxy
-  #dns
+  dns
 }
 
 function pki {
   mkdir -p $pkiPath
 
-  # Create CA for kubernetes components.
-  init-ca ca /CN=$clusterName
+  # Root CA for signing kubernetes component tls certs.
+  init-ca cluster-ca /CN=$clusterName
 
-  # Create CA for etcd components.
+  # Root CA for signing etcd components tls certs.
   init-ca etcd-ca /CN=etcd
 
-  # Generate certs for each etcd host.
+  # Allow operator to auth with apiserver using kubectl
+  private-key root
+  signed-cert cluster-ca root /CN=root/O=system:masters
+
+  # TODO: get TLS bootstrapping going
+  # https://kubernetes.io/docs/admin/bootstrap-tokens/
+  private-key service-account
+  public-key service-account
+
+  # Prepare PKI package for each etcd host.
   for idx in ${!etcdNames[@]}; do
     local name=${etcdNames[$idx]}
     local privateIp=${etcdPrivateIps[$idx]}
     mkdir -p $pkiPath/$name
-    generate-cert etcd-ca $name/etcd /CN=etcd "IP:$privateIp,DNS:$name"
-    generate-cert etcd-ca $name/etcd-peer /CN=etcd-peer "IP:$privateIp,DNS:$name"
+    private-key $name/etcd
+    private-key $name/etcd-peer
+    signed-cert etcd-ca $name/etcd /CN=etcd "IP:$privateIp,DNS:$name"
+    signed-cert etcd-ca $name/etcd-peer /CN=etcd-peer "IP:$privateIp,DNS:$name"
+    cp $pkiPath/etcd*pem $pkiPath/$name
   done
 
-  # Generate certs for each controller host.
+  # Prepare PKI package for each controller host.
   for idx in ${!controllerNames[@]}; do
     local name=${controllerNames[$idx]}
     local sshIp=${controllerSshIps[$idx]}
     local privateIp=${controllerPrivateIps[$idx]}
     # TODO: remove sshIp when load balancer is in place
     mkdir -p $pkiPath/$name
-    generate-cert ca $name/apiserver /CN=kube-apiserver "IP:$sshIp,IP:$privateIp,DNS:$name,DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.cluster,DNS:kubernetes.default.svc.cluster.local"
-    generate-cert ca $name/apiserver-to-kubelet /CN=kube-apiserver-client/O=system:masters
+    private-key $name/apiserver
+    private-key $name/apiserver-to-kubelet
+    signed-cert cluster-ca $name/apiserver /CN=kube-apiserver "IP:$kubernetesServiceIp,IP:$sshIp,IP:$privateIp,DNS:$name,DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.cluster,DNS:kubernetes.default.svc.cluster.local"
+    signed-cert cluster-ca $name/apiserver-to-kubelet /CN=kube-apiserver-client/O=system:masters
+    cp $pkiPath/service-account*pem $pkiPath/$name
+    cp $pkiPath/cluster*pem $pkiPath/$name
+    cp $pkiPath/etcd*pem $pkiPath/$name
   done
 
-  # Generate certs for each worker node host.
+  # Prepare PKI package for each worker node.
   for idx in ${!nodeNames[@]}; do
     local name=${nodeNames[$idx]}
     local privateIp=${nodePrivateIps[$idx]}
     mkdir -p $pkiPath/$name
-    generate-cert ca $name/kubelet /CN=system:node:$name/O=system:nodes "IP:$privateIp,DNS:$name"
-    generate-cert ca $name/kube-router /CN=kube-proxy
+    private-key $name/kubelet
+    private-key $name/kube-router
+    signed-cert cluster-ca $name/kubelet /CN=system:node:$name/O=system:nodes "IP:$privateIp,DNS:$name"
+    signed-cert cluster-ca $name/kube-router /CN=kube-proxy
+    cp $pkiPath/cluster-ca.pem $pkiPath/$name
   done
 
   # Generate config for local user to access apiserver with kubectl.
@@ -131,16 +154,15 @@ function nodes {
 function kubectl-root-access {
   local clusterName=$1
   local apiserver=$2
-  generate-cert ca root /CN=root/O=system:masters
   {
     kubectl config set-cluster $clusterName \
-      --certificate-authority=$pkiPath/ca.pem \
+      --certificate-authority=$pkiPath/cluster-ca.pem \
       --embed-certs=true \
       --server=https://$apiserver:6443
 
     kubectl config set-credentials $clusterName-root \
-      --client-certificate=$pkiPath/root.pem \
-      --client-key=$pkiPath/root-key.pem \
+      --client-certificate=$pkiPath/root-cert.pem \
+      --client-key=$pkiPath/root-private-key.pem \
       --embed-certs=true
 
     kubectl config set-context $clusterName \
@@ -158,11 +180,10 @@ function etcd-host {
   local initialCluster=$4
 
   logPrefix="[etcd] ($sshIp)"
-
   echo "$logPrefix Bootstrapping $name."
+  cmd $sshIp "sudo mkdir -p $configPath"
   set-hostname $sshIp $name
-  copy-files $sshIp "$pkiPath/$name/*pem" /etc/ssl
-  copy-files $sshIp "$pkiPath/etcd*pem" /etc/ssl
+  copy-files $sshIp "$pkiPath/$name/*" ${configPath}
   install-etcd $sshIp "3.2.10"
   install-service $sshIp etcd "$(etcd-exec $name $privateIp $initialCluster)"
   echo "$logPrefix Done."
@@ -178,25 +199,17 @@ function controller-host {
   local serviceCidr=$7
 
   logPrefix="[controller] ($sshIp)"
-
   echo "$logPrefix Bootstrapping $name."
+  cmd $sshIp "sudo mkdir -p $configPath"
   set-hostname $sshIp $name
-
-  copy-files $sshIp "$pkiPath/ca*pem" /etc/ssl
-  copy-files $sshIp "$pkiPath/etcd*pem" /etc/ssl
-  copy-files $sshIp "$pkiPath/$name/*pem" /etc/ssl
-
+  copy-files $sshIp "$pkiPath/$name/*" ${configPath}
   install-k8s $sshIp kube-apiserver 1.8.4
   install-service $sshIp kube-apiserver "$(apiserver-exec $privateIp $etcdHosts $serviceCidr)"
-
   install-k8s $sshIp kube-controller-manager 1.8.4
   install-service $sshIp kube-controller-manager "$(controller-manager-exec $clusterName $podCidr $serviceCidr)"
-
   install-k8s $sshIp kube-scheduler 1.8.4
   install-service $sshIp kube-scheduler "$(scheduler-exec)"
-
   install-k8s $sshIp kubectl 1.8.4
-
   echo "$logPrefix Done."
 }
 
@@ -208,38 +221,29 @@ function node {
   local podCidr=$5
 
   logPrefix="[node] ($sshIp)"
-
   echo "$logPrefix Bootstrapping $name."
+  cmd $sshIp "sudo mkdir -p $configPath"
   set-hostname $sshIp $name
-  copy-files $sshIp "$pkiPath/ca.pem" /etc/ssl
-  copy-files $sshIp "$pkiPath/$name/*pem" /etc/ssl
-
+  copy-files $sshIp "$pkiPath/$name/*" ${configPath}
   cmd $sshIp <<EOF
 sudo apt-get update
 sudo apt-get install docker.io -y
 EOF
-
   # Configure networking.
   install-socat $sshIp
   install-cni-plugins $sshIp 0.6.0
   copy-var $sshIp /etc/cni/net.d/10-kuberouter.conf "$(cni-bridge $podCidr)"
   copy-var $sshIp /etc/cni/net.d/99-loopback.conf "$(cni-loopback)"
-
   # Configure kube-router
-  cmd $sshIp "sudo mkdir -p /var/lib/kube-router"
-  copy-var $sshIp /var/lib/kube-router/kubeconfig "$(kubeconfig $clusterName kube-router kube-router $apiserver)"
+  copy-var $sshIp ${configPath}/kube-router.kubeconfig "$(kubeconfig $clusterName kube-router kube-router $apiserver)"
   install-kube-router $sshIp 0.0.19
   install-service $sshIp kube-router "$(kube-router-exec $privateIp $podCidr)"
-
   # Install kubectl.
   install-k8s $sshIp kubectl 1.8.4
-
   # Install and configure kubelet.
   install-k8s $sshIp kubelet 1.8.4
-  cmd $sshIp "sudo mkdir -p /var/lib/kubelet"
-  copy-var $sshIp /var/lib/kubelet/kubeconfig "$(kubeconfig $clusterName kubelet system:node:$name $apiserver)"
+  copy-var $sshIp ${configPath}/kubelet.kubeconfig "$(kubeconfig $clusterName kubelet system:node:$name $apiserver)"
   install-service $sshIp kubelet "$(kubelet-exec $privateIp $podCidr)"
-
   echo "$logPrefix Done."
 }
 
@@ -341,12 +345,12 @@ function etcd-exec {
   cat <<EOF
 /usr/local/bin/etcd \\
   --name ${name} \\
-  --cert-file=/etc/ssl/etcd.pem \\
-  --key-file=/etc/ssl/etcd-key.pem \\
-  --peer-cert-file=/etc/ssl/etcd-peer.pem \\
-  --peer-key-file=/etc/ssl/etcd-peer-key.pem \\
-  --trusted-ca-file=/etc/ssl/etcd-ca.pem \\
-  --peer-trusted-ca-file=/etc/ssl/etcd-ca.pem \\
+  --cert-file=${configPath}/etcd-cert.pem \\
+  --key-file=${configPath}/etcd-private-key.pem \\
+  --peer-cert-file=${configPath}/etcd-peer-cert.pem \\
+  --peer-key-file=${configPath}/etcd-peer-private-key.pem \\
+  --trusted-ca-file=${configPath}/etcd-ca.pem \\
+  --peer-trusted-ca-file=${configPath}/etcd-ca.pem \\
   --peer-client-cert-auth \\
   --client-cert-auth \\
   --initial-advertise-peer-urls https://${privateIp}:2380 \\
@@ -376,26 +380,25 @@ function apiserver-exec {
   --audit-log-path=/var/log/audit.log \\
   --authorization-mode=Node,RBAC \\
   --bind-address=0.0.0.0 \\
-  --client-ca-file=/etc/ssl/ca.pem \\
-  --enable-swagger-ui=true \\
-  --etcd-cafile=/etc/ssl/etcd-ca.pem \\
-  --etcd-certfile=/etc/ssl/etcd.pem \\
-  --etcd-keyfile=/etc/ssl/etcd-key.pem \\
+  --client-ca-file=${configPath}/cluster-ca.pem \\
+  --etcd-cafile=${configPath}/etcd-ca.pem \\
+  --etcd-certfile=${configPath}/etcd-cert.pem \\
+  --etcd-keyfile=${configPath}/etcd-private-key.pem \\
   --etcd-servers=${etcdHosts} \\
   --event-ttl=1h \\
   --insecure-bind-address=127.0.0.1 \\
   --kubelet-preferred-address-types=InternalIP,Hostname,ExternalIP \\
-  --kubelet-certificate-authority=/etc/ssl/ca.pem \\
-  --kubelet-client-certificate=/etc/ssl/apiserver-to-kubelet.pem \\
-  --kubelet-client-key=/etc/ssl/apiserver-to-kubelet-key.pem \\
+  --kubelet-certificate-authority=${configPath}/cluster-ca.pem \\
+  --kubelet-client-certificate=${configPath}/apiserver-to-kubelet-cert.pem \\
+  --kubelet-client-key=${configPath}/apiserver-to-kubelet-private-key.pem \\
   --kubelet-https=true \\
   --runtime-config=api/all \\
-  --service-account-key-file=/etc/ssl/ca-key.pem \\
+  --service-account-key-file=${configPath}/service-account-public-key.pem \\
   --service-cluster-ip-range=${serviceCidr} \\
   --service-node-port-range=30000-32767 \\
-  --tls-ca-file=/etc/ssl/ca.pem \\
-  --tls-cert-file=/etc/ssl/apiserver.pem \\
-  --tls-private-key-file=/etc/ssl/apiserver-key.pem \\
+  --tls-ca-file=${configPath}/cluster-ca.pem \\
+  --tls-cert-file=${configPath}/apiserver-cert.pem \\
+  --tls-private-key-file=${configPath}/apiserver-private-key.pem \\
   --v=2
 EOF
 }
@@ -410,12 +413,12 @@ function controller-manager-exec {
   --allocate-node-cidrs=true \\
   --cluster-cidr=${podCidr} \\
   --cluster-name=${name} \\
-  --cluster-signing-cert-file=/etc/ssl/ca.pem \\
-  --cluster-signing-key-file=/etc/ssl/ca-key.pem \\
+  --cluster-signing-cert-file=${configPath}/cluster-ca.pem \\
+  --cluster-signing-key-file=${configPath}/cluster-ca-private-key.pem \\
   --leader-elect=true \\
   --master=http://127.0.0.1:8080 \\
-  --root-ca-file=/etc/ssl/ca.pem \\
-  --service-account-private-key-file=/etc/ssl/ca-key.pem \\
+  --root-ca-file=${configPath}/cluster-ca.pem \\
+  --service-account-private-key-file=${configPath}/service-account-private-key.pem \\
   --service-cluster-ip-range=${serviceCidr} \\
   --v=2
 EOF
@@ -439,19 +442,19 @@ function kubelet-exec {
   --allow-privileged=true \\
   --anonymous-auth=false \\
   --authorization-mode=Webhook \\
-  --client-ca-file=/etc/ssl/ca.pem \\
+  --client-ca-file=${configPath}/cluster-ca.pem \\
   --cluster-dns=10.32.0.10 \\
   --cluster-domain=cluster.local \\
   --image-pull-progress-deadline=2m \\
-  --kubeconfig=/var/lib/kubelet/kubeconfig \\
+  --kubeconfig=${configPath}/kubelet.kubeconfig \\
   --network-plugin=cni \\
   --cni-bin-dir=/opt/cni/bin \\
   --cni-conf-dir=/etc/cni/net.d \\
   --pod-cidr=${podCidr} \\
   --register-node=true \\
   --runtime-request-timeout=15m \\
-  --tls-cert-file=/etc/ssl/kubelet.pem \\
-  --tls-private-key-file=/etc/ssl/kubelet-key.pem \\
+  --tls-cert-file=${configPath}/kubelet-cert.pem \\
+  --tls-private-key-file=${configPath}/kubelet-private-key.pem \\
   --v=2
 EOF
 }
@@ -467,7 +470,7 @@ kind: Config
 current-context: default
 clusters:
   - cluster:
-      certificate-authority: /etc/ssl/ca.pem
+      certificate-authority: ${configPath}/cluster-ca.pem
       server: https://${apiserver}:6443
     name: ${clusterName}
 contexts:
@@ -478,8 +481,8 @@ contexts:
 users:
   - name: ${user}
     user:
-      client-certificate: /etc/ssl/${name}.pem
-      client-key: /etc/ssl/${name}-key.pem
+      client-certificate: ${configPath}/${name}-cert.pem
+      client-key: ${configPath}/${name}-private-key.pem
 EOF
 }
 
@@ -491,7 +494,7 @@ function kube-router-exec {
   --run-router=true \\
   --run-firewall=true \\
   --run-service-proxy=true \\
-  --kubeconfig=/var/lib/kube-router/kubeconfig \\
+  --kubeconfig=${configPath}/kube-router.kubeconfig \\
   --cluster-cidr=${podCidr}
 EOF
 }
@@ -541,9 +544,9 @@ function init-ca {
   local name=$1
   local subj=$2
   {
-    openssl ecparam -name secp521r1 -genkey -noout -out $pkiPath/$name-key.pem
+    openssl ecparam -name secp521r1 -genkey -noout -out $pkiPath/$name-private-key.pem
     openssl req -x509 -new -sha256 -nodes -days 3650 \
-      -key $pkiPath/$name-key.pem \
+      -key $pkiPath/$name-private-key.pem \
       -out $pkiPath/$name.pem \
       -subj "$subj" \
       -extensions ext \
@@ -558,19 +561,32 @@ keyUsage = critical, digitalSignature, keyEncipherment, keyCertSign
 } &> $OUTPUT
 }
 
-function generate-cert {
+function private-key {
+  local name=$1
+  {
+    openssl ecparam -name secp521r1 -genkey -noout -out $pkiPath/$name-private-key.pem
+  } &> $OUTPUT
+}
+
+function public-key {
+  local name=$1
+  {
+    openssl ec -in $pkiPath/$name-private-key.pem -outform PEM -pubout -out $pkiPath/$name-public-key.pem
+  } &> $OUTPUT
+}
+
+function signed-cert {
   local ca=$1
   local name=$2
   local subj=$3
   local san=$4
   {
-    openssl ecparam -name secp521r1 -genkey -noout -out $pkiPath/$name-key.pem
-    openssl req -new -sha256 -key $pkiPath/$name-key.pem -subj "$subj" | \
+    openssl req -new -sha256 -key $pkiPath/$name-private-key.pem -subj "$subj" | \
       openssl x509 -req -sha256 \
         -CA $pkiPath/$ca.pem \
-        -CAkey $pkiPath/$ca-key.pem \
+        -CAkey $pkiPath/$ca-private-key.pem \
         -CAcreateserial \
-        -out $pkiPath/$name.pem \
+        -out $pkiPath/$name-cert.pem \
         -days 3650 \
         -extensions ext \
         -extfile <(echo "

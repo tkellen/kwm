@@ -5,13 +5,14 @@
 This is a learning exercise in operationalizing Kubernetes. The goal of this
 project is to provide a single-file bootstrap script for configuring a highly
 available Kubernetes cluster that can be used in any hosting environment. It
-intentionally avoids any cloud-provider-specific functionality.
+intentionally avoids cloud-provider-specific functionality.
 
 ## TODO
-1. Front the whole thing with [Traefik].
-2. Finish writing docs.
-3. Parameterize yakb, right now it runs everything at once.
-4. Start actually using this!
+1. Finish getting DNS running.
+2. Front the whole thing with [Traefik].
+3. Finish writing docs.
+4. Parameterize yakb, right now it runs everything at once.
+5. Start actually using this.
 
 ## Setup
 1. Clone this repository.

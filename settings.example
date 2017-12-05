@@ -4,7 +4,7 @@
 #
 # It is expected that this file will be generated ahead of bootstrapping using
 # whatever means are most applicable for the target environment. For an example
-# of this, see `hack/aws/settings`.
+# of generating a settings file with Terraform, see the `hack` folder.
 
 # Used in places where a top level name for the cluster is helpful for clarity.
 CLUSTER_NAME=kubernetes
@@ -21,6 +21,9 @@ POD_CIDR=10.200.0.0/16
 # The network used by all Services.
 # Used by kube-controller and kube-apiserver (not sure specifically what for).
 SERVICE_CIDR=10.32.0.0/24
+
+# The IP used for kubernetes.default.svc.cluster.local
+KUBERNETES_SERVICE_IP=10.32.0.1
 
 # User with passwordless sudo access to the servers being bootstrapped. During
 # setup it is assumed that you have ssh-agent running with the private key for
