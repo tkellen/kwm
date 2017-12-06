@@ -34,6 +34,7 @@ podCidr=${POD_CIDR?'not defined.'}
 serviceCidr=${SERVICE_CIDR?'not defined.'}
 
 kubernetesServiceIp=${KUBERNETES_SERVICE_IP?'not defined.'}
+dnsServiceIp=${DNS_SERVICE_IP?'not defined.'}
 
 # Public IP of first controller VM.
 apiserver=${controllerSshIps[0]}
@@ -147,7 +148,7 @@ function dns {
 
 function nodes {
   for idx in ${!nodeNames[@]}; do
-    node $clusterName ${nodeNames[$idx]} ${nodeSshIps[$idx]} ${nodePrivateIps[$idx]} $podCidr
+    node $clusterName ${nodeNames[$idx]} ${nodeSshIps[$idx]} ${nodePrivateIps[$idx]} $podCidr $dnsServiceIp
   done
 }
 
@@ -219,6 +220,7 @@ function node {
   local sshIp=$3
   local privateIp=$4
   local podCidr=$5
+  local dnsServiceIp=$6
 
   logPrefix="[node] ($sshIp)"
   echo "$logPrefix Bootstrapping $name."
@@ -243,7 +245,7 @@ EOF
   # Install and configure kubelet.
   install-k8s $sshIp kubelet 1.8.4
   copy-var $sshIp ${configPath}/kubelet.kubeconfig "$(kubeconfig $clusterName kubelet system:node:$name $apiserver)"
-  install-service $sshIp kubelet "$(kubelet-exec $privateIp $podCidr)"
+  install-service $sshIp kubelet "$(kubelet-exec $privateIp $podCidr $dnsServiceIp)"
   echo "$logPrefix Done."
 }
 
@@ -436,7 +438,7 @@ EOF
 function kubelet-exec {
   local privateIp=$1
   local podCidr=$2
-  local dnsIp=$3
+  local dnsServiceIp=$3
   cat <<EOF
 /usr/local/bin/kubelet \\
   --node-ip=${privateIp} \\
@@ -444,7 +446,7 @@ function kubelet-exec {
   --anonymous-auth=false \\
   --authorization-mode=Webhook \\
   --client-ca-file=${configPath}/cluster-ca.pem \\
-  --cluster-dns=10.32.0.10 \\
+  --cluster-dns=${dnsServiceIp} \\
   --cluster-domain=cluster.local \\
   --image-pull-progress-deadline=2m \\
   --kubeconfig=${configPath}/kubelet.kubeconfig \\

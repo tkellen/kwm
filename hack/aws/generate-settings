@@ -5,9 +5,10 @@ here=$(dirname "$0")
   cd $here
   echo export CLUSTER_NAME=$(terraform output NAME)
   echo export CLUSTER_DOMAIN=test.com
-  echo export POD_CIDR=10.244.0.0/16
-  echo export SERVICE_CIDR=10.32.0.0/24
-  echo export KUBERNETES_SERVICE_IP=10.32.0.1
+  echo export POD_CIDR=10.0.0.0/16
+  echo export SERVICE_CIDR=10.10.0.0/24
+  echo export KUBERNETES_SERVICE_IP=10.10.0.1
+  echo export DNS_SERVICE_IP=10.10.0.2
   echo export SSH_USER=ubuntu
   echo export CONTROLLER_NAMES=$(terraform output CONTROLLER_NAMES | tr -d '\n')
   echo export CONTROLLER_SSH_IPS=$(terraform output CONTROLLER_SSH_IPS | tr -d '\n')
