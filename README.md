@@ -1,6 +1,10 @@
 # KFE
 > Kubernetes for Everyone
 
+## Warning
+This is an early stage work in progress. Do not expect anything here to be
+stable, yet.
+
 ## Description
 This is a learning exercise in operationalizing Kubernetes.
 
@@ -22,7 +26,7 @@ thoroughly that anyone could understand it.
 3. Create a `settings` file (read `settings.example` for guidance).
 
 ## Instructions
-YAKB can be run in stages so a first-time operator can understand each of
+KFE can be run in stages so a first-time operator can understand each of
 the components and what capabilities it provides.
 
 Before starting, pull in the settings you specified during setup:
