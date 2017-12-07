@@ -1,0 +1,18 @@
+openssl req -new -sha256 -key pki/${name}-private-key.pem -subj "${subj}" | \
+  openssl x509 -req -sha256 \
+    -CA pki/${ca}.pem \
+    -CAkey pki/${ca}-private-key.pem \
+    -CAcreateserial \
+    -out pki/${name}-cert.pem \
+    -days 3650 \
+    -extensions ext \
+    -extfile <(echo "
+[req]
+distinguished_name = default
+[default]
+[ext]
+basicConstraints = critical, CA:FALSE
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth, clientAuth
+${ext}
+")

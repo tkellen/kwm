@@ -1,0 +1,24 @@
+  echo "$logPrefix Installing, enabling and starting ${name} service."
+copy-var $sshIp "/etc/systemd/system/$name.service" "$(cat <<EOF
+[Unit]
+Description=${name}
+After=${after}
+Requires=${requires}
+
+[Service]
+ExecStart=${start}
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+)"
+
+
+cmd $sshIp <<EOF
+sudo systemctl daemon-reload
+sudo systemctl enable $name
+sudo systemctl restart $name
+EOF
+}

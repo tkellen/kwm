@@ -1,0 +1,9 @@
+{
+  echo "$logPrefix Downloading and installing $name v$version."
+  cmd $sshIp <<EOF
+wget -q https://storage.googleapis.com/kubernetes-release/release/v$version/bin/linux/amd64/$name
+chmod +x $name
+sudo mkdir -p /usr/local/bin
+sudo mv $name /usr/local/bin
+  EOF
+}

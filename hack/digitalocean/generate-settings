@@ -3,22 +3,22 @@
 here=$(dirname "$0")
 (
   cd $here
-  echo export CLUSTER_NAME=$(terraform output NAME)
-  echo export CLUSTER_DOMAIN=test.com
-  echo export POD_CIDR=10.0.0.0/16
-  echo export SERVICE_CIDR=10.10.0.0/24
-  echo export KUBERNETES_SERVICE_IP=10.10.0.1
-  echo export DNS_SERVICE_IP=10.10.0.2
-  echo export SSH_USER=root
-  echo export CONTROLLER_NAMES=$(terraform output CONTROLLER_NAMES | tr -d '\n')
-  echo export CONTROLLER_SSH_IPS=$(terraform output CONTROLLER_SSH_IPS | tr -d '\n')
-  echo export CONTROLLER_PRIVATE_IPS=$(terraform output CONTROLLER_PRIVATE_IPS | tr -d '\n')
-  echo export ETCD_NAMES=$(terraform output ETCD_NAMES | tr -d '\n')
-  echo export ETCD_SSH_IPS=$(terraform output ETCD_SSH_IPS | tr -d '\n')
-  echo export ETCD_PRIVATE_IPS=$(terraform output ETCD_PRIVATE_IPS | tr -d '\n')
-  echo export LOAD_BALANCER_SSH_IPS=$(terraform output LOAD_BALANCER_PUBLIC_IPS | tr -d '\n')
-  echo export LOAD_BALANCER_PUBLIC_IPS=$(terraform output LOAD_BALANCER_PUBLIC_IPS | tr -d '\n')
-  echo export NODE_NAMES=$(terraform output NODE_NAMES | tr -d '\n')
-  echo export NODE_SSH_IPS=$(terraform output NODE_SSH_IPS | tr -d '\n')
-  echo export NODE_PRIVATE_IPS=$(terraform output NODE_PRIVATE_IPS | tr -d '\n')
+  echo export KFE_CLUSTER_NAME=$(terraform output NAME)
+  echo export KFE_CLUSTER_DOMAIN=test.com
+  echo export KFE_POD_CIDR=10.0.0.0/16
+  echo export KFE_SERVICE_CIDR=10.10.0.0/24
+  echo export KFE_KUBERNETES_SERVICE_IP=10.10.0.1
+  echo export KFE_DNS_SERVICE_IP=10.10.0.2
+  echo export KFE_SSH_USER=root
+  echo export KFE_CONTROLLER_NAMES=$(terraform output CONTROLLER_NAMES | tr -d '\n')
+  echo export KFE_CONTROLLER_SSH_IPS=$(terraform output CONTROLLER_SSH_IPS | tr -d '\n')
+  echo export KFE_CONTROLLER_PRIVATE_IPS=$(terraform output CONTROLLER_PRIVATE_IPS | tr -d '\n')
+  echo export KFE_ETCD_NAMES=$(terraform output ETCD_NAMES | tr -d '\n')
+  echo export KFE_ETCD_SSH_IPS=$(terraform output ETCD_SSH_IPS | tr -d '\n')
+  echo export KFE_ETCD_PRIVATE_IPS=$(terraform output ETCD_PRIVATE_IPS | tr -d '\n')
+  echo export KFE_LOAD_BALANCER_SSH_IPS=$(terraform output LOAD_BALANCER_PUBLIC_IPS | tr -d '\n')
+  echo export KFE_LOAD_BALANCER_PUBLIC_IPS=$(terraform output LOAD_BALANCER_PUBLIC_IPS | tr -d '\n')
+  echo export KFE_NODE_NAMES=$(terraform output NODE_NAMES | tr -d '\n')
+  echo export KFE_NODE_SSH_IPS=$(terraform output NODE_SSH_IPS | tr -d '\n')
+  echo export KFE_NODE_PRIVATE_IPS=$(terraform output NODE_PRIVATE_IPS | tr -d '\n')
 )

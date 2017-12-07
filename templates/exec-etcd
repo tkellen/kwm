@@ -1,0 +1,18 @@
+/usr/local/bin/etcd \\
+  --name ${name} \\
+  --cert-file=${configPath}/etcd-cert.pem \\
+  --key-file=${configPath}/etcd-private-key.pem \\
+  --peer-cert-file=${configPath}/etcd-peer-cert.pem \\
+  --peer-key-file=${configPath}/etcd-peer-private-key.pem \\
+  --trusted-ca-file=${configPath}/etcd-ca.pem \\
+  --peer-trusted-ca-file=${configPath}/etcd-ca.pem \\
+  --peer-client-cert-auth \\
+  --client-cert-auth \\
+  --initial-advertise-peer-urls https://${privateIp}:2380 \\
+  --listen-peer-urls https://${privateIp}:2380 \\
+  --listen-client-urls https://${privateIp}:2379,http://127.0.0.1:2379 \\
+  --advertise-client-urls https://${privateIp}:2379 \\
+  --initial-cluster-token etcd-cluster-0 \\
+  --initial-cluster ${initialCluster} \\
+  --initial-cluster-state new \\
+  --data-dir=/var/lib/etcd

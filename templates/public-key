@@ -1,0 +1,1 @@
+openssl ec -in pki/${name}-private-key.pem -outform PEM -pubout -out pki/${name}-public-key.pem

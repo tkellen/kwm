@@ -1,0 +1,9 @@
+local file="kube-router_${version}_linux_amd64.tar.gz"
+echo "$logPrefix Downloading and installing kube-router v$version."
+cmd $sshIp <<EOF
+wget -q https://github.com/cloudnativelabs/kube-router/releases/download/v$version/$file
+tar xf $file
+sudo mkdir -p /usr/local/bin
+sudo mv kube-router /usr/local/bin
+sudo apt-get update && sudo apt-get install ipset -y
+EOF

@@ -1,0 +1,16 @@
+{
+  openssl ecparam -name secp521r1 -genkey -noout -out pki/${name}-private-key.pem
+  openssl req -x509 -new -sha256 -nodes -days 3650 \
+    -key pki/${name}-private-key.pem \
+    -out pki/${name}.pem \
+    -subj "${subj}" \
+    -extensions ext \
+    -config <(echo "
+  [req]
+  distinguished_name = default
+  [default]
+  [ext]
+  basicConstraints = critical, CA:TRUE
+  keyUsage = critical, digitalSignature, keyEncipherment, keyCertSign
+  ")
+} &> $OUTPUT

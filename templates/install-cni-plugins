@@ -1,0 +1,10 @@
+{
+  local baseUrl="https://github.com/containernetworking/plugins/releases/download/v$version"
+  local file="cni-plugins-amd64-v$version.tgz"
+  echo "$logPrefix Downloading and installing cni plugins v$version."
+  cmd $sshIp <<EOF
+wget -q ${baseUrl}/${file}
+sudo mkdir -p /opt/cni/bin /etc/cni/net.d
+sudo tar xf ${file} --directory /opt/cni/bin
+EOF
+}

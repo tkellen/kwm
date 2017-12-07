@@ -1,0 +1,152 @@
+#!/bin/bash
+
+required=$(source settings.example; echo ${!KFE*})
+failed=false
+for var in ${required[@]}; do
+  [[ -z "${!var}" ]] && echo "$var not set." && failed=true
+done
+if $failed ; then
+  echo -e "\n---\n"
+  echo -e "Before trying again, you may wish to answer these questions:\n"
+  echo "Have I written or generated a settings file yet?"
+  echo "Have I run the command \"source <filename>\" yet?"
+  echo "Does my settings file contain all the needed variables?"
+fi
+
+function render {
+  local path=$1
+  local source="$(cat $path)"
+  for item in "$@"; do
+    case $item in
+      (*=*)
+        source="$(
+          echo "$item" | while IFS='=' read key replace; do
+            echo "$source" | sed -e "s|"\\\${${key}}"|$replace|g"
+          done
+        )"
+      ;;
+    esac
+  done
+  echo "$source"
+}
+
+function save {
+  local contents=$1
+  local path=$2
+  echo "$contents" > $path
+  chmod +x $path
+}
+
+# Split comma-delimited environment variables into arrays.
+KFE_CONTROLLER_NAMES=(${KFE_CONTROLLER_NAMES//,/ })
+KFE_CONTROLLER_SSH_IPS=(${KFE_CONTROLLER_SSH_IPS//,/ })
+KFE_CONTROLLER_PRIVATE_IPS=(${KFE_CONTROLLER_PRIVATE_IPS//,/ })
+KFE_ETCD_NAMES=(${KFE_ETCD_NAMES//,/ })
+KFE_ETCD_SSH_IPS=(${KFE_ETCD_SSH_IPS//,/ })
+KFE_ETCD_PRIVATE_IPS=(${KFE_ETCD_PRIVATE_IPS//,/ })
+KFE_NODE_NAMES=(${KFE_NODE_NAMES//,/ })
+KFE_NODE_SSH_IPS=(${KFE_NODE_SSH_IPS//,/ })
+KFE_NODE_PRIVATE_IPS=(${KFE_NODE_PRIVATE_IPS//,/ })
+
+# Derive some additional variables from the supplied input.
+KFE_CLUSTER_PATH=cluster/$KFE_CLUSTER_NAME
+KFE_MANIFEST_PATH=cluster/$KFE_CLUSTER_NAME/manifests
+KFE_PKI_PATH=cluster/$KFE_CLUSTER_NAME/pki
+KFE_CONFIG_PATH=/etc/kubernetes
+KFE_APISERVER=${CONTROLLER_SSH_IPS[0]}
+for idx in ${!ETCD_NAMES[@]}; do
+  KFE_INITIAL_CLUSTER+=",${ETCD_NAMES[$idx]}=https://${ETCD_PRIVATE_IPS[$idx]}:2380"
+  KFE_ETCD_HOSTS+=",https://${ETCD_PRIVATE_IPS[$idx]}:2379"
+done
+KFE_INITIAL_CLUSTER=${INITIAL_CLUSTER:1}
+KFE_ETCD_HOSTS=${ETCD_HOSTS:1}
+
+pki="$(
+  render templates/preamble
+
+  render templates/local-cmd cmd="mkdir pki"
+
+  render templates/log message="Running Kubernetes for Everyone PKI Package"
+  render templates/log message="│"
+  render templates/log message="└─ Generating public key infrastructure."
+
+  render templates/log message="  ├─ Generating cluster certificate authority."
+  render templates/init-ca name="cluster-ca" subj="/CN=$KFE_CLUSTER_NAME"
+
+  render templates/log message="  ├─ Generating private key for cluster admin."
+  render templates/private-key name="root"
+
+  render templates/log message="  ├─ Generating cluster-ca signed certificate for cluster administrator."
+  render templates/signed-cert ca="cluster-ca" name="root" subj="/CN=root/O=system:masters" ext=""
+
+  render templates/log message="  ├─ Generating etcd certificate authority."
+  render templates/init-ca name="etcd-ca" subj="/CN=etcd"
+
+  # TODO: get TLS bootstrapping going to eliminate some PKI creation
+  # https://kubernetes.io/docs/admin/bootstrap-tokens/
+  render templates/log message="  ├─ Generating public/private keypair for service accounts" # TODO: expand
+  render templates/private-key name="service-account"
+  render templates/public-key name="service-account"
+
+  # Prepare PKI package for each etcd host.
+  for idx in ${!KFE_ETCD_NAMES[@]}; do
+    name=${KFE_ETCD_NAMES[$idx]}
+    privateIp=${KFE_ETCD_PRIVATE_IPS[$idx]}
+    render templates/log message="  │"
+    render templates/log message="  ├─ Preparing PKI package for ${name}"
+    render templates/local-cmd cmd="mkdir -p pki/$name"
+    render templates/log message="  │  ├─ Generating private key for client to etcd server communication." # TODO: verify accuracy
+    render templates/private-key name="$name/etcd"
+    render templates/log message="  │  ├─ Generating private key for etcd server to etcd server (peer) communication." # TODO: verify accuracy
+    render templates/private-key name="$name/etcd-peer"
+    render templates/log message="  │  ├─ Generating etcd-ca signed certificate for client to etcd communication (e.g. apiserver)." # TODO: verify accuracy
+    render templates/signed-cert ca="etcd-ca" name="$name/etcd" subj="/CN=etcd" ext="subjectAltName = IP:$privateIp,DNS:$name"
+    render templates/log message="  │  └─ Generating etcd-ca signed certificate for etcd server to etcd server (peer) communication." # TODO: verify accuracy
+    render templates/signed-cert ca="etcd-ca" name="$name/etcd-peer" subj="/CN=etcd-peer" ext="subjectAltName = IP:$privateIp,DNS:$name"
+    render templates/local-cmd cmd="cp pki/etcd*pem pki/$name"
+  done
+
+  # Prepare PKI package for each controller host.
+  for idx in ${!KFE_CONTROLLER_NAMES[@]}; do
+    name=${KFE_CONTROLLER_NAMES[$idx]}
+    sshIp=${KFE_CONTROLLER_SSH_IPS[$idx]}
+    privateIp=${KFE_CONTROLLER_PRIVATE_IPS[$idx]}
+    render templates/log message="  │"
+    render templates/log message="  ├─ Preparing PKI package for ${name}"
+    render templates/local-cmd cmd="mkdir -p pki/$name"
+    render templates/log message="  │  ├─ Generating private key for client to apiserver communication." # TODO: expand
+    render templates/private-key name="$name/apiserver"
+    render templates/log message="  │  ├─ Generating private key for apiserver communication with kubelets."
+    render templates/private-key name="$name/apiserver-to-kubelet"
+    render templates/log message="  │  ├─ Generating cluster-ca signed certificate for client to api server communication."
+    render templates/signed-cert ca="cluster-ca" name="$name/apiserver" subj="/CN=kube-apiserver" ext="subjectAltName = IP:$KFE_KUBERNETES_SERVICE_IP,IP:$sshIp,IP:$privateIp,DNS:$name,DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.cluster,DNS:kubernetes.default.svc.cluster.local"
+    render templates/log message="  │  └─ Generating cluster-ca signed certificate for apiserver communication with kubelets."
+    render templates/signed-cert ca="cluster-ca" name="$name/apiserver-to-kubelet" subj="/CN=kube-apiserver-client/O=system:masters" ext=""
+    render templates/local-cmd cmd="cp pki/service-account*pem pki/$name"
+    render templates/local-cmd cmd="cp pki/cluster*pem pki/$name"
+    render templates/local-cmd cmd="cp pki/etcd*pem pki/$name"
+  done
+
+  # Prepare PKI package for each worker node.
+  for idx in ${!KFE_NODE_NAMES[@]}; do
+    name=${KFE_NODE_NAMES[$idx]}
+    privateIp=${KFE_NODE_PRIVATE_IPS[$idx]}
+    render templates/log message="  │"
+    render templates/log message="  └─ Preparing PKI package for ${name}"
+    render templates/local-cmd cmd="mkdir -p pki/$name"
+    render templates/log message="     ├─ Generating private key for kublets." # TODO: expand
+    render templates/private-key name="$name/kubelet"
+    render templates/log message="     ├─ Generating private key for kube-router." # TODO: expand
+    render templates/private-key name="$name/kube-router"
+    render templates/log message="     ├─ Generating cluster-ca signed certificate for kubelet to apiserver communication."
+    render templates/signed-cert ca="cluster-ca" name="$name/kubelet" subj="/CN=system:node:$name/O=system:nodes" ext="subjectAltName = IP:$privateIp,DNS:$name"
+    render templates/log message="     └─ Generating cluster-ca signed certificate for kubelet to apiserver communication."
+    render templates/signed-cert ca="cluster-ca" name="$name/kube-router" subj="/CN=kube-proxy" ext=""
+    render templates/local-cmd cmd="cp pki/cluster-ca.pem pki/$name"
+  done
+
+
+)"
+
+mkdir -p $KFE_CLUSTER_PATH
+save "$pki" $KFE_CLUSTER_PATH/bootstrap-pki

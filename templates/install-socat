@@ -1,0 +1,4 @@
+cmd $sshIp <<EOF
+sudo apt-get update -qq
+sudo apt-get install socat -yqq
+EOF
