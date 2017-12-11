@@ -1,12 +1,5 @@
-{
-  local folder="etcd-v${version}-linux-amd64"
-  local file="${folder.tar.gz}"
-  echo "${logPrefix} Downloading and installing etcd v${version}."
-  cmd ${sshIp} <<EOF
 sudo mkdir -p /var/lib/etcd
-wget -q https://github.com/coreos/etcd/releases/download/v${version}/${file}
-tar xf $file
+wget -q -O etcd.tar.gz https://github.com/coreos/etcd/releases/download/v${version}/etcd-v${version}-linux-amd64.tar.gz
+tar xf etcd.tar.gz
 sudo mkdir -p /usr/local/bin
-sudo mv $folder/etcd* /usr/local/bin
-EOF
-}
+sudo mv etcd-v${version}-linux-amd64/etcd* /usr/local/bin

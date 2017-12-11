@@ -1,0 +1,3 @@
+cat > ${dest} <<EOF
+${contents}
+EOF

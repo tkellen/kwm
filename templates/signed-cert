@@ -1,9 +1,9 @@
-openssl req -new -sha256 -key pki/${name}-private-key.pem -subj "${subj}" | \
+openssl req -new -sha256 -key ${basePath}/${name}-private-key.pem -subj "${subj}" | \
   openssl x509 -req -sha256 \
     -CA pki/${ca}.pem \
     -CAkey pki/${ca}-private-key.pem \
     -CAcreateserial \
-    -out pki/${name}-cert.pem \
+    -out ${basePath}/${name}-cert.pem \
     -days 3650 \
     -extensions ext \
     -extfile <(echo "

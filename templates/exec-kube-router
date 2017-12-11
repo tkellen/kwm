@@ -1,6 +1,6 @@
-/usr/local/bin/kube-router \\
-  --run-router=true \\
-  --run-firewall=true \\
-  --run-service-proxy=true \\
-  --kubeconfig=${configPath}/kube-router.kubeconfig \\
+/usr/local/bin/kube-router \
+  --run-router=true \
+  --run-firewall=true \
+  --run-service-proxy=true \
+  --kubeconfig=${basePath}/kube-router.kubeconfig \
   --cluster-cidr=${podCidr}

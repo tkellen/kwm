@@ -1,5 +1,5 @@
-# KFE
-> Kubernetes for Everyone
+# KWM
+> Kubernetes Without Magic
 
 ## Warning
 This is an early stage work in progress. Do not expect anything here to be
@@ -14,11 +14,8 @@ be used in any hosting environment. It also aims to document the process so
 thoroughly that anyone could understand it.
 
 ## TODO
-1. Finish getting DNS running.
-2. Front the whole thing with [Traefik].
-3. Finish writing docs.
-4. Parameterize kfe, right now it runs everything at once.
-5. Start actually using this.
+1. Front the whole thing with [Traefik].
+2. Finish writing docs.
 
 ## Setup
 1. Clone this repository.
@@ -26,7 +23,7 @@ thoroughly that anyone could understand it.
 3. Create a `settings` file (read `settings.example` for guidance).
 
 ## Instructions
-KFE can be run in stages so a first-time operator can understand each of
+KWM can be run in stages so a first-time operator can understand each of
 the components and what capabilities it provides.
 
 Before starting, pull in the settings you specified during setup:
@@ -44,7 +41,7 @@ echo $SSH_USER
 
 **Build your PKI:**
 ```shell
-./kfe pki
+./kwm pki
 ```
 
 TODO: Show commands to validate the output, explaining each item and why it is
@@ -59,7 +56,7 @@ required.
 
 **Build your etcd cluster:**
 ```shell
-./kfe etcd
+./kwm etcd
 ```
 
 **Check to see if the cluster bootstrapped successfully:**
@@ -115,7 +112,7 @@ hello
 
 **Build your control plane:**
 ```shell
-./kfe control-plane
+./kwm control-plane
 ```
 
 **Check control plane components to ensure they are running:**
@@ -141,7 +138,7 @@ etcd-2               Healthy   {"health": "true"}
 
 **Build your nodes:**
 ```shell
-./kfe node
+./kwm node
 ```
 
 **Confirm your Nodes are registered and ready to run Pods:**
@@ -266,7 +263,7 @@ ssh $SSH_USER@$NODE_SSH_IP sudo nsenter -t $CONTAINER_PID -n ip addr
 
 **Build in support for DNS:**
 ```
-./kfe dns
+./kwm dns
 ```
 
 **Additional Reading**

@@ -1,0 +1,12 @@
+[Unit]
+Description=${name}
+After=${after}
+Requires=${requires}
+
+[Service]
+ExecStart=${exec}
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

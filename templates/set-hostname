@@ -1,4 +1,2 @@
-cmd $sshIp <<EOF
-sudo grep -q -F "$name" /etc/hosts || (echo "127.0.0.1 $name" | sudo tee -a /etc/hosts)
-sudo hostname $name
-EOF
+sudo grep -q -F "${name}" /etc/hosts || (echo "127.0.0.1 ${name}" | sudo tee -a /etc/hosts)
+sudo hostname ${name}

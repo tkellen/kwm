@@ -4,7 +4,8 @@ provider "digitalocean" { }
 locals {
   name = "digitalocean"
   cidr = "10.100.0.0/16"
-  controller_count = 2
+  etcd_count = 1
+  controller_count = 1
   node_count = 1
   ssh_key_fingerprint = "63:6f:87:9d:e0:89:e6:e7:27:81:e7:85:37:22:fe:6b"
   subnetCidrs = [
@@ -18,6 +19,18 @@ output "NAME" {
   value = "${local.name}"
 }
 
+output "ETCD_NAMES" {
+  value = "${digitalocean_droplet.etcd.*.name}"
+}
+
+output "ETCD_SSH_IPS" {
+  value = "${digitalocean_droplet.etcd.*.ipv4_address}"
+}
+
+output "ETCD_PRIVATE_IPS" {
+  value = "${digitalocean_droplet.etcd.*.ipv4_address_private}"
+}
+
 output "CONTROLLER_NAMES" {
   value = "${digitalocean_droplet.controller.*.name}"
 }
@@ -27,18 +40,6 @@ output "CONTROLLER_SSH_IPS" {
 }
 
 output "CONTROLLER_PRIVATE_IPS" {
-  value = "${digitalocean_droplet.controller.*.ipv4_address_private}"
-}
-
-output "ETCD_NAMES" {
-  value = "${digitalocean_droplet.controller.*.name}"
-}
-
-output "ETCD_SSH_IPS" {
-  value = "${digitalocean_droplet.controller.*.ipv4_address}"
-}
-
-output "ETCD_PRIVATE_IPS" {
   value = "${digitalocean_droplet.controller.*.ipv4_address_private}"
 }
 
@@ -60,6 +61,16 @@ output "LOAD_BALANCER_SSH_IPS" {
 
 output "LOAD_BALANCER_PUBLIC_IPS" {
   value = "${digitalocean_droplet.controller.*.ipv4_address}"
+}
+
+resource "digitalocean_droplet" "etcd" {
+  count = "${local.etcd_count}"
+  name = "${local.name}-etcd-${count.index}"
+  image = "ubuntu-16-04-x64"
+  size = "4gb"
+  region = "nyc1"
+  private_networking = true
+  ssh_keys = ["${local.ssh_key_fingerprint}"]
 }
 
 resource "digitalocean_droplet" "controller" {

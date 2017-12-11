@@ -19,6 +19,7 @@ locals {
   cidr = "10.100.0.0/16"
   controller_count = 3
   node_count = 3
+  etcd_count = 3
   subnetCidrs = [
     "${cidrsubnet(local.cidr, 8, 0)}",
     "${cidrsubnet(local.cidr, 8, 1)}",
@@ -43,15 +44,15 @@ output "CONTROLLER_PRIVATE_IPS" {
 }
 
 output "ETCD_NAMES" {
-  value = "${aws_instance.controller.*.tags.Name}"
+  value = "${aws_instance.etcd.*.tags.Name}"
 }
 
 output "ETCD_SSH_IPS" {
-  value = "${aws_instance.controller.*.public_ip}"
+  value = "${aws_instance.etcd.*.public_ip}"
 }
 
 output "ETCD_PRIVATE_IPS" {
-  value = "${aws_instance.controller.*.private_ip}"
+  value = "${aws_instance.etcd.*.private_ip}"
 }
 
 output "NODE_SSH_IPS" {
@@ -203,6 +204,21 @@ resource "aws_security_group" "node" {
   }
   tags {
     Name = "${local.name}-node"
+  }
+}
+
+resource "aws_instance" "etcd" {
+  count = "${local.etcd_count}"
+  ami = "${data.aws_ami.ubuntu.id}"
+  instance_type = "t2.medium"
+  key_name = "default"
+  subnet_id = "${element(aws_subnet.main.*.id, count.index)}"
+  vpc_security_group_ids = [
+    "${aws_security_group.controller.id}"
+  ]
+  private_ip = "${cidrhost(element(aws_subnet.main.*.cidr_block, count.index), 10)}"
+  tags {
+    Name = "${local.name}-etcd-${count.index}"
   }
 }
 
