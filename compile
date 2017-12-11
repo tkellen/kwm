@@ -9,7 +9,7 @@ if $failed ; then
   echo -e "\n---\n"
   echo -e "Before trying again, you may wish to answer these questions:\n"
   echo "Have I written or generated a settings file yet?"
-  echo "Have I run the command \"source <filename>\" yet?"
+  echo "Have I exported my settings into my environment? (e.g. \"source filename\")"
   echo "Does my settings file contain all the needed variables?"
 fi
 
