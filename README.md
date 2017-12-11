@@ -7,7 +7,7 @@ stable, yet.
 
 ## Description
 This is a learning exercise in operationalizing Kubernetes.
-
+<!--
 The goal of this project is to provide a single-file bootstrap script for
 configuring a production-ready high availability Kubernetes cluster that can
 be used in any hosting environment. It also aims to document the process so
@@ -21,6 +21,7 @@ thoroughly that anyone could understand it.
 1. Clone this repository.
 2. Install `kubectl` and `jq`.
 3. Create a `settings` file (read `settings.example` for guidance).
+4. Run ./compile
 
 ## Instructions
 KWM can be run in stages so a first-time operator can understand each of
@@ -287,3 +288,4 @@ along the way:
 [Deploying Kubernetes from Scratch]: https://nixaid.com/deploying-kubernetes-cluster-from-scratch/
 [Kube-Linode]: https://github.com/kahkhang/kube-linode
 [Linux Networking Explained]: http://events.linuxfoundation.org/sites/events/files/slides/2016%20-%20Linux%20Networking%20explained_0.pdf
+-->
