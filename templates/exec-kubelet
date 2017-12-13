@@ -3,7 +3,7 @@
   --allow-privileged=true \
   --anonymous-auth=false \
   --authorization-mode=Webhook \
-  --client-ca-file=${basePath}/cluster-ca.pem \
+  --client-ca-file=${basePath}/cluster-ca-cert.pem \
   --cluster-dns=${dnsServiceIp} \
   --cluster-domain=cluster.local \
   --image-pull-progress-deadline=2m \

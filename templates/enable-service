@@ -1,0 +1,3 @@
+sudo systemctl daemon-reload
+sudo systemctl enable ${name}
+sudo systemctl start ${name}

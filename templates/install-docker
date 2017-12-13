@@ -1,2 +1,2 @@
-sudo apt-get update
-sudo apt-get install docker.io -y
+sudo apt-get -qq -o=Dpkg::Use-Pty=0 update
+sudo apt-get install -yqq -o=Dpkg::Use-Pty=0 docker.io

@@ -1,12 +1,12 @@
 openssl req -new -sha256 -key ${basePath}/${name}-private-key.pem -subj "${subj}" | \
   openssl x509 -req -sha256 \
-    -CA pki/${ca}.pem \
-    -CAkey pki/${ca}-private-key.pem \
+    -CA ${caPath}/${ca}-ca-cert.pem \
+    -CAkey ${caPath}/${ca}-ca-private-key.pem \
     -CAcreateserial \
     -out ${basePath}/${name}-cert.pem \
     -days 3650 \
     -extensions ext \
-    -extfile <(echo "
+    -extfile <(printf "
 [req]
 distinguished_name = default
 [default]

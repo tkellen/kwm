@@ -12,9 +12,8 @@ This is a learning exercise in operationalizing Kubernetes.
 1. Clone this repository.
 2. Install `kubectl` and `jq`.
 3. Create a `settings` file (read `settings.example` for guidance).
-4. Run `./compile`.
-5. Run `cd ./cluster/$KWM_CLUSTER_NAME && ./kwm` to generate your installation files.
-6. TBD.
+4. Run `./kwm`.
+5. Follow the prompts.
 
 <!--
 The goal of this project is to provide a single-file bootstrap script for

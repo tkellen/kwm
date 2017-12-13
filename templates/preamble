@@ -1,13 +1,9 @@
 #!/bin/bash
 set -e
 OUTPUT=${OUTPUT-/dev/null}
-BLUE='\033[0;34m'
-NO_COLOR='\033[0m'
-function log {
-  message=$1
-  indent=$2
-  command printf "\n$(printf "%${indent}s\n")${BLUE}${message}${NO_COLOR}" >&3
-}
+function header { command printf "\033[0;34m$1\033[0m\n" >&3; }
+function echo { command printf "$1\n" >&3; }
 exec 3>&1
 exec > $OUTPUT
 exec 2>&1
+cd "$(dirname "$0")"

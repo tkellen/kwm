@@ -4,15 +4,15 @@ provider "digitalocean" { }
 locals {
   name = "digitalocean"
   cidr = "10.100.0.0/16"
-  etcd_count = 1
+  etcd_count = 3
   controller_count = 1
-  node_count = 1
-  ssh_key_fingerprint = "63:6f:87:9d:e0:89:e6:e7:27:81:e7:85:37:22:fe:6b"
+  node_count = 3
   subnetCidrs = [
     "${cidrsubnet(local.cidr, 8, 0)}",
     "${cidrsubnet(local.cidr, 8, 1)}",
     "${cidrsubnet(local.cidr, 8, 2)}"
   ]
+  ssh_key_fingerprint = "63:6f:87:9d:e0:89:e6:e7:27:81:e7:85:37:22:fe:6b"
 }
 
 output "NAME" {

@@ -1,11 +1,11 @@
 kubectl config set-cluster ${clusterName} \
-  --certificate-authority=pki/cluster-ca.pem \
+  --certificate-authority=pki/cluster-ca-cert.pem \
   --embed-certs=true \
   --server=https://${apiserver}:6443
 
 kubectl config set-credentials ${clusterName}-root \
-  --client-certificate=pki/root-cert.pem \
-  --client-key=pki/root-private-key.pem \
+  --client-certificate=pki/cluster-admin-to-apiserver-cert.pem \
+  --client-key=pki/cluster-admin-to-apiserver-private-key.pem \
   --embed-certs=true
 
 kubectl config set-context ${clusterName} \

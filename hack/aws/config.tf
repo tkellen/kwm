@@ -17,9 +17,9 @@ data "aws_ami" "ubuntu" {
 locals {
   name = "aws"
   cidr = "10.100.0.0/16"
-  controller_count = 3
-  node_count = 3
   etcd_count = 3
+  controller_count = 1
+  node_count = 3
   subnetCidrs = [
     "${cidrsubnet(local.cidr, 8, 0)}",
     "${cidrsubnet(local.cidr, 8, 1)}",
@@ -216,7 +216,7 @@ resource "aws_instance" "etcd" {
   vpc_security_group_ids = [
     "${aws_security_group.controller.id}"
   ]
-  private_ip = "${cidrhost(element(aws_subnet.main.*.cidr_block, count.index), 10)}"
+  private_ip = "${cidrhost(element(aws_subnet.main.*.cidr_block, count.index), 5)}"
   tags {
     Name = "${local.name}-etcd-${count.index}"
   }

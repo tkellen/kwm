@@ -1,4 +1,5 @@
-wget -O kube-router.tar.gz -q https://github.com/cloudnativelabs/kube-router/releases/download/v${version}/kube-router_${version}_linux_amd64.tar.gz
+cd /tmp
+wget -q -O kube-router.tar.gz https://github.com/cloudnativelabs/kube-router/releases/download/v${version}/kube-router_${version}_linux_amd64.tar.gz
 tar xf kube-router.tar.gz
 sudo mkdir -p /usr/local/bin
 sudo mv kube-router /usr/local/bin

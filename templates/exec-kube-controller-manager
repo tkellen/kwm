@@ -3,11 +3,11 @@
   --allocate-node-cidrs=true \
   --cluster-cidr=${podCidr} \
   --cluster-name=${clusterName} \
-  --cluster-signing-cert-file=${basePath}/cluster-ca.pem \
+  --cluster-signing-cert-file=${basePath}/cluster-ca-cert.pem \
   --cluster-signing-key-file=${basePath}/cluster-ca-private-key.pem \
   --leader-elect=true \
   --master=http://127.0.0.1:8080 \
-  --root-ca-file=${basePath}/cluster-ca.pem \
+  --root-ca-file=${basePath}/cluster-ca-cert.pem \
   --service-account-private-key-file=${basePath}/service-account-private-key.pem \
   --service-cluster-ip-range=${serviceCidr} \
   --v=2

@@ -1,10 +1,10 @@
-openssl ecparam -name secp521r1 -genkey -noout -out ${basePath}/${name}-private-key.pem
+openssl ecparam -name secp521r1 -genkey -noout -out ${basePath}/${name}-ca-private-key.pem
 openssl req -x509 -new -sha256 -nodes -days 3650 \
-  -key ${basePath}/${name}-private-key.pem \
-  -out ${basePath}/${name}.pem \
+  -key ${basePath}/${name}-ca-private-key.pem \
+  -out ${basePath}/${name}-ca-cert.pem \
   -subj "${subj}" \
   -extensions ext \
-  -config <(echo "
+  -config <(printf "
 [req]
 distinguished_name = default
 [default]

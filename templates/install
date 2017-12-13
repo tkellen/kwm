@@ -1,0 +1,6 @@
+tar --exclude install -c . | ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${user}@${host} "(cd /; sudo tar xf -)"
+
+ssh -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${user}@${host} "$(cat <<EOF
+${cmd}
+EOF
+)" >&3

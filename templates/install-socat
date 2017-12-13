@@ -1,2 +1,2 @@
-sudo apt-get update -qq
-sudo apt-get install socat -yqq
+sudo apt-get -qq -o=Dpkg::Use-Pty=0 update
+sudo apt-get -yqq -o=Dpkg::Use-Pty=0 install socat
