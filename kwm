@@ -140,7 +140,7 @@ function main {
     echo "[$name] Rendering kube-router.kubeconfig."
     kubeconfig kube-router kube-router $KWM_CLUSTER_NAME $KWM_ROOT_PATH $KWM_APISERVER > "$rootPath/kube-router.kubeconfig"
     echo "[$name] Rendering container network bridge configuration."
-    container-network-bridge $KWM_POD_CIDR > "$containerNetworkPath/10-kube-router.conf"
+    container-network-bridge $KWM_POD_CIDR > "$containerNetworkPath/10-kuberouter.conf"
     echo "[$name] Rendering container network loopback configuration."
     container-network-loopback $KWM_POD_CIDR > "$containerNetworkPath/99-loopback.conf"
     echo "[$name] Rendering kublet service file."
