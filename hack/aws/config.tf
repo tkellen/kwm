@@ -17,9 +17,9 @@ data "aws_ami" "ubuntu" {
 locals {
   name = "aws"
   cidr = "10.100.0.0/16"
-  etcd_count = 3
+  etcd_count = 1
   controller_count = 1
-  node_count = 3
+  node_count = 2
   subnetCidrs = [
     "${cidrsubnet(local.cidr, 8, 0)}",
     "${cidrsubnet(local.cidr, 8, 1)}",
@@ -167,6 +167,26 @@ resource "aws_route_table_association" "main" {
   route_table_id = "${aws_route_table.main.id}"
 }
 
+resource "aws_security_group" "etcd" {
+  name = "${local.name}-etcd"
+  vpc_id = "${aws_vpc.main.id}"
+  ingress {
+    from_port = 0
+    to_port = 0
+    protocol = -1
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags {
+    Name = "${local.name}-etcd"
+  }
+}
+
 resource "aws_security_group" "controller" {
   name = "${local.name}-controller"
   vpc_id = "${aws_vpc.main.id}"
@@ -214,7 +234,7 @@ resource "aws_instance" "etcd" {
   key_name = "default"
   subnet_id = "${element(aws_subnet.main.*.id, count.index)}"
   vpc_security_group_ids = [
-    "${aws_security_group.controller.id}"
+    "${aws_security_group.etcd.id}"
   ]
   private_ip = "${cidrhost(element(aws_subnet.main.*.cidr_block, count.index), 5)}"
   tags {

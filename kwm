@@ -101,7 +101,7 @@ function main {
     echo "[$name] Rendering your installer."
     etcd-install $name $KWM_SSH_USER $sshIp $privateIp $KWM_ROOT_PATH $KWM_VERSION_ETCD >> "$installPath/install"
     chmod +x $installPath/install
-    installers+="./$installPath/install\n"
+    installers+="$installPath/install\n"
   done
 
   header "Generating your control plane assets."
@@ -121,7 +121,7 @@ function main {
     echo "[$name] Rendering your installer."
     controlplane-install $name $KWM_SSH_USER $sshIp $privateIp $KWM_ROOT_PATH $KWM_KUBERNETES_SERVICE_IP $KWM_VERSION_KUBERNETES >> "$installPath/install"
     chmod +x $installPath/install
-    installers+="./$installPath/install\n"
+    installers+="$installPath/install\n"
   done
 
   header "Generating your node assets."
@@ -148,25 +148,31 @@ function main {
     echo "[$name] Rendering kube-router service file."
     kube-router-service $KWM_POD_CIDR $KWM_ROOT_PATH > "$servicePath/kube-router.service"
     echo "[$name] Rendering your installer."
-    node-install $name $KWM_SSH_USER $sshIp $privateIp $KWM_ROOT_PATH $KWM_VERSION_CNI_PLUGIN $KWM_VERSION_KUBERNETES $KWM_VERSION_KUBE_ROUTER >> "$installPath/install"
+    node-install $name $KWM_SSH_USER $sshIp $privateIp $KWM_ROOT_PATH $KWM_VERSION_CNI_PLUGIN $KWM_VERSION_CRI_CONTAINERD $KWM_VERSION_KUBERNETES $KWM_VERSION_KUBE_ROUTER >> "$installPath/install"
     chmod +x $installPath/install
-    installers+="./$installPath/install\n"
+    installers+="$installPath/install\n"
   done
 
   header "Generating your public key infrastructure installer."
   local pkiCmd=$KWM_CLUSTER_PATH/genpki
   pki > $pkiCmd
   chmod +x $pkiCmd
-  echo "Running ./$pkiCmd will generate your PKI."
+  echo "$pkiCmd will generate your PKI."
 
   header "Building your cluster administrator access commands."
   local getRoot=$KWM_CLUSTER_PATH/getroot
   admin > $getRoot
   chmod +x $getRoot
-  echo "Running ./$getRoot will configure your kubectl to control the cluster."
+  echo "$getRoot will configure your kubectl to control the cluster."
 
   header "To bootstrap your hosts, run the following."
   echo -e "$installers"
+
+  header "To install everything at once, run the following:"
+  local install=$KWM_CLUSTER_PATH/install
+  printf "$pkiCmd\n$getRoot\n$installers" > $install
+  chmod +x $install
+  echo $install
 }
 
 function review {
@@ -307,8 +313,9 @@ function node-install {
   local privateIp=$4
   local basePath=$5
   local cniPluginVersion=$6
-  local kubernetesVersion=$7
-  local kubeRouterVersion=$8
+  local criContainerdVersion=$7
+  local kubernetesVersion=$8
+  local kubeRouterVersion=$9
 
   render templates/preamble
   render templates/dir-exists dir:="../pki" true:=":" false:="echo 'PKI missing. Please run \"../genpki\" and try again.'; exit 1"
@@ -339,8 +346,10 @@ function node-install {
   render templates/install user:="$sshUser" host:="$sshIp" cmd:="$(
     render templates/log message:="Ensuring hostname and loopback reference are set."
     render templates/set-hostname name:="$name"
-    render templates/log message:="Installing docker."
-    render templates/install-docker
+    render templates/log message:="Installing cri-containerd."
+    render templates/install-containerd version:="$criContainerdVersion"
+    render templates/enable-service name:="containerd"
+    render templates/enable-service name:="cri-containerd"
     render templates/log message:="Installing container networking plugins at version $cniPluginVersion."
     render templates/install-cni-plugins version:="$cniPluginVersion"
     render templates/log message:="Installing kubelet at version $kubernetesVersion."
@@ -402,7 +411,7 @@ function kubelet-service {
   local privateIp=$3
   local dnsServiceIp=$4
   local exec="$(render templates/exec-kubelet basePath:="$basePath" privateIp:="$privateIp" podCidr:="$podCidr" dnsServiceIp:="$dnsServiceIp")"
-  render templates/systemd-unit name:="kubelet" after:="docker.service" requires:="docker.service" exec:="$exec"
+  render templates/systemd-unit name:="kubelet" after:="cri-containerd.service" requires:="cri-containerd.service" exec:="$exec"
 }
 
 function kube-router-service {

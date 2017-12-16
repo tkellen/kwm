@@ -6,6 +6,8 @@
   --client-ca-file=${basePath}/cluster-ca-cert.pem \
   --cluster-dns=${dnsServiceIp} \
   --cluster-domain=cluster.local \
+  --container-runtime=remote \
+  --container-runtime-endpoint=unix:///var/run/cri-containerd.sock \
   --image-pull-progress-deadline=2m \
   --kubeconfig=${basePath}/kubelet.kubeconfig \
   --network-plugin=cni \

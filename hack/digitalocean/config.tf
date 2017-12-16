@@ -4,9 +4,9 @@ provider "digitalocean" { }
 locals {
   name = "digitalocean"
   cidr = "10.100.0.0/16"
-  etcd_count = 3
+  etcd_count = 1
   controller_count = 1
-  node_count = 3
+  node_count = 2
   subnetCidrs = [
     "${cidrsubnet(local.cidr, 8, 0)}",
     "${cidrsubnet(local.cidr, 8, 1)}",
