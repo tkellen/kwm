@@ -3,7 +3,6 @@
   "type": "bridge",
   "bridge": "kube-bridge",
   "ipam": {
-    "subnet": "${podCidr}",
     "type": "host-local"
   },
   "isDefaultGateway": true

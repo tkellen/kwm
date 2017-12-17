@@ -3,4 +3,3 @@
   --run-firewall=true \
   --run-service-proxy=true \
   --kubeconfig=${basePath}/kube-router.kubeconfig \
-  --cluster-cidr=${podCidr}

@@ -80,7 +80,7 @@ function validate {
 
 function main {
   header "Welcome to Kubernetes Without Magic\n"
-  validate
+  #validate
   check-overwrite
   review
 
@@ -140,9 +140,9 @@ function main {
     echo "[$name] Rendering kube-router.kubeconfig."
     kubeconfig kube-router kube-router $KWM_CLUSTER_NAME $KWM_ROOT_PATH $KWM_APISERVER > "$rootPath/kube-router.kubeconfig"
     echo "[$name] Rendering container network bridge configuration."
-    container-network-bridge $KWM_POD_CIDR > "$containerNetworkPath/10-kuberouter.conf"
+    container-network-bridge > "$containerNetworkPath/10-kuberouter.conf"
     echo "[$name] Rendering container network loopback configuration."
-    container-network-loopback $KWM_POD_CIDR > "$containerNetworkPath/99-loopback.conf"
+    container-network-loopback > "$containerNetworkPath/99-loopback.conf"
     echo "[$name] Rendering kublet service file."
     kubelet-service $KWM_POD_CIDR $KWM_ROOT_PATH $privateIp $KWM_DNS_SERVICE_IP > "$servicePath/kubelet.service"
     echo "[$name] Rendering kube-router service file."
@@ -360,6 +360,9 @@ function node-install {
     render templates/enable-service name:="kube-router"
     render templates/log message:="Installing socat to power kubectl proxy."
     render templates/install-socat
+    # this is needed to pick up the pod-cidr that is populated in
+    # /etc/cni/net.d/10-kuberouter.conf
+    # echo "systemctl restart containerd"
   )"
 }
 
