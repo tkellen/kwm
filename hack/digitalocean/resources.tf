@@ -1,5 +1,3 @@
-# Setup:
-# export DIGITALOCEAN_TOKEN=<your token>
 provider "digitalocean" { }
 
 locals {
@@ -18,6 +16,7 @@ resource "digitalocean_droplet" "etcd" {
   size = "4gb"
   region = "nyc1"
   private_networking = true
+  ipv6 = true
   ssh_keys = ["${local.ssh_key_fingerprint}"]
 }
 
@@ -28,6 +27,7 @@ resource "digitalocean_droplet" "controller" {
   size = "4gb"
   region = "nyc1"
   private_networking = true
+  ipv6 = true
   ssh_keys = ["${local.ssh_key_fingerprint}"]
 }
 
@@ -38,5 +38,6 @@ resource "digitalocean_droplet" "node" {
   size = "1gb"
   region = "nyc1"
   private_networking = true
+  ipv6 = true
   ssh_keys = ["${local.ssh_key_fingerprint}"]
 }

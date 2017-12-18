@@ -1,5 +1,3 @@
-# Setup:
-# export AWS_PROFILE=<your profile name>
 provider "aws" {
   region = "us-east-1"
 }

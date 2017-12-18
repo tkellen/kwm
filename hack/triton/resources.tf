@@ -1,7 +1,3 @@
-# Setup:
-# export TRITON_ACCOUNT=<your account name>
-# export TRITON_KEY_ID=${$(ssh-keygen -l -E md5 -f ~/.ssh/id_rsa.pub | awk '{print $2}')#MD5:}
-# ^ assuming you have associted your default keypair with your triton account
 provider "triton" {}
 
 data "triton_image" "ubuntu" {

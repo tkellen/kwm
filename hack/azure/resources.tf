@@ -1,14 +1,3 @@
-# Setup:
-# az login
-# az account show
-# export ARM_TENANT_ID=<tenantId from response above>
-# export ARM_SUBSCRIPTION_ID=<id from response above>
-# az ad sp create-for-rbac --role="Terraform" --scopes="/subscriptions/$ARM_SUBSCRIPTION_ID"
-# ^ save this output for future runs
-# export ARM_CLIENT_ID=<appId in response from "az ad sp....">
-# export ARM_CLIENT_SECRET=<password in response from "az ad sp....">
-#
-# run terraform apply twice to populate the output variables.
 provider "azurerm" { }
 
 locals {
