@@ -80,13 +80,14 @@ function validate {
 
 function main {
   header "Welcome to Kubernetes Without Magic\n"
-  #validate
+  validate
   check-overwrite
   review
 
-  local installers
+  local controlInstall
+  local nodeInstall
 
-  mkdir -p $KWM_CLUSTER_PATH
+  mkdir -p $KWM_CLUSTER_PATH $KWM_MANIFEST_PATH
 
   header "Generating your etcd assets."
   for idx in ${!KWM_ETCD_NAMES[@]}; do
@@ -101,7 +102,7 @@ function main {
     echo "[$name] Rendering your installer."
     etcd-install $name $KWM_SSH_USER $sshIp $privateIp $KWM_ROOT_PATH $KWM_VERSION_ETCD >> "$installPath/install"
     chmod +x $installPath/install
-    installers+="$installPath/install\n"
+    controlInstall+="$installPath/install &\n"
   done
 
   header "Generating your control plane assets."
@@ -121,7 +122,7 @@ function main {
     echo "[$name] Rendering your installer."
     controlplane-install $name $KWM_SSH_USER $sshIp $privateIp $KWM_ROOT_PATH $KWM_KUBERNETES_SERVICE_IP $KWM_VERSION_KUBERNETES >> "$installPath/install"
     chmod +x $installPath/install
-    installers+="$installPath/install\n"
+    controlInstall+="$installPath/install &\n"
   done
 
   header "Generating your node assets."
@@ -134,7 +135,6 @@ function main {
     local servicePath=$KWM_CLUSTER_PATH/$name/etc/systemd/system
     local containerNetworkPath=$KWM_CLUSTER_PATH/$name/etc/cni/net.d
     mkdir -p $rootPath $installPath $servicePath $containerNetworkPath
-
     echo "[$name] Rendering kubelet.kubeconfig."
     kubeconfig kubelet system:node:$name $KWM_CLUSTER_NAME $KWM_ROOT_PATH $KWM_APISERVER > "$rootPath/kubelet.kubeconfig"
     echo "[$name] Rendering kube-router.kubeconfig."
@@ -150,29 +150,42 @@ function main {
     echo "[$name] Rendering your installer."
     node-install $name $KWM_SSH_USER $sshIp $privateIp $KWM_ROOT_PATH $KWM_VERSION_CNI_PLUGIN $KWM_VERSION_CRI_CONTAINERD $KWM_VERSION_KUBERNETES $KWM_VERSION_KUBE_ROUTER >> "$installPath/install"
     chmod +x $installPath/install
-    installers+="$installPath/install\n"
+    nodeInstall+="$installPath/install &\n"
+
   done
 
-  header "Generating your public key infrastructure installer."
+  printf "\n--\n\n"
+
+  header "Start your cluster by running the following steps:\n"
+
+  header "Generate your public key infrastructure:"
   local pkiCmd=$KWM_CLUSTER_PATH/genpki
   pki > $pkiCmd
   chmod +x $pkiCmd
-  echo "$pkiCmd will generate your PKI."
+  printf "$pkiCmd\n"
 
-  header "Building your cluster administrator access commands."
+  header "Get root access to your cluster:"
   local getRoot=$KWM_CLUSTER_PATH/getroot
   admin > $getRoot
   chmod +x $getRoot
-  echo "$getRoot will configure your kubectl to control the cluster."
+  printf "$getRoot\n"
 
-  header "To bootstrap your hosts, run the following."
-  echo -e "$installers"
+  header "Configure your control plane:"
+  printf "$controlInstall"
 
-  header "To install everything at once, run the following:"
-  local install=$KWM_CLUSTER_PATH/install
-  printf "$pkiCmd\n$getRoot\n$installers" > $install
-  chmod +x $install
-  echo $install
+  header "Confirm control plane is running:"
+  printf "kubectl get componentstatus\n"
+
+  header "Configure kube-dns and kube-router:"
+  render templates/manifest-kube-router > $KWM_MANIFEST_PATH/kube-router.yml
+  render templates/manifest-kube-dns serviceIp:="$KWM_DNS_SERVICE_IP" > $KWM_MANIFEST_PATH/kube-dns.yml
+  printf "kubectl apply -f $KWM_MANIFEST_PATH\n"
+
+  header "Configure your nodes:"
+  printf "$nodeInstall"
+
+  header "Configure DNS:"
+  printf "Make A record for $KWM_CLUSTER_DOMAIN to $KWM_CLUSTER_APISERVER_PUBLIC_IP."
 }
 
 function review {
@@ -331,16 +344,7 @@ function node-install {
   render templates/log message:="Generating cluster-ca signed certificate for kubelet to apiserver communication."
   render templates/signed-cert ca:="cluster" name:="kubelet" subj:="/CN=system:node:$name/O=system:nodes" ext:="subjectAltName = IP:$privateIp,DNS:$name" basePath:=".$basePath" caPath:=".$basePath"
   render templates/log message:="Generating cluster-ca signed certificate for kube-router to apiserver communication."
-  render templates/signed-cert ca:="cluster" name:="kube-router" subj:="/CN=kube-proxy" ext:="" basePath:=".$basePath" caPath:=".$basePath"
-
-  # MAJOR HACK ALERT: FIX THIS
-  # MAJOR HACK ALERT: FIX THIS
-  # MAJOR HACK ALERT: FIX THIS
-  # MAJOR HACK ALERT: FIX THIS
-  # MAJOR HACK ALERT: FIX THIS
-  # MAJOR HACK ALERT: FIX THIS
-  #echo "kubectl create clusterrolebinding proxy-binding --clusterrole=cluster-admin --user=kube-proxy"
-  # FOR SOME REASON KUBE-ROUTER CANNOT AUTH TO THE APISERVER
+  render templates/signed-cert ca:="cluster" name:="kube-router" subj:="/CN=kube-router" ext:="" basePath:=".$basePath" caPath:=".$basePath"
 
   render templates/header message:="Bootstrapping $sshUser@$sshIp."
   render templates/install user:="$sshUser" host:="$sshIp" cmd:="$(
@@ -360,10 +364,12 @@ function node-install {
     render templates/enable-service name:="kube-router"
     render templates/log message:="Installing socat to power kubectl proxy."
     render templates/install-socat
-    # this is needed to pick up the pod-cidr that is populated in
-    # /etc/cni/net.d/10-kuberouter.conf
-    # echo "systemctl restart containerd"
+    echo "sudo systemctl restart containerd"
   )"
+  # TODO: Fix the containerd restart hack. Without this, pods fail to start with
+  # a sandbox error because containerd has not picked up the network config
+  # created by kube-router yet.
+
 }
 
 function etcd-service {
@@ -421,7 +427,7 @@ function kube-router-service {
   local podCidr=$1
   local basePath=$2
   local exec="$(render templates/exec-kube-router basePath:="$basePath" podCidr:="$podCidr")"
-  render templates/systemd-unit name:="kube-router" after:="network.target" requires:="" exec:="$exec"
+  render templates/systemd-unit name:="kube-router" after:="network.target" requires:="kubelet.service" exec:="$exec"
 }
 
 function kubeconfig {

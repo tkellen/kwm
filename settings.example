@@ -9,9 +9,11 @@
 # Used in places where a top level name for the cluster is helpful for clarity.
 export KWM_CLUSTER_NAME=kubernetes
 
-# The domain used for the cluster.
-# TODO: describe in more detail
-export KWM_CLUSTER_DOMAIN=aevitas.io
+# The domain used management of the cluster.
+export KWM_CLUSTER_DOMAIN=core.aevitas.io
+
+# The public IP to use for communication with kube-apiserver.
+export KWM_CLUSTER_APISERVER_PUBLIC_IP=52.87.233.217
 
 # The network used by all Pods. Configures a network bridge on each Node for
 # for communication into Pods. Also used by kubelet, kube-controller-manager

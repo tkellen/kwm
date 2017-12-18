@@ -5,6 +5,8 @@ here=$(dirname "$0")
   cd $here
   echo export KWM_CLUSTER_NAME=$(terraform output NAME)
   echo export KWM_CLUSTER_DOMAIN=test.com
+  # TODO: use load balancer for HA
+  echo export KWM_CLUSTER_APISERVER_PUBLIC_IP="$(terraform output CONTROLLER_SSH_IPS | head -n 1 | sed 's/,$//')"
   echo export KWM_POD_CIDR=10.1.0.0/16
   echo export KWM_SERVICE_CIDR=10.10.0.0/24
   echo export KWM_KUBERNETES_SERVICE_IP=10.10.0.1
