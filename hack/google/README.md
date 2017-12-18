@@ -1,4 +1,4 @@
-# kubernetes on google cloud
+# KWM on Google Cloud
 > the setup for this is ridiculous
 
 ## Setup

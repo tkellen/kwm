@@ -24,6 +24,8 @@ containerized Ubuntu running a container runtime :p
 This is presently not a candidate for KWM.
 
 *Evidence:*
+```
 ExecStartPre fails on containerd startup trying to run `modprobe overlay`:
 modprobe: ERROR: ../libkmod/libkmod.c:586 kmod_search_moddep() could not open moddep file '/lib/modules/4.3.0/modules.dep.bin'
 modprobe: FATAL: Module overlay not found in directory /lib/modules/4.3.0
+```

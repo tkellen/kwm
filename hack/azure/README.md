@@ -1,4 +1,4 @@
-# kubernetes on azure
+# KWM on Azure
 
 ## Setup
 1. az login

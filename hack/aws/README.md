@@ -1,4 +1,4 @@
-# kubernetes on aws
+# KWM on AWS
 
 ## Setup
 
