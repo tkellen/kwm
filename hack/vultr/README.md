@@ -1,4 +1,4 @@
-# kubernetes on vultr
+# KWM on Vultr
 
 ## Setup
 1. `go get -u github.com/squat/terraform-provider-vultr`
@@ -13,4 +13,9 @@
 9. Follow the prompts.
 
 ## Notes
-Needs additional provisioning scripts to set up private networking.
+Vultr offers private networking but the networks must be configured by the end
+user after the machine boots. If I want to give Vultr a shot I need to add some
+terraform provisioning scripting to do that after the machines come up. KWM
+should not be responsible for that.
+
+Vultr pricing is great... I may come back to this.
