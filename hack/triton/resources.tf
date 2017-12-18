@@ -1,5 +1,13 @@
 provider "triton" {}
 
+locals {
+  name = "triton"
+  cidr = "10.100.0.0/16"
+  etcd_count = 1
+  controller_count = 1
+  node_count = 2
+}
+
 data "triton_image" "ubuntu" {
   name = "ubuntu-16.04"
   version = "20170403"
@@ -7,14 +15,6 @@ data "triton_image" "ubuntu" {
 
 data "triton_network" "main" {
   name = "Joyent-SDC-Public"
-}
-
-locals {
-  name = "triton"
-  cidr = "10.100.0.0/16"
-  etcd_count = 1
-  controller_count = 1
-  node_count = 2
 }
 
 resource "triton_vlan" "main" {
