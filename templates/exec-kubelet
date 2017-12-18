@@ -18,4 +18,5 @@
   --runtime-request-timeout=15m \
   --tls-cert-file=${basePath}/kubelet-cert.pem \
   --tls-private-key-file=${basePath}/kubelet-private-key.pem \
+  --fail-swap-on=false \ # for hosting on packet
   --v=2
