@@ -37,11 +37,3 @@ output "NODE_PRIVATE_IPS" {
 output "NODE_NAMES" {
   value = "${vultr_instance.node.*.name}"
 }
-
-output "LOAD_BALANCER_SSH_IPS" {
-  value = "${vultr_instance.controller.*.ipv4_address}"
-}
-
-output "LOAD_BALANCER_PUBLIC_IPS" {
-  value = "${vultr_instance.controller.*.ipv4_address}"
-}

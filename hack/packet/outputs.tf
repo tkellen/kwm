@@ -37,11 +37,3 @@ output "NODE_PRIVATE_IPS" {
 output "NODE_NAMES" {
   value = "${packet_device.node.*.hostname}"
 }
-
-output "LOAD_BALANCER_SSH_IPS" {
-  value = "${packet_device.controller.*.access_public_ipv4}"
-}
-
-output "LOAD_BALANCER_PUBLIC_IPS" {
-  value = "${packet_device.controller.*.access_public_ipv4}"
-}

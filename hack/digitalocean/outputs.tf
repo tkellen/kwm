@@ -37,11 +37,3 @@ output "NODE_PRIVATE_IPS" {
 output "NODE_NAMES" {
   value = "${digitalocean_droplet.node.*.name}"
 }
-
-output "LOAD_BALANCER_SSH_IPS" {
-  value = "${digitalocean_droplet.controller.*.ipv4_address}"
-}
-
-output "LOAD_BALANCER_PUBLIC_IPS" {
-  value = "${digitalocean_droplet.controller.*.ipv4_address}"
-}

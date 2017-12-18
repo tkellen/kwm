@@ -80,16 +80,6 @@ export KWM_NODE_SSH_IPS=54.91.188.135,204.236.201.146,54.164.73.251
 # TODO: describe in more detail the usage.
 export KWM_NODE_PRIVATE_IPS=10.100.0.222,10.100.1.121,10.100.2.49
 
-# A comma delimited list of public IPs for load balancer.
-# TODO: describe in more detail the usage.
-export KWM_LOAD_BALANCER_PUBLIC_IPS=55.87.234.217,57.92.161.141,33.154.208.49
-
-# A comma delimited list of IPs for SSH access to each load balancer host during
-# bootstrapping. This will likely be the same as the public IP for cloud
-# providers.
-# TODO: describe in more detail the usage.
-export KWM_LOAD_BALANCER_SSH_IPS=55.87.234.217,57.92.161.141,33.154.208.49
-
 export KWM_VERSION_ETCD=3.2.11
 export KWM_VERSION_KUBERNETES=1.8.5
 export KWM_VERSION_CNI_PLUGIN=0.6.0

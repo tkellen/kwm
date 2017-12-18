@@ -37,11 +37,3 @@ output "NODE_PRIVATE_IPS" {
 output "NODE_NAMES" {
   value = "${scaleway_server.node.*.name}"
 }
-
-output "LOAD_BALANCER_SSH_IPS" {
-  value = "${scaleway_server.controller.*.public_ip}"
-}
-
-output "LOAD_BALANCER_PUBLIC_IPS" {
-  value = "${scaleway_server.controller.*.public_ip}"
-}

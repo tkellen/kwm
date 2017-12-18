@@ -37,11 +37,3 @@ output "NODE_PRIVATE_IPS" {
 output "NODE_NAMES" {
   value = "${aws_instance.node.*.tags.Name}"
 }
-
-output "LOAD_BALANCER_SSH_IPS" {
-  value = "${aws_instance.controller.*.public_ip}"
-}
-
-output "LOAD_BALANCER_PUBLIC_IPS" {
-  value = "${aws_instance.controller.*.public_ip}"
-}

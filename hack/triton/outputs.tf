@@ -37,11 +37,3 @@ output "NODE_PRIVATE_IPS" {
 output "NODE_NAMES" {
   value = "${triton_machine.node.*.name}"
 }
-
-output "LOAD_BALANCER_SSH_IPS" {
-  value = "${triton_machine.controller.*.primaryip}"
-}
-
-output "LOAD_BALANCER_PUBLIC_IPS" {
-  value = "${triton_machine.controller.*.primaryip}"
-}

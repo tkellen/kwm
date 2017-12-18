@@ -16,9 +16,9 @@ data "aws_ami" "ubuntu" {
 locals {
   name = "aws"
   cidr = "10.100.0.0/16"
-  etcd_count = 1
+  etcd_count = 3
   controller_count = 1
-  node_count = 2
+  node_count = 3
   subnetCidrs = [
     "${cidrsubnet(local.cidr, 8, 0)}",
     "${cidrsubnet(local.cidr, 8, 1)}",
@@ -211,7 +211,7 @@ resource "aws_instance" "controller" {
 resource "aws_instance" "node" {
   count = "${local.node_count}"
   ami = "${data.aws_ami.ubuntu.id}"
-  instance_type = "t2.nano"
+  instance_type = "t2.medium"
   key_name = "default"
   subnet_id = "${element(aws_subnet.main.*.id, count.index)}"
   vpc_security_group_ids = [
