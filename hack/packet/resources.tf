@@ -4,8 +4,8 @@ locals {
   name = "packet"
   cidr = "10.100.0.0/16"
   etcd_count = 1
-  controller_count = 1
-  node_count = 2
+  controlplane_count = 1
+  worker_count = 2
 }
 
 resource "packet_ssh_key" "ssh" {
@@ -27,9 +27,9 @@ resource "packet_device" "etcd" {
   project_id = "${packet_project.main.id}"
 }
 
-resource "packet_device" "controller" {
-  count = "${local.controller_count}"
-  hostname = "${local.name}-controller-${count.index}"
+resource "packet_device" "controlplane" {
+  count = "${local.controlplane_count}"
+  hostname = "${local.name}-controlplane-${count.index}"
   plan = "baremetal_0"
   facility = "ewr1"
   operating_system = "ubuntu_16_04"
@@ -37,9 +37,9 @@ resource "packet_device" "controller" {
   project_id = "${packet_project.main.id}"
 }
 
-resource "packet_device" "node" {
-  count = "${local.node_count}"
-  hostname = "${local.name}-node-${count.index}"
+resource "packet_device" "worker" {
+  count = "${local.worker_count}"
+  hostname = "${local.name}-worker-${count.index}"
   plan = "baremetal_0"
   facility = "ewr1"
   operating_system = "ubuntu_16_04"

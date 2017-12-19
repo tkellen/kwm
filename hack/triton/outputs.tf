@@ -14,26 +14,26 @@ output "ETCD_PRIVATE_IPS" {
   value = "${triton_machine.etcd.*.ips.1}"
 }
 
-output "CONTROLLER_NAMES" {
-  value = "${triton_machine.controller.*.name}"
+output "CONTROLPLANE_NAMES" {
+  value = "${triton_machine.controlplane.*.name}"
 }
 
-output "CONTROLLER_SSH_IPS" {
-  value = "${triton_machine.controller.*.primaryip}"
+output "CONTROLPLANE_SSH_IPS" {
+  value = "${triton_machine.controlplane.*.primaryip}"
 }
 
-output "CONTROLLER_PRIVATE_IPS" {
-  value = "${triton_machine.controller.*.ips.1}"
+output "CONTROLPLANE_PRIVATE_IPS" {
+  value = "${triton_machine.controlplane.*.ips.1}"
 }
 
-output "NODE_SSH_IPS" {
-  value = "${triton_machine.node.*.primaryip}"
+output "WORKER_SSH_IPS" {
+  value = "${triton_machine.worker.*.primaryip}"
 }
 
-output "NODE_PRIVATE_IPS" {
-  value = "${triton_machine.node.*.ips.1}"
+output "WORKER_PRIVATE_IPS" {
+  value = "${triton_machine.worker.*.ips.1}"
 }
 
-output "NODE_NAMES" {
-  value = "${triton_machine.node.*.name}"
+output "WORKER_NAMES" {
+  value = "${triton_machine.worker.*.name}"
 }

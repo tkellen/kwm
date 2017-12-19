@@ -14,26 +14,26 @@ output "ETCD_PRIVATE_IPS" {
   value = "${vultr_instance.etcd.*.ipv4_private_address}"
 }
 
-output "CONTROLLER_NAMES" {
-  value = "${vultr_instance.controller.*.name}"
+output "CONTROLPLANE_NAMES" {
+  value = "${vultr_instance.controlplane.*.name}"
 }
 
-output "CONTROLLER_SSH_IPS" {
-  value = "${vultr_instance.controller.*.ipv4_address}"
+output "CONTROLPLANE_SSH_IPS" {
+  value = "${vultr_instance.controlplane.*.ipv4_address}"
 }
 
-output "CONTROLLER_PRIVATE_IPS" {
-  value = "${vultr_instance.controller.*.ipv4_private_address}"
+output "CONTROLPLANE_PRIVATE_IPS" {
+  value = "${vultr_instance.controlplane.*.ipv4_private_address}"
 }
 
-output "NODE_SSH_IPS" {
-  value = "${vultr_instance.node.*.ipv4_address}"
+output "WORKER_SSH_IPS" {
+  value = "${vultr_instance.worker.*.ipv4_address}"
 }
 
-output "NODE_PRIVATE_IPS" {
-  value = "${vultr_instance.node.*.ipv4_private_address}"
+output "WORKER_PRIVATE_IPS" {
+  value = "${vultr_instance.worker.*.ipv4_private_address}"
 }
 
-output "NODE_NAMES" {
-  value = "${vultr_instance.node.*.name}"
+output "WORKER_NAMES" {
+  value = "${vultr_instance.worker.*.name}"
 }

@@ -3,8 +3,8 @@ provider "vultr" { }
 locals {
   name = "vultr"
   etcd_count = 1
-  controller_count = 1
-  node_count = 2
+  controlplane_count = 1
+  worker_count = 2
 }
 
 data "vultr_region" "atlanta" {
@@ -83,10 +83,10 @@ resource "vultr_instance" "etcd" {
   private_networking = true
 }
 
-resource "vultr_instance" "controller" {
-  count = "${local.node_count}"
-  name = "${local.name}-controller-${count.index}"
-  hostname = "${local.name}-controller-${count.index}"
+resource "vultr_instance" "controlplane" {
+  count = "${local.worker_count}"
+  name = "${local.name}-controlplane-${count.index}"
+  hostname = "${local.name}-controlplane-${count.index}"
   region_id = "${data.vultr_region.atlanta.id}"
   plan_id = "${data.vultr_plan.starter.id}"
   os_id = "${data.vultr_os.ubuntu.id}"
@@ -95,10 +95,10 @@ resource "vultr_instance" "controller" {
   private_networking = true
 }
 
-resource "vultr_instance" "node" {
-  count = "${local.node_count}"
-  name = "${local.name}-node-${count.index}"
-  hostname = "${local.name}-node-${count.index}"
+resource "vultr_instance" "worker" {
+  count = "${local.worker_count}"
+  name = "${local.name}-worker-${count.index}"
+  hostname = "${local.name}-worker-${count.index}"
   region_id = "${data.vultr_region.atlanta.id}"
   plan_id = "${data.vultr_plan.starter.id}"
   os_id = "${data.vultr_os.ubuntu.id}"

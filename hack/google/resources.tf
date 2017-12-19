@@ -12,8 +12,8 @@ locals {
   name = "gcp"
   cidr = "10.100.0.0/16"
   etcd_count = 1
-  controller_count = 1
-  node_count = 2
+  controlplane_count = 1
+  worker_count = 2
   subnetCidrs = [
     "${cidrsubnet(local.cidr, 8, 0)}",
     "${cidrsubnet(local.cidr, 8, 1)}",

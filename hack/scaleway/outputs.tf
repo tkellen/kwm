@@ -14,26 +14,26 @@ output "ETCD_PRIVATE_IPS" {
   value = "${scaleway_server.etcd.*.private_ip}"
 }
 
-output "CONTROLLER_NAMES" {
-  value = "${scaleway_server.controller.*.name}"
+output "CONTROLPLANE_NAMES" {
+  value = "${scaleway_server.controlplane.*.name}"
 }
 
-output "CONTROLLER_SSH_IPS" {
-  value = "${scaleway_server.controller.*.public_ip}"
+output "CONTROLPLANE_SSH_IPS" {
+  value = "${scaleway_server.controlplane.*.public_ip}"
 }
 
-output "CONTROLLER_PRIVATE_IPS" {
-  value = "${scaleway_server.controller.*.private_ip}"
+output "CONTROLPLANE_PRIVATE_IPS" {
+  value = "${scaleway_server.controlplane.*.private_ip}"
 }
 
-output "NODE_SSH_IPS" {
-  value = "${scaleway_server.node.*.public_ip}"
+output "WORKER_SSH_IPS" {
+  value = "${scaleway_server.worker.*.public_ip}"
 }
 
-output "NODE_PRIVATE_IPS" {
-  value = "${scaleway_server.node.*.private_ip}"
+output "WORKER_PRIVATE_IPS" {
+  value = "${scaleway_server.worker.*.private_ip}"
 }
 
-output "NODE_NAMES" {
-  value = "${scaleway_server.node.*.name}"
+output "WORKER_NAMES" {
+  value = "${scaleway_server.worker.*.name}"
 }

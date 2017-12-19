@@ -17,8 +17,8 @@ locals {
   name = "aws"
   cidr = "10.100.0.0/16"
   etcd_count = 3
-  controller_count = 1
-  node_count = 3
+  controlplane_count = 1
+  worker_count = 3
   subnetCidrs = [
     "${cidrsubnet(local.cidr, 8, 0)}",
     "${cidrsubnet(local.cidr, 8, 1)}",
@@ -138,8 +138,8 @@ resource "aws_security_group" "etcd" {
   }
 }
 
-resource "aws_security_group" "controller" {
-  name = "${local.name}-controller"
+resource "aws_security_group" "controlplane" {
+  name = "${local.name}-controlplane"
   vpc_id = "${aws_vpc.main.id}"
   ingress {
     from_port = 0
@@ -154,12 +154,12 @@ resource "aws_security_group" "controller" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags {
-    Name = "${local.name}-controller"
+    Name = "${local.name}-controlplane"
   }
 }
 
-resource "aws_security_group" "node" {
-  name = "${local.name}-node"
+resource "aws_security_group" "worker" {
+  name = "${local.name}-worker"
   vpc_id = "${aws_vpc.main.id}"
   ingress {
     from_port = 0
@@ -174,7 +174,7 @@ resource "aws_security_group" "node" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags {
-    Name = "${local.name}-node"
+    Name = "${local.name}-worker"
   }
 }
 
@@ -193,32 +193,32 @@ resource "aws_instance" "etcd" {
   }
 }
 
-resource "aws_instance" "controller" {
-  count = "${local.controller_count}"
+resource "aws_instance" "controlplane" {
+  count = "${local.controlplane_count}"
   ami = "${data.aws_ami.ubuntu.id}"
   instance_type = "t2.medium"
   key_name = "default"
   subnet_id = "${element(aws_subnet.main.*.id, count.index)}"
   vpc_security_group_ids = [
-    "${aws_security_group.controller.id}"
+    "${aws_security_group.controlplane.id}"
   ]
   private_ip = "${cidrhost(element(aws_subnet.main.*.cidr_block, count.index), 10)}"
   tags {
-    Name = "${local.name}-controller-${count.index}"
+    Name = "${local.name}-controlplane-${count.index}"
   }
 }
 
-resource "aws_instance" "node" {
-  count = "${local.node_count}"
+resource "aws_instance" "worker" {
+  count = "${local.worker_count}"
   ami = "${data.aws_ami.ubuntu.id}"
   instance_type = "t2.medium"
   key_name = "default"
   subnet_id = "${element(aws_subnet.main.*.id, count.index)}"
   vpc_security_group_ids = [
-    "${aws_security_group.node.id}"
+    "${aws_security_group.worker.id}"
   ]
   tags {
-    Name = "${local.name}-node-${count.index}"
+    Name = "${local.name}-worker-${count.index}"
   }
   source_dest_check = false
 }

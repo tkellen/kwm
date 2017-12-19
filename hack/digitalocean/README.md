@@ -39,7 +39,7 @@ default via 165.227.192.1 dev eth0 onlink
 Two containerized workloads running on those nodes:
 ```
 ❯ k get pods -o wide
-NAME READY STATUS RESTARTS AGE IP NODE
+NAME READY STATUS RESTARTS AGE IP WORKER
 test 1/1 Running 0 1m 10.20.1.3 digitalocean-node-1
 test2 1/1 Running 0 57s 10.20.0.4 digitalocean-node-0
 ```

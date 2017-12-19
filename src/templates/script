@@ -7,3 +7,5 @@ exec 3>&1
 exec > $OUTPUT
 exec 2>&1
 cd "$(dirname "$0")"
+
+${contents}

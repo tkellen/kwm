@@ -14,26 +14,26 @@ output "ETCD_PRIVATE_IPS" {
   value = "${packet_device.etcd.*.access_private_ipv4}"
 }
 
-output "CONTROLLER_NAMES" {
-  value = "${packet_device.controller.*.hostname}"
+output "CONTROLPLANE_NAMES" {
+  value = "${packet_device.controlplane.*.hostname}"
 }
 
-output "CONTROLLER_SSH_IPS" {
-  value = "${packet_device.controller.*.access_public_ipv4}"
+output "CONTROLPLANE_SSH_IPS" {
+  value = "${packet_device.controlplane.*.access_public_ipv4}"
 }
 
-output "CONTROLLER_PRIVATE_IPS" {
-  value = "${packet_device.controller.*.access_private_ipv4}"
+output "CONTROLPLANE_PRIVATE_IPS" {
+  value = "${packet_device.controlplane.*.access_private_ipv4}"
 }
 
-output "NODE_SSH_IPS" {
-  value = "${packet_device.node.*.access_public_ipv4}"
+output "WORKER_SSH_IPS" {
+  value = "${packet_device.worker.*.access_public_ipv4}"
 }
 
-output "NODE_PRIVATE_IPS" {
-  value = "${packet_device.node.*.access_private_ipv4}"
+output "WORKER_PRIVATE_IPS" {
+  value = "${packet_device.worker.*.access_private_ipv4}"
 }
 
-output "NODE_NAMES" {
-  value = "${packet_device.node.*.hostname}"
+output "WORKER_NAMES" {
+  value = "${packet_device.worker.*.hostname}"
 }

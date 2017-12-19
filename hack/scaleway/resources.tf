@@ -5,8 +5,8 @@ provider "scaleway" {
 locals {
   name = "scaleway"
   etcd_count = 1
-  controller_count = 1
-  node_count = 2
+  controlplane_count = 1
+  worker_count = 2
 }
 
 data "scaleway_image" "ubuntu" {
@@ -67,9 +67,9 @@ resource "scaleway_server" "etcd" {
   }
 }
 
-resource "scaleway_server" "controller" {
+resource "scaleway_server" "controlplane" {
   count = "${local.etcd_count}"
-  name = "${local.name}-controller-${count.index}"
+  name = "${local.name}-controlplane-${count.index}"
   security_group = "${scaleway_security_group.main.id}"
   image = "${data.scaleway_image.ubuntu.id}"
   dynamic_ip_required = true
@@ -80,9 +80,9 @@ resource "scaleway_server" "controller" {
   }
 }
 
-resource "scaleway_server" "node" {
-  count = "${local.node_count}"
-  name = "${local.name}-node-${count.index}"
+resource "scaleway_server" "worker" {
+  count = "${local.worker_count}"
+  name = "${local.name}-worker-${count.index}"
   security_group = "${scaleway_security_group.main.id}"
   image = "${data.scaleway_image.ubuntu.id}"
   dynamic_ip_required = true

@@ -14,34 +14,34 @@ output "ETCD_PRIVATE_IPS" {
   value = "${azurerm_network_interface.etcd.*.private_ip_address}"
 }
 
-output "CONTROLLER_NAMES" {
-  value = "${azurerm_virtual_machine.controller.*.name}"
+output "CONTROLPLANE_NAMES" {
+  value = "${azurerm_virtual_machine.controlplane.*.name}"
 }
 
-output "CONTROLLER_SSH_IPS" {
-  value = "${azurerm_public_ip.controller.*.ip_address}"
+output "CONTROLPLANE_SSH_IPS" {
+  value = "${azurerm_public_ip.controlplane.*.ip_address}"
 }
 
-output "CONTROLLER_PRIVATE_IPS" {
-  value = "${azurerm_network_interface.node.*.private_ip_address}"
+output "CONTROLPLANE_PRIVATE_IPS" {
+  value = "${azurerm_network_interface.worker.*.private_ip_address}"
 }
 
-output "NODE_NAMES" {
-  value = "${azurerm_virtual_machine.node.*.name}"
+output "WORKER_NAMES" {
+  value = "${azurerm_virtual_machine.worker.*.name}"
 }
 
-output "NODE_SSH_IPS" {
-  value = "${azurerm_public_ip.node.*.ip_address}"
+output "WORKER_SSH_IPS" {
+  value = "${azurerm_public_ip.worker.*.ip_address}"
 }
 
-output "NODE_PRIVATE_IPS" {
-  value = "${azurerm_network_interface.node.*.private_ip_address}"
+output "WORKER_PRIVATE_IPS" {
+  value = "${azurerm_network_interface.worker.*.private_ip_address}"
 }
 
 output "LOAD_BALANCER_SSH_IPS" {
-  value = "${azurerm_public_ip.controller.*.ip_address}"
+  value = "${azurerm_public_ip.controlplane.*.ip_address}"
 }
 
 output "LOAD_BALANCER_PUBLIC_IPS" {
-  value = "${azurerm_public_ip.controller.*.ip_address}"
+  value = "${azurerm_public_ip.controlplane.*.ip_address}"
 }

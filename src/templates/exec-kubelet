@@ -1,5 +1,6 @@
 /usr/local/bin/kubelet \
   --node-ip=${privateIp} \
+  --node-labels="kubernetes.io/role=${role}" \
   --allow-privileged=true \
   --anonymous-auth=false \
   --authorization-mode=Webhook \

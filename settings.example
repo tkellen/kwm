@@ -7,13 +7,13 @@
 # of generating a settings file with Terraform, see the `hack` folder.
 
 # Used in places where a top level name for the cluster is helpful for clarity.
-export KWM_CLUSTER_NAME=kubernetes
+export KWM_NAME=kubernetes
 
 # The domain used management of the cluster.
-export KWM_CLUSTER_DOMAIN=core.aevitas.io
+export KWM_DOMAIN=core.aevitas.io
 
-# The public IP to use for communication with kube-apiserver.
-export KWM_CLUSTER_APISERVER_PUBLIC_IP=52.87.233.217
+export KWM_PUBLIC_IP=52.87.233.217
+export KWM_APISERVER_PRIVATE_IP=10.100.0.10
 
 # The network used by all Pods. Configures a network bridge on each Node for
 # for communication into Pods. Also used by kubelet, kube-controller-manager
@@ -21,7 +21,6 @@ export KWM_CLUSTER_APISERVER_PUBLIC_IP=52.87.233.217
 export KWM_POD_CIDR=10.200.0.0/16
 
 # The network used by all Services.
-# Used by kube-controller and kube-apiserver (not sure specifically what for).
 export KWM_SERVICE_CIDR=10.32.0.0/24
 
 # The IP used for kubernetes.default.svc.cluster.local
@@ -36,19 +35,19 @@ export KWM_KUBERNETES_SERVICE_IP=10.32.0.1
 # The response should *not* indicate that a password is required.
 export KWM_SSH_USER=ubuntu
 
-# The hostnames of your controllers. The bootstrap script will ensure these are
+# The hostnames of your controlplanes. The bootstrap script will ensure these are
 # actually set, and that the needed self-referential entries are present in
 # /etc/hosts (this may be redundant for some environments).
-export KWM_CONTROLLER_NAMES=controller0,controller1,controller2
+export KWM_CONTROLPLANE_NAMES=controlplane0,controlplane1,controlplane2
 
-# A comma delimited list of IPs for SSH access to each controller host during
+# A comma delimited list of IPs for SSH access to each controlplane host during
 # bootstrapping. This will likely be the same as the public IP for cloud
 # providers.
-export KWM_CONTROLLER_SSH_IPS=52.87.233.217,52.91.161.141,35.153.208.49
+export KWM_CONTROLPLANE_SSH_IPS=52.87.233.217,52.91.161.141,35.153.208.49
 
-# A comma delimited list of private IPs for each controller host. Used by
+# A comma delimited list of private IPs for each controlplane host. Used by
 # kube-apiserver as the IP to listen on.
-export KWM_CONTROLLER_PRIVATE_IPS=10.100.0.10,10.100.1.10,10.100.2.10
+export KWM_CONTROLPLANE_PRIVATE_IPS=10.100.0.10,10.100.1.10,10.100.2.10
 
 # The hostnames of your etcd members. The bootstrap script ensures these are
 # actually set and that the needed self-referential entries are present in
@@ -70,20 +69,21 @@ export KWM_ETCD_PRIVATE_IPS=10.100.0.15,10.100.1.15,10.100.2.15
 # /etc/hosts (this may be redundant for some environments).
 # Used in TLS certificate as subjectAltName and organization name to facilitate
 # secure registration with the cluster.
-export KWM_NODE_NAMES=node-0,node-1,node-2
+export KWM_WORKER_NAMES=worker-0,worker-1,worker-2
 
 # A comma delimited list of IPs for SSH access to each node host during
 # bootstrapping. This will likely be the same as the public IP for cloud
 # providers.
 # TODO: describe in more detail the usage.
-export KWM_NODE_SSH_IPS=54.91.188.135,204.236.201.146,54.164.73.251
+export KWM_WORKER_SSH_IPS=54.91.188.135,204.236.201.146,54.164.73.251
 
 # A comma delimited list of private IPs for worker nodes.
 # TODO: describe in more detail the usage.
-export KWM_NODE_PRIVATE_IPS=10.100.0.222,10.100.1.121,10.100.2.49
+export KWM_WORKER_PRIVATE_IPS=10.100.0.222,10.100.1.121,10.100.2.49
 
 export KWM_VERSION_ETCD=3.2.11
 export KWM_VERSION_KUBERNETES=1.8.5
 export KWM_VERSION_CNI_PLUGIN=0.6.0
 export KWM_VERSION_CRI_CONTAINERD=1.0.0-beta.0
 export KWM_VERSION_KUBE_ROUTER=0.0.19
+export KWM_VERSION_TRAEFIK=1.5.0-rc2

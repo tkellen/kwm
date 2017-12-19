@@ -4,8 +4,8 @@ locals {
   name = "triton"
   cidr = "10.100.0.0/16"
   etcd_count = 1
-  controller_count = 1
-  node_count = 2
+  controlplane_count = 1
+  worker_count = 2
 }
 
 data "triton_image" "ubuntu" {
@@ -45,9 +45,9 @@ resource "triton_machine" "etcd" {
   ]
 }
 
-resource "triton_machine" "controller" {
-  count = "${local.controller_count}"
-  name = "${local.name}-controller-${count.index}"
+resource "triton_machine" "controlplane" {
+  count = "${local.controlplane_count}"
+  name = "${local.name}-controlplane-${count.index}"
   package = "g4-general-4G"
   image = "${data.triton_image.ubuntu.id}"
   root_authorized_keys = "${file("~/.ssh/id_rsa.pub")}"
@@ -57,9 +57,9 @@ resource "triton_machine" "controller" {
   ]
 }
 
-resource "triton_machine" "node" {
-  count = "${local.node_count}"
-  name = "${local.name}-node-${count.index}"
+resource "triton_machine" "worker" {
+  count = "${local.worker_count}"
+  name = "${local.name}-worker-${count.index}"
   package = "g4-general-4G"
   image = "${data.triton_image.ubuntu.id}"
   root_authorized_keys = "${file("~/.ssh/id_rsa.pub")}"

@@ -14,26 +14,26 @@ output "ETCD_PRIVATE_IPS" {
   value = "${digitalocean_droplet.etcd.*.ipv4_address_private}"
 }
 
-output "CONTROLLER_NAMES" {
-  value = "${digitalocean_droplet.controller.*.name}"
+output "CONTROLPLANE_NAMES" {
+  value = "${digitalocean_droplet.controlplane.*.name}"
 }
 
-output "CONTROLLER_SSH_IPS" {
-  value = "${digitalocean_droplet.controller.*.ipv4_address}"
+output "CONTROLPLANE_SSH_IPS" {
+  value = "${digitalocean_droplet.controlplane.*.ipv4_address}"
 }
 
-output "CONTROLLER_PRIVATE_IPS" {
-  value = "${digitalocean_droplet.controller.*.ipv4_address_private}"
+output "CONTROLPLANE_PRIVATE_IPS" {
+  value = "${digitalocean_droplet.controlplane.*.ipv4_address_private}"
 }
 
-output "NODE_SSH_IPS" {
-  value = "${digitalocean_droplet.node.*.ipv4_address}"
+output "WORKER_SSH_IPS" {
+  value = "${digitalocean_droplet.worker.*.ipv4_address}"
 }
 
-output "NODE_PRIVATE_IPS" {
-  value = "${digitalocean_droplet.node.*.ipv4_address_private}"
+output "WORKER_PRIVATE_IPS" {
+  value = "${digitalocean_droplet.worker.*.ipv4_address_private}"
 }
 
-output "NODE_NAMES" {
-  value = "${digitalocean_droplet.node.*.name}"
+output "WORKER_NAMES" {
+  value = "${digitalocean_droplet.worker.*.name}"
 }

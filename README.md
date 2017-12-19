@@ -15,21 +15,34 @@ This is a learning exercise in operationalizing Kubernetes.
 4. Run `./kwm`.
 5. Follow the prompts.
 
+## TODO
+Consider how DNS is scheduled:
+https://github.com/kubernetes-incubator/kube-aws/issues/566
+Author smoke tests that illustrate how core functionality works.
+
+### Acknowledgements
+It was quite a challenge learning how to do this. Here are some resources I used
+along the way:
+
+* [Kubernetes Documentation]
+* [Kubernetes the Hard Way]
+* [Deploying Kubernetes from Scratch]
+* [Kube-Linode]
+* [Linux Networking Explained]
+
+[Bootkube]: https://github.com/kubernetes-incubator/bootkube
+[Kubernetes Documentation]: https://kubernetes.io/docs/home/
+[Kubernetes the Hard Way]: https://github.com/kelseyhightower/kubernetes-the-hard-way
+[Deploying Kubernetes from Scratch]: https://nixaid.com/deploying-kubernetes-cluster-from-scratch/
+[Kube-Linode]: https://github.com/kahkhang/kube-linode
+[Linux Networking Explained]: http://events.linuxfoundation.org/sites/events/files/slides/2016%20-%20Linux%20Networking%20explained_0.pdf
+
+
 <!--
 The goal of this project is to provide a single-file bootstrap script for
 configuring a production-ready high availability Kubernetes cluster that can
 be used in any hosting environment. It also aims to document the process so
 thoroughly that anyone could understand it.
-
-## TODO
-1. Front the whole thing with [Traefik].
-2. Finish writing docs.
-
-## Setup
-1. Clone this repository.
-2. Install `kubectl` and `jq`.
-3. Create a `settings` file (read `settings.example` for guidance).
-4. Run ./compile
 
 ## Instructions
 KWM can be run in stages so a first-time operator can understand each of
@@ -132,7 +145,7 @@ kubectl get componentstatuses
 ```
 NAME                 STATUS    MESSAGE              ERROR
 scheduler            Healthy   ok
-controller-manager   Healthy   ok
+controlplane-manager   Healthy   ok
 etcd-0               Healthy   {"health": "true"}
 etcd-1               Healthy   {"health": "true"}
 etcd-2               Healthy   {"health": "true"}
@@ -183,10 +196,10 @@ bin   dev   etc   home  proc  root  sys   tmp   usr   var
 
 **Start busybox on specific Node:**
 ```shell
-NODE_NAME=$(echo $NODE_NAMES | cut -d ',' -f 1)
+WORKER_NAME=$(echo $WORKER_NAMES | cut -d ',' -f 1)
 kubectl run networktest \
   --image=busybox \
-  --overrides="{\"apiVersion\":\"extensions/v1beta1\",\"spec\":{\"template\":{\"spec\":{\"nodeSelector\":{\"kubernetes.io/hostname\":\"${NODE_NAME}\"}}}}}" \
+  --overrides="{\"apiVersion\":\"extensions/v1beta1\",\"spec\":{\"template\":{\"spec\":{\"nodeSelector\":{\"kubernetes.io/hostname\":\"${WORKER_NAME}\"}}}}}" \
   --command -- sleep 36000
 ```
 
@@ -196,16 +209,16 @@ kubectl get pods -o wide
 ```
 ⤹
 ```
-NAME                           READY     STATUS    RESTARTS   AGE       IP           NODE
+NAME                           READY     STATUS    RESTARTS   AGE       IP           WORKER
 networktest-56fc4fb64c-skxqx   1/1       Running   0          4s        10.244.0.5   node-0
 ```
 
 **Confirm Node-to-Pod communication:**
 ```shell
-NODE_SSH_IP=$(echo $NODE_SSH_IPS | cut -d ',' -f 1)
+WORKER_SSH_IP=$(echo $WORKER_SSH_IPS | cut -d ',' -f 1)
 POD_NAME=$(kubectl get pods -l run=networktest -o jsonpath="{.items[0].metadata.name}")
 POD_IP=$(kubectl get pod $POD_NAME -o jsonpath="{.status.podIP}")
-ssh $SSH_USER@$NODE_SSH_IP ping $POD_IP
+ssh $SSH_USER@$WORKER_SSH_IP ping $POD_IP
 ```
 ⤹
 ```
@@ -244,8 +257,8 @@ If you don't see a command prompt, try pressing enter.
 ```shell
 POD_NAME=$(kubectl get pods -l run=networktest -o jsonpath="{.items[0].metadata.name}")
 CONTAINER_ID=$(kubectl get pod $POD_NAME -o jsonpath='{.status.containerStatuses[0].containerID}' | awk -F/ '{print $3}')
-CONTAINER_PID=$(echo $(ssh $SSH_USER@$NODE_SSH_IP sudo runc list | grep $CONTAINER_ID) | awk '{print $2}')
-ssh $SSH_USER@$NODE_SSH_IP sudo nsenter -t $CONTAINER_PID -n ip addr
+CONTAINER_PID=$(echo $(ssh $SSH_USER@$WORKER_SSH_IP sudo runc list | grep $CONTAINER_ID) | awk '{print $2}')
+ssh $SSH_USER@$WORKER_SSH_IP sudo nsenter -t $CONTAINER_PID -n ip addr
 ```
 ⤹
 ```
@@ -279,21 +292,4 @@ ssh $SSH_USER@$NODE_SSH_IP sudo nsenter -t $CONTAINER_PID -n ip addr
 - TBD
 - TBD
 
-### Acknowledgements
-It was quite a challenge learning how to do this. Here are some resources I used
-along the way:
-
-* [Kubernetes Documentation]
-* [Kubernetes the Hard Way]
-* [Deploying Kubernetes from Scratch]
-* [Kube-Linode]
-* [Linux Networking Explained]
-
-[Bootkube]: https://github.com/kubernetes-incubator/bootkube
-[Traefik]: https://github.com/containous/traefik
-[Kubernetes Documentation]: https://kubernetes.io/docs/home/
-[Kubernetes the Hard Way]: https://github.com/kelseyhightower/kubernetes-the-hard-way
-[Deploying Kubernetes from Scratch]: https://nixaid.com/deploying-kubernetes-cluster-from-scratch/
-[Kube-Linode]: https://github.com/kahkhang/kube-linode
-[Linux Networking Explained]: http://events.linuxfoundation.org/sites/events/files/slides/2016%20-%20Linux%20Networking%20explained_0.pdf
 -->

@@ -3,10 +3,11 @@
 here=$(dirname "$0")
 (
   cd $here
-  echo export KWM_CLUSTER_NAME=$(terraform output NAME)
-  echo export KWM_CLUSTER_DOMAIN=test.com
+  echo export KWM_NAME=$(terraform output NAME)
+  echo export KWM_DOMAIN=test.com
   # TODO: use load balancer for HA
-  echo export KWM_CLUSTER_APISERVER_PUBLIC_IP="$(terraform output CONTROLLER_SSH_IPS | head -n 1 | sed 's/,$//')"
+  echo export KWM_PUBLIC_IP="$(terraform output CONTROLPLANE_SSH_IPS | head -n 1 | sed 's/,$//')"
+  echo export KWM_APISERVER_PRIVATE_IP="$(terraform output CONTROLPLANE_PRIVATE_IPS | head -n 1 | sed 's/,$//')"
   echo export KWM_POD_CIDR=10.1.0.0/16
   echo export KWM_SERVICE_CIDR=10.10.0.0/24
   echo export KWM_KUBERNETES_SERVICE_IP=10.10.0.1
@@ -17,13 +18,14 @@ here=$(dirname "$0")
   echo export KWM_VERSION_CNI_PLUGIN=0.6.0
   echo export KWM_VERSION_CRI_CONTAINERD=1.0.0-beta.0
   echo export KWM_VERSION_KUBE_ROUTER=0.0.19
-  echo export KWM_CONTROLLER_NAMES=$(terraform output CONTROLLER_NAMES | tr -d '\n')
-  echo export KWM_CONTROLLER_SSH_IPS=$(terraform output CONTROLLER_SSH_IPS | tr -d '\n')
-  echo export KWM_CONTROLLER_PRIVATE_IPS=$(terraform output CONTROLLER_PRIVATE_IPS | tr -d '\n')
+  echo export KWM_VERSION_TRAEFIK=1.5.0-rc2
+  echo export KWM_CONTROLPLANE_NAMES=$(terraform output CONTROLPLANE_NAMES | tr -d '\n')
+  echo export KWM_CONTROLPLANE_SSH_IPS=$(terraform output CONTROLPLANE_SSH_IPS | tr -d '\n')
+  echo export KWM_CONTROLPLANE_PRIVATE_IPS=$(terraform output CONTROLPLANE_PRIVATE_IPS | tr -d '\n')
   echo export KWM_ETCD_NAMES=$(terraform output ETCD_NAMES | tr -d '\n')
   echo export KWM_ETCD_SSH_IPS=$(terraform output ETCD_SSH_IPS | tr -d '\n')
   echo export KWM_ETCD_PRIVATE_IPS=$(terraform output ETCD_PRIVATE_IPS | tr -d '\n')
-  echo export KWM_NODE_NAMES=$(terraform output NODE_NAMES | tr -d '\n')
-  echo export KWM_NODE_SSH_IPS=$(terraform output NODE_SSH_IPS | tr -d '\n')
-  echo export KWM_NODE_PRIVATE_IPS=$(terraform output NODE_PRIVATE_IPS | tr -d '\n')
+  echo export KWM_WORKER_NAMES=$(terraform output WORKER_NAMES | tr -d '\n')
+  echo export KWM_WORKER_SSH_IPS=$(terraform output WORKER_SSH_IPS | tr -d '\n')
+  echo export KWM_WORKER_PRIVATE_IPS=$(terraform output WORKER_PRIVATE_IPS | tr -d '\n')
 )

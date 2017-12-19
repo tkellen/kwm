@@ -5,8 +5,8 @@ locals {
   location = "East US"
   cidr = "10.100.0.0/16"
   etcd_count = 1
-  controller_count = 1
-  node_count = 2
+  controlplane_count = 1
+  worker_count = 2
 }
 
 resource "azurerm_resource_group" "main" {
@@ -36,17 +36,17 @@ resource "azurerm_public_ip" "etcd" {
   public_ip_address_allocation = "dynamic"
 }
 
-resource "azurerm_public_ip" "controller" {
-  count = "${local.controller_count}"
-  name = "${local.name}-controller-${count.index}"
+resource "azurerm_public_ip" "controlplane" {
+  count = "${local.controlplane_count}"
+  name = "${local.name}-controlplane-${count.index}"
   location = "${local.location}"
   resource_group_name = "${azurerm_resource_group.main.name}"
   public_ip_address_allocation = "dynamic"
 }
 
-resource "azurerm_public_ip" "node" {
-  count = "${local.node_count}"
-  name = "${local.name}-node-${count.index}"
+resource "azurerm_public_ip" "worker" {
+  count = "${local.worker_count}"
+  name = "${local.name}-worker-${count.index}"
   location = "${local.location}"
   resource_group_name = "${azurerm_resource_group.main.name}"
   public_ip_address_allocation = "dynamic"
@@ -84,9 +84,9 @@ resource "azurerm_network_interface" "etcd" {
   }
 }
 
-resource "azurerm_network_interface" "controller" {
-  count = "${local.controller_count}"
-  name = "${local.name}-controller-${count.index}"
+resource "azurerm_network_interface" "controlplane" {
+  count = "${local.controlplane_count}"
+  name = "${local.name}-controlplane-${count.index}"
   location = "${local.location}"
   resource_group_name = "${azurerm_resource_group.main.name}"
   network_security_group_id = "${azurerm_network_security_group.main.id}"
@@ -95,13 +95,13 @@ resource "azurerm_network_interface" "controller" {
     name = "${local.name}"
     subnet_id = "${azurerm_subnet.main.id}"
     private_ip_address_allocation = "dynamic"
-    public_ip_address_id = "${element(azurerm_public_ip.controller.*.id, count.index)}"
+    public_ip_address_id = "${element(azurerm_public_ip.controlplane.*.id, count.index)}"
   }
 }
 
-resource "azurerm_network_interface" "node" {
-  count = "${local.node_count}"
-  name = "${local.name}-node-${count.index}"
+resource "azurerm_network_interface" "worker" {
+  count = "${local.worker_count}"
+  name = "${local.name}-worker-${count.index}"
   location = "${local.location}"
   resource_group_name = "${azurerm_resource_group.main.name}"
   network_security_group_id = "${azurerm_network_security_group.main.id}"
@@ -110,7 +110,7 @@ resource "azurerm_network_interface" "node" {
     name = "${local.name}"
     subnet_id = "${azurerm_subnet.main.id}"
     private_ip_address_allocation = "dynamic"
-    public_ip_address_id = "${element(azurerm_public_ip.node.*.id, count.index)}"
+    public_ip_address_id = "${element(azurerm_public_ip.worker.*.id, count.index)}"
   }
 }
 
@@ -148,17 +148,17 @@ resource "azurerm_virtual_machine" "etcd" {
   }
 }
 
-resource "azurerm_virtual_machine" "controller" {
-  count = "${local.controller_count}"
-  name = "${local.name}-controller-${count.index}"
+resource "azurerm_virtual_machine" "controlplane" {
+  count = "${local.controlplane_count}"
+  name = "${local.name}-controlplane-${count.index}"
   location = "${local.location}"
   resource_group_name = "${azurerm_resource_group.main.name}"
-  network_interface_ids = ["${element(azurerm_network_interface.controller.*.id, count.index)}"]
+  network_interface_ids = ["${element(azurerm_network_interface.controlplane.*.id, count.index)}"]
   vm_size = "Standard_DS1_v2"
   delete_os_disk_on_termination = true
   delete_data_disks_on_termination = true
   storage_os_disk {
-    name = "${local.name}-controller-${count.index}"
+    name = "${local.name}-controlplane-${count.index}"
     caching = "ReadWrite"
     create_option = "FromImage"
     managed_disk_type = "Premium_LRS"
@@ -170,7 +170,7 @@ resource "azurerm_virtual_machine" "controller" {
     version = "latest"
   }
   os_profile {
-    computer_name = "${local.name}-controller-${count.index}"
+    computer_name = "${local.name}-controlplane-${count.index}"
     admin_username = "ubuntu"
   }
   os_profile_linux_config {
@@ -183,17 +183,17 @@ resource "azurerm_virtual_machine" "controller" {
 }
 
 
-resource "azurerm_virtual_machine" "node" {
-  count = "${local.node_count}"
-  name = "${local.name}-node-${count.index}"
+resource "azurerm_virtual_machine" "worker" {
+  count = "${local.worker_count}"
+  name = "${local.name}-worker-${count.index}"
   location = "${local.location}"
   resource_group_name = "${azurerm_resource_group.main.name}"
-  network_interface_ids = ["${element(azurerm_network_interface.node.*.id, count.index)}"]
+  network_interface_ids = ["${element(azurerm_network_interface.worker.*.id, count.index)}"]
   vm_size = "Standard_DS1_v2"
   delete_os_disk_on_termination = true
   delete_data_disks_on_termination = true
   storage_os_disk {
-    name = "${local.name}-node-${count.index}"
+    name = "${local.name}-worker-${count.index}"
     caching = "ReadWrite"
     create_option = "FromImage"
     managed_disk_type = "Premium_LRS"
@@ -205,7 +205,7 @@ resource "azurerm_virtual_machine" "node" {
     version = "latest"
   }
   os_profile {
-    computer_name = "${local.name}-node-${count.index}"
+    computer_name = "${local.name}-worker-${count.index}"
     admin_username = "ubuntu"
   }
   os_profile_linux_config {
