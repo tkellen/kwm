@@ -2,7 +2,7 @@
   --admission-control=Initializers,NamespaceLifecycle,NodeRestriction,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota \
   --advertise-address=${privateIp} \
   --allow-privileged=true \
-  --apiserver-count=1 \
+  --apiserver-count=${count} \
   --audit-log-maxage=30 \
   --audit-log-maxbackup=3 \
   --audit-log-maxsize=100 \

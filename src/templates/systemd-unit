@@ -5,8 +5,9 @@ Requires=${requires}
 
 [Service]
 ExecStart=${exec}
-Restart=on-failure
-RestartSec=5
+Restart=always
+RestartSec=3
+StartLimitInterval=0
 
 [Install]
 WantedBy=multi-user.target

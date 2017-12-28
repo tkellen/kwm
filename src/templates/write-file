@@ -1,0 +1,4 @@
+mkdir -p $(dirname ${path})
+cat <<"WRITE-FILE" > ${path}
+${contents}
+WRITE-FILE

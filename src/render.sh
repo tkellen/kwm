@@ -1,6 +1,7 @@
 function render {
+  local here="$(dirname "$0")"
   local path=$1
-  local source="$(cat src/templates/$path)"
+  local source="$(cat $here/src/templates/$path)"
   for item in "${@:2}"; do
     local find=${item%:=*};
     local replace=${item#*:=};

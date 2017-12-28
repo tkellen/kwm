@@ -1,6 +1,0 @@
-cd /tmp
-wget -q -O kube-router.tar.gz https://github.com/cloudnativelabs/kube-router/releases/download/v${version}/kube-router_${version}_linux_amd64.tar.gz
-tar xf kube-router.tar.gz
-sudo mkdir -p /usr/local/bin
-sudo mv kube-router /usr/local/bin
-sudo apt-get update && sudo apt-get install ipset -y

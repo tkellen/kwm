@@ -1,4 +1,4 @@
 cd /tmp
 wget -q -O cni.tgz https://github.com/containernetworking/plugins/releases/download/v${version}/cni-plugins-amd64-v${version}.tgz
-sudo mkdir -p /opt/cni/bin /etc/cni/net.d
-sudo tar xf cni.tgz --directory /opt/cni/bin
+mkdir -p /opt/cni/bin /etc/cni/net.d
+tar xf cni.tgz --directory /opt/cni/bin

@@ -37,6 +37,10 @@ along the way:
 [Kube-Linode]: https://github.com/kahkhang/kube-linode
 [Linux Networking Explained]: http://events.linuxfoundation.org/sites/events/files/slides/2016%20-%20Linux%20Networking%20explained_0.pdf
 
+```
+env $(tr "\\n" " " < .env-pki) kwm pki > render
+env $(tr "\\n" " " < .env-pki) kwm getroot > render
+```
 
 <!--
 The goal of this project is to provide a single-file bootstrap script for

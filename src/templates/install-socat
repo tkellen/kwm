@@ -1,2 +1,2 @@
-sudo apt-get -qq update
-sudo apt-get -yqq install socat
+apt-get -qq update
+apt-get -yqq install socat
