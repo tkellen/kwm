@@ -1,0 +1,15 @@
+kubectl config set-cluster ${clusterName} \\
+  --certificate-authority=pki/cluster-ca-cert.pem \\
+  --embed-certs=true \\
+  --server=https://${apiserver}:6443
+
+kubectl config set-credentials ${clusterName}-root \\
+  --client-certificate=pki/cluster-admin-to-apiserver-cert.pem \\
+  --client-key=pki/cluster-admin-to-apiserver-private-key.pem \\
+  --embed-certs=true
+
+kubectl config set-context ${clusterName} \\
+  --cluster=${clusterName} \\
+  --user=${clusterName}-root
+
+kubectl config use-context ${clusterName}

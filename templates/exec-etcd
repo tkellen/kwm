@@ -1,0 +1,18 @@
+/usr/local/bin/etcd \\
+  --name ${name} \\
+  --cert-file=/etc/kubernetes/apiserver-to-etcd-cert.pem \\
+  --key-file=/etc/kubernetes/apiserver-to-etcd-private-key.pem \\
+  --peer-cert-file=/etc/kubernetes/etcd-to-etcd-cert.pem \\
+  --peer-key-file=/etc/kubernetes/etcd-to-etcd-private-key.pem \\
+  --trusted-ca-file=/etc/kubernetes/etcd-ca-cert.pem \\
+  --peer-trusted-ca-file=/etc/kubernetes/etcd-ca-cert.pem \\
+  --peer-client-cert-auth \\
+  --client-cert-auth \\
+  --initial-advertise-peer-urls https://${privateIp}:2380 \\
+  --listen-peer-urls https://${privateIp}:2380 \\
+  --listen-client-urls https://${privateIp}:2379,http://127.0.0.1:2379 \\
+  --advertise-client-urls https://${privateIp}:2379 \\
+  --initial-cluster-token etcd-cluster-0 \\
+  --initial-cluster ${initialCluster} \\
+  --initial-cluster-state new \\
+  --data-dir=/var/lib/etcd

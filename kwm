@@ -1,130 +1,314 @@
 #!/bin/bash
 
-here="$(dirname "$0")"
-
-source $here/src/check-overwrite.sh
-source $here/src/cluster-pki.sh
-source $here/src/etcd-install.sh
-source $here/src/controlplane-install.sh
-source $here/src/header.sh
-source $here/src/render.sh
-source $here/src/review.sh
-source $here/src/validate.sh
-source $here/src/worker-install.sh
-
 function main {
-  local cmd=$1
-  local subcmd=$2
+  case "$1" in
+    'context')
+      echo "$(context-$2 $3)"
+      ;;
+    'describe')
+      echo "$(describe-$KWM_TYPE)"
+      ;;
+    *)
+      usage
+      ;;
+  esac
+}
 
-  if ([ -z "$cmd" ] && [ -z "$subcmd" ]); then
-    echo "$(cat <<EOF
-$(header "Welcome to Kubernetes Without Magic!")
+function render {
+  #if [ -t 1 ]; then
+  #  prefix="\033[0;34m"
+  #  suffix="\033[0m"
+  #fi
+  echo "cat <<RENDER"
+  cat "/Users/tkellen/code/kube/templates/$1"
+  echo RENDER
+}
 
-The easiest way to get started is to generate your config files and run this
-command "next" to them (that is, in the same directory):
+function partial {
+  render $@ | bash
+}
+export -f partial render
 
-$(header "kwm bootstrap")
+function review {
+  echo "Your settings will now be shown individually."
+  echo "Enter 'y' or 'n' for each to confirm accuracy and your understanding."
+  for name in ${!KWM*}; do
+    printf "\n"
+    read -p "$name=${!name} [y/n]: " -n 1 -r
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+      continue
+    else
+      printf "\nExiting."
+      exit 0
+    fi
+  done
+  printf "\n\n"
+}
 
-If you would like to provide a configuration path explictly, do so thusly:
+function validate {
+  required=$(source settings.example; echo ${!KWM*})
+  failed=""
+  for var in ${required[@]}; do
+    [[ -z "${!var}" ]] && failed+=", ${var}"
+  done
+  if [ ! -z "$failed" ]; then
+    header "Some settings are missing:"
+    echo -e "${failed:2}\n"
+    header "Before trying again, you may wish to answer these questions:"
+    echo "Have I written or generated a settings file yet?"
+    echo "Have I exported my settings into my environment? (e.g. \"source my-settings-file\")"
+    echo "Does my settings file contain all the needed variables?"
+    exit 1
+  fi
+}
 
-$(header "KWM_CONFIG_PATH=path/to/configs kwm bootstrap")
+function value {
+  local key=$1
+  local value=$2
+  if [ -z "$value" ]; then
+    value=${!key}
+  fi
+  echo "$key=\"${value}\""
+}
 
-Either of these approaches will output the next series of commands needed to
-provision your cluster.
+function context-pki {
+  KWM_ETCD_NAMES=(${KWM_ETCD_NAMES//,/ })
+  KWM_ETCD_PRIVATE_IPS=(${KWM_ETCD_PRIVATE_IPS//,/ })
+  for idx in ${!KWM_ETCD_NAMES[@]}; do
+    KWM_ETCD_CLIENT_SUBJECT_NAMES+=",IP:${KWM_ETCD_PRIVATE_IPS[$idx]},DNS:${KWM_ETCD_NAMES[$idx]}"
+  done
+  value KWM_TYPE pki
+  value KWM_NAME
+  value KWM_ETCD_CLIENT_SUBJECT_NAMES "${KWM_ETCD_CLIENT_SUBJECT_NAMES:1}"
+}
+
+function context-root {
+  value KWM_TYPE root
+  value KWM_NAME
+  value KWM_PUBLIC_IP
+}
+
+function context-dns {
+  value KWM_TYPE dns
+  value KWM_VERSION_KUBE_DNS
+  value KWM_DNS_SERVICE_IP
+}
+
+function context-cni {
+  value KWM_TYPE cni
+  value KWM_VERSION_KUBE_ROUTER
+}
+
+function context-etcd {
+  local idx=$1
+  KWM_ETCD_NAMES=(${KWM_ETCD_NAMES//,/ })
+  KWM_ETCD_SSH_IPS=(${KWM_ETCD_SSH_IPS//,/ })
+  KWM_ETCD_PRIVATE_IPS=(${KWM_ETCD_PRIVATE_IPS//,/ })
+  for i in ${!KWM_ETCD_NAMES[@]}; do
+    KWM_ETCD_INITIAL_CLUSTER+=",${KWM_ETCD_NAMES[$i]}=https://${KWM_ETCD_PRIVATE_IPS[$i]}:2380"
+  done
+  value KWM_TYPE etcd
+  value KWM_CONNECT "${KWM_EXEC}${KWM_ETCD_SSH_IPS[$idx]}"
+  value KWM_PRIVATE_IP ${KWM_ETCD_PRIVATE_IPS[$idx]}
+  value KWM_HOSTNAME ${KWM_ETCD_NAMES[$idx]}
+  value KWM_ETCD_INITIAL_CLUSTER ${KWM_ETCD_INITIAL_CLUSTER:1}
+  value KWM_VERSION_ETCD
+}
+
+function context-controlplane {
+  local idx=$1
+  KWM_ETCD_PRIVATE_IPS=(${KWM_ETCD_PRIVATE_IPS//,/ })
+  for i in ${!KWM_ETCD_PRIVATE_IPS[@]}; do
+    KWM_ETCD_HOSTS+=",https://${KWM_ETCD_PRIVATE_IPS[$i]}:2379"
+  done
+  value KWM_TYPE controlplane
+  value KWM_ROLE controlplane
+  value KWM_CONNECT "${KWM_EXEC}${KWM_CONTROLPLANE_SSH_IPS[$idx]}"
+  value KWM_SSH_IP ${KWM_CONTROLPLANE_SSH_IPS[$idx]}
+  value KWM_PRIVATE_IP ${KWM_CONTROLPLANE_PRIVATE_IPS[$idx]}
+  value KWM_APISERVER_PRIVATE_IP ${KWM_CONTROLPLANE_PRIVATE_IPS[0]}
+  value KWM_HOSTNAME ${KWM_CONTROLPLANE_NAMES[$idx]}
+  value KWM_ETCD_HOSTS "${KWM_ETCD_HOSTS:1}"
+  value KWM_NAME
+  value KWM_VERSION_KUBERNETES
+  value KWM_VERSION_CNI_PLUGIN
+  value KWM_VERSION_CRI_CONTAINERD
+  value KWM_POD_CIDR
+  value KWM_SERVER_CIDR
+  value KWM_KUBERNETES_SERVICE_IP
+  value KWM_DNS_SERVICE_IP
+  value KWM_PUBLIC_IP
+}
+
+function context-worker {
+  local idx=$1
+  KWM_WORKER_NAMES=(${KWM_WORKER_NAMES//,/ })
+  KWM_WORKER_SSH_IPS=(${KWM_WORKER_SSH_IPS//,/ })
+  KWM_WORKER_PRIVATE_IPS=(${KWM_WORKER_PRIVATE_IPS//,/ })
+  value KWM_TYPE worker
+  value KWM_ROLE worker
+  value KWM_CONNECT "${KWM_EXEC}${KWM_WORKER_SSH_IPS[$idx]}"
+  value KWM_SSH_IP ${KWM_WORKER_SSH_IPS[$idx]}
+  value KWM_PRIVATE_IP ${KWM_WORKER_PRIVATE_IPS[$idx]}
+  value KWM_APISERVER_PRIVATE_IP ${KWM_APISERVER_PRIVATE_IP}
+  value KWM_HOSTNAME ${KWM_WORKER_NAMES[$idx]}
+  value KWM_NAME
+  value KWM_VERSION_KUBERNETES
+  value KWM_VERSION_CNI_PLUGIN
+  value KWM_VERSION_CRI_CONTAINERD
+  value KWM_POD_CIDR
+}
+
+function usage {
+  echo "$(cat <<EOF
+Welcome to Kubernetes Without Magic!
+
+This software aims to automate the creation and maintenance of Kubernetes
+clusters by dynamically generating shell scripts based on simple configuration
+expressed as environment variables. It is designed in a composable manner meant
+to encourage introspection. A familarity with UNIX fundamentals (stdin, stdout,
+pipelines and redirection) is recommended to fully utilize this tool.
+
+Though a cluster can be created with a single command, new operators are
+encouraged to examine and execute each step individually until the overall
+process is understood.
+
+Care has been taken to avoid assumptions about the underlying infrastructure.
+This tool should work equally well for target environments in the cloud, on
+prem, using VMs or bare metal machines. This is an intentional design decision
+meant to eliminate reliance on vendor-specific functionality.
+
+Said differently:
+
+"Prepare a set of machines capable of running Kubernetes that can be reached
+over a network--a cluster should be able to run on them in a matter of minutes.
+From the perspective of correct operation who owns the hardware should be
+irrelevant."
+
 EOF
 )"
-    exit 0
-  fi
-
-  if [ "$cmd" == "render" ]; then
-    if [ -z "$KWM_TYPE" ]; then
-      echo "Please specify a type of output to render."
-      exit 1
-    fi
-    eval "$KWM_TYPE"
-    exit 0
-  fi
-
-  eval "$cmd"
-
-  #header "Configure your controlplane:"
-  #printf "$controlPlaneInstall"
-
-  #header "Confirm controlplane is running:"
-  #printf "kubectl get componentstatus\n"
-
-  #header "Configure your workers:"
-  #printf "$workerInstall"
-
-  #header "Configure DNS:"
-  #printf "Make A record for $KWM_DOMAIN to $KWM_APISERVER_PRIVATE_IP_PUBLIC_IP."
 }
 
-function bootstrap {
-  local configs=$(realpath ${KWM_CONFIG_PATH:-$PWD})
-  shopt -s nullglob
-  for config in $configs/*.env; do
-    source $config
-    local configRelative=$(realpath $config --relative-to=$PWD)
-    echo "env -S \"\$(<$configRelative)\" kwm render | bash"
+function header {
+  message=$1
+  # only print when the destination is a terminal
+  if [ -t 1 ]; then
+    printf "\033[0;34m${message}\033[0m\n"
+  fi
+}
+
+function compose {
+  validate
+
+  KWM_ETCD_SSH_IPS=(${KWM_ETCD_SSH_IPS//,/ })
+  KWM_CONTROLPLANE_SSH_IPS=(${KWM_CONTROLPLANE_SSH_IPS//,/ })
+  KWM_WORKER_SSH_IPS=(${KWM_WORKER_SSH_IPS//,/ })
+
+  header "Configure your PKI:"
+  echo "env -S \"\$(kwm context pki)\" kwm describe | bash"
+
+  header "Configure your kubectl for cluster admin access:"
+  echo "env -S \"\$(kwm context root)\" kwm describe | bash"
+
+  header "Configure your etcd nodes:"
+  for idx in ${!KWM_ETCD_SSH_IPS[@]}; do
+    echo "env -S \"\$(kwm context etcd $idx)\" kwm describe | bash"
   done
+
+  header "Configure your controlplane nodes:"
+  for idx in ${!KWM_CONTROLPLANE_SSH_IPS[@]}; do
+    echo "env -S \"\$(kwm context controlplane $idx)\" kwm describe | bash"
+  done
+
+  header "Confirm controlplane is running:"
+  echo "kubectl get componentstatus"
+
+  header "Configure your worker nodes:"
+  for idx in ${!KWM_WORKER_SSH_IPS[@]}; do
+    echo "env -S \"\$(kwm context worker $idx)\" kwm describe | bash"
+  done
+
+  header "Install a container networking plugin:"
+  echo "env -S \$(kwm context cni) kwm describe | cat > cni.yml"
+  echo "kubectl apply -f cni.yml"
+
+  header "HACK bounce containerd to pick up cni settings from above:"
+  echo "sleep 10"
+  for idx in ${!KWM_CONTROLPLANE_SSH_IPS[@]}; do
+    echo "${KWM_EXEC}${KWM_CONTROLPLANE_SSH_IPS[$idx]} sudo systemctl restart containerd &"
+  done
+  for idx in ${!KWM_WORKER_SSH_IPS[@]}; do
+    echo "${KWM_EXEC}${KWM_WORKER_SSH_IPS[$idx]} sudo systemctl restart containerd &"
+  done
+  echo "wait"
+
+  header "Install kube-dns:"
+  echo "env -S \$(kwm context dns) kwm describe | cat > kube-dns.yml"
+  echo "kubectl apply -f kube-dns.yml"
 }
 
-function pki {
-  cluster-pki clusterName:="$KWM_NAME" etcdClientSubjectNames:="$KWM_ETCD_CLIENT_SUBJECT_NAMES"
-}
-
-function root-access {
-  render script contents:="$(
-    render log message:="Configuring kubectl for root access to cluster."
-    render kubectl-root-access clusterName:="$KWM_NAME" apiserver:="$KWM_PUBLIC_IP"
-  )"
-}
-
-function manifests {
+function describe-dns {
   render manifest-kube-dns version:="$KWM_VERSION_KUBE_DNS" serviceIp:="$KWM_DNS_SERVICE_IP"
 }
 
-function etcd {
-  etcd-install \
-    exec:="$KWM_EXEC" \
-    name:="$KWM_HOSTNAME" \
-    basePath:="/etc/kubernetes" \
-    privateIp:="$KWM_PRIVATE_IP" \
-    initialCluster:="$KWM_ETCD_INITIAL_CLUSTER" \
-    version:="$KWM_VERSION_ETCD"
+function describe-cni {
+  render manifest-kube-router version:="$KWM_VERSION_KUBE_ROUTER"
 }
 
-function controlplane {
-  controlplane-install \
-    exec:="$KWM_EXEC" \
-    name:="$KWM_HOSTNAME" \
-    basePath:="/etc/kubernetes" \
-    privateIp:="$KWM_PRIVATE_IP" \
-    serviceCidr:="$KWM_SERVICE_CIDR" \
-    clusterName="$KWM_NAME" \
-    podCidr:="$KWM_POD_CIDR" \
-    etcdHosts:="$KWM_ETCD_HOSTS" \
-    kubernetesServiceIp:="$KWM_KUBERNETES_SERVICE_IP" \
-    loadBalancerIp:="$KWM_PUBLIC_IP" \
-    count:="1" \
-    version:="$KWM_VERSION_KUBERNETES"
-  worker
+function describe-root {
+  render log contents:="Configuring kubectl for root access to cluster."
+  render kubectl-root-access clusterName:="$KWM_NAME" apiserver:="$KWM_PUBLIC_IP"
 }
 
-function worker {
-  worker-install \
-    exec:="$KWM_EXEC" \
-    name:="$KWM_HOSTNAME" \
-    basePath:="/etc/kubernetes" \
-    privateIp:="$KWM_PRIVATE_IP" \
-    criContainerdVersion:="$KWM_VERSION_CRI_CONTAINERD" \
-    cniPluginVersion:="$KWM_VERSION_CNI_PLUGIN" \
-    clusterName:="$KWM_NAME" \
-    apiserver:="$KWM_APISERVER_PRIVATE_IP" \
-    kubernetesVersion:="$KWM_VERSION_KUBERNETES" \
-    podCidr:="$KWM_POD_CIDR" \
-    dnsServiceIp:="$KWM_DNS_SERVICE_IP" \
-    role:="$KWM_ROLE"
+function describe-pki {
+  render describe-pki | \
+    basePath=pki \
+    caPath=pki \
+    clusterName=$KWM_NAME \
+    etcdClientSubjectNames=$KWM_ETCD_CLIENT_SUBJECT_NAMES bash
 }
+
+function describe-etcd {
+  render describe-etcd | \
+    exec=$KWM_CONNECT \
+    name=$KWM_HOSTNAME \
+    basePath=/etc/kubernetes \
+    caPath=/etc/kubernetes \
+    privateIp=$KWM_PRIVATE_IP \
+    initialCluster=$KWM_ETCD_INITIAL_CLUSTER \
+    version=$KWM_VERSION_ETCD bash
+}
+
+function describe-controlplane {
+  render describe-controlplane | \
+    basePath=/etc/kubernetes \
+    exec=$KWM_CONNECT \
+    name=$KWM_HOSTNAME \
+    privateIp=$KWM_PRIVATE_IP \
+    serviceCidr=$KWM_SERVICE_CIDR \
+    clusterName=$KWM_NAME \
+    podCidr=$KWM_POD_CIDR \
+    etcdHosts=$KWM_ETCD_HOSTS \
+    kubernetesServiceIp=$KWM_KUBERNETES_SERVICE_IP \
+    loadBalancerIp=$KWM_PUBLIC_IP \
+    count=1 \
+    version=$KWM_VERSION_KUBERNETES bash
+}
+
+function describe-worker {
+  render describe-worker | \
+    exec=$KWM_CONNECT \
+    name=$KWM_HOSTNAME \
+    basePath=/etc/kubernetes \
+    privateIp=$KWM_PRIVATE_IP \
+    criContainerdVersion=$KWM_VERSION_CRI_CONTAINERD \
+    cniPluginVersion=$KWM_VERSION_CNI_PLUGIN \
+    clusterName=$KWM_NAME \
+    apiserver=$KWM_APISERVER_PRIVATE_IP \
+    kubernetesVersion=$KWM_VERSION_KUBERNETES \
+    podCidr=$KWM_POD_CIDR \
+    dnsServiceIp=$KWM_DNS_SERVICE_IP \
+    role=$KWM_ROLE bash
+}
+
 main "$@"

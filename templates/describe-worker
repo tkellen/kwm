@@ -1,0 +1,44 @@
+$(contents="Sending shared PKI to $name." partial log)
+$(sourcePath="pki" \
+  files="cluster-ca-cert.pem cluster-ca-private-key.pem" \
+  partial tar-copy
+)
+$(contents="Installing $name." partial log)
+$(contents="
+
+$(contents="Generating private key for kublet." partial log)
+$(name="kubelet" partial private-key)
+$(contents="Generating private key for kube-router." partial log)
+$(name="kube-router" partial private-key)
+$(contents="Generating cluster-ca signed certificate for kubelet to apiserver communication." partial log)
+$(ca="cluster" name="kubelet" subj="/CN=system:node:$name/O=system:nodes" ext="subjectAltName = IP:$privateIp,DNS:$name" partial signed-cert)
+$(contents="Generating cluster-ca signed certificate for kube-router to apiserver communication." partial log)
+$(ca="cluster" name="kube-router" subj="/CN=kube-router" partial signed-cert)
+$(contents="Ensuring hostname and loopback reference are set." partial log)
+$(partial set-hostname)
+$(contents="Generating CNI network loopback configuration." partial log)
+$(path="/etc/cni/net.d/99-loopback.conf" contents="$(partial container-network-loopback)" partial write-file)
+$(contents="Installing cri-containerd." partial log)
+$(version="$criContainerdVersion" partial install-containerd)
+$(name="containerd" partial enable-service)
+$(name="cri-containerd" partial enable-service)
+$(contents="Installing container networking plugins at version $cniPluginVersion." partial log)
+$(version="$cniPluginVersion" partial install-cni-plugins)
+$(contents="Generating kubelet config." partial log)
+$(path="/etc/kubernetes/kubelet.kubeconfig" contents="$(name="kubelet" user="system:node:$name" partial kubeconfig)" partial write-file)
+$(contents="Generating kube-router config." partial log)
+$(path="/etc/kubernetes/kube-router.kubeconfig" contents="$(name="kube-router" user="kube-router" partial kubeconfig))" partial write-file)
+$(contents="Installing kubelet at version $kubernetesVersion." partial log)
+$(name="kubelet" version="$kubernetesVersion" partial install-k8s)
+$(contents="Generating kubelet service." partial log)
+$(path="/etc/systemd/system/kubelet.service" contents="
+  $(name="kubelet" \
+    after="cri-containerd.service" \
+    requires="cri-containerd.service" \
+    exec="$(partial exec-kubelet)" partial systemd-unit
+)" partial write-file)
+$(name="kubelet" partial enable-service)
+$(contents="Installing socat to power kubectl proxy." partial log)
+$(partial install-socat)
+
+" partial remote-install)

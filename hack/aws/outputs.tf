@@ -37,3 +37,7 @@ output "WORKER_PRIVATE_IPS" {
 output "WORKER_NAMES" {
   value = "${aws_instance.worker.*.tags.Name}"
 }
+
+output "PUBLIC_IP" {
+  value = "${aws_eip.loadbalancer.public_ip}"
+}

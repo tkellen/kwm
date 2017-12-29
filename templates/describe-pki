@@ -1,0 +1,19 @@
+$(contents="Rendering public key infrastructure." partial log)
+mkdir -p $basePath
+$(contents="Generating cluster certificate authority." partial log)
+$(name="cluster" subj="/CN=$clusterName" partial init-ca)
+$(contents="Generating private key for cluster admin to apiserver communication." partial log)
+$(name="cluster-admin-to-apiserver" partial private-key)
+$(contents="Generating cluster-ca signed certificate for cluster admin to apiserver communication." partial log)
+$(ca="cluster" name="cluster-admin-to-apiserver" subj="/CN=root/O=system:masters" partial signed-cert)
+$(contents="Generating etcd certificate authority." partial log)
+$(name="etcd" subj="/CN=etcd-ca" partial init-ca)
+$(contents="Generating private key for apiserver to etcd server communication." partial log)
+$(name="apiserver-to-etcd" partial private-key)
+$(contents="Generating etcd-ca signed certificate for apiserver to etcd communication." partial log)
+$(ca="etcd" name="apiserver-to-etcd" subj="/CN=etcd" basePath="pki" ext="subjectAltName = $etcdClientSubjectNames" partial signed-cert)
+# TODO: get TLS bootstrapping going to eliminate some PKI creation
+# https://kubernetes.io/docs/admin/bootstrap-tokens/
+$(contents="Generating public/private keypair for service accounts" partial log)
+$(name="service-account" partial private-key)
+$(name="service-account" partial public-key)

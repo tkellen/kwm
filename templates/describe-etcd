@@ -1,0 +1,26 @@
+$(contents="Sending shared PKI to $name." partial log)
+$(sourcePath="pki" \
+  files="etcd-ca-cert.pem etcd-ca-private-key.pem apiserver-to-etcd-private-key.pem apiserver-to-etcd-cert.pem" \
+  partial tar-copy
+)
+$(contents="Installing $name." partial log)
+$(contents="
+
+$(contents="Generating private key for etcd server to etcd server communication." partial log)
+$(name="etcd-to-etcd" partial private-key)
+$(contents="Generating etcd-ca signed certificate for etcd server to etcd server communication." partial log)
+$(ca="etcd" name="etcd-to-etcd" subj="/CN=etcd-to-etcd/O=etcd" ext="subjectAltName = IP:$KWM_PRIVATE_IP,DNS:$KWM_HOSTNAME" partial signed-cert)
+$(contents="Ensuring hostname and loopback reference are set." partial log)
+$(partial set-hostname)
+$(contents="Installing etcd at version $version." partial log)
+$(partial install-etcd)
+$(contents="Generating etcd service file." partial log)
+$(path="/etc/systemd/system/etcd.service" contents="$(
+  name="etcd" \
+  after="network.target" \
+  exec="$(partial exec-etcd)" partial systemd-unit)" partial write-file
+)
+$(contents="Enabling and restarting service." partial log)
+$(name="etcd" partial enable-service)
+
+)" partial remote-install)

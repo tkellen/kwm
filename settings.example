@@ -26,14 +26,10 @@ export KWM_SERVICE_CIDR=10.32.0.0/24
 # The IP used for kubernetes.default.svc.cluster.local
 export KWM_KUBERNETES_SERVICE_IP=10.32.0.1
 
-# User with passwordless sudo access to the servers being bootstrapped. During
-# setup it is assumed that you have ssh-agent running with the private key for
-# the specified user loaded (or that the private key is already available in a
-# default location (e.g. ``~/ssh/id_rsa`)).
-# To validate, run the following:
-# `ssh username@ip_of_host sudo -n uname -r`
-# The response should *not* indicate that a password is required.
-export KWM_SSH_USER=ubuntu
+# A string describing how to connect to instances that will be used in the
+# cluster. During the generation of configuration files, the IP of each
+# machine will be appended.
+export KWM_EXEC="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@"
 
 # The hostnames of your controlplanes. The bootstrap script will ensure these are
 # actually set, and that the needed self-referential entries are present in
@@ -87,4 +83,3 @@ KWM_VERSION_KUBE_DNS=1.14.7
 KWM_VERSION_CNI_PLUGIN=0.6.0
 KWM_VERSION_CRI_CONTAINERD=1.0.0-beta.0
 KWM_VERSION_KUBE_ROUTER=0.0.20
-KWM_VERSION_TRAEFIK=1.5.0-rc2

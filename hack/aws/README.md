@@ -4,12 +4,11 @@
 
 1. `export AWS_PROFILE=<your profile name>`
 2. `terraform init`
-3. `terraform apply`
-4. `./generate-settings > ../../settings`
-5. `cd ../../`
-6. `source settings`
-7. `./kwm`
-8. Follow the prompts.
+3. `terraform apply && terraform apply` (double apply to ensure eip is set)
+4. `./generate-settings > settings`
+5. `. ./settings`
+8. `kwm`
+9. Follow the prompts.
 
 ## Notes
 Everything works!

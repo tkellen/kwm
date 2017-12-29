@@ -5,7 +5,6 @@ here=$(dirname "$0")
   cd $here
   echo export KWM_NAME=$(terraform output NAME)
   echo export KWM_DOMAIN=test.com
-  # TODO: use load balancer for HA
   echo export KWM_PUBLIC_IP="$(terraform output CONTROLPLANE_SSH_IPS | head -n 1 | sed 's/,$//')"
   echo export KWM_APISERVER_PRIVATE_IP="$(terraform output CONTROLPLANE_PRIVATE_IPS | head -n 1 | sed 's/,$//')"
   echo export KWM_POD_CIDR=10.1.0.0/16
