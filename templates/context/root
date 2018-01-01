@@ -1,0 +1,3 @@
+$(value KWM_TYPE root)
+$(value KWM_CLUSTER_NAME)
+$(value KWM_PUBLIC_IP)

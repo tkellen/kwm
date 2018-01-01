@@ -35,7 +35,7 @@ spec:
     spec:
       containers:
       - name: kube-router
-        image: cloudnativelabs/kube-router:v${version}
+        image: cloudnativelabs/kube-router:v${KWM_VERSION_KUBE_ROUTER}
         args: ["--run-router=true", "--run-firewall=true", "--run-service-proxy=true", "--kubeconfig=/etc/kubernetes/kube-router.kubeconfig"]
         securityContext:
           privileged: true

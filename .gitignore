@@ -1,5 +1,4 @@
-pki
 **.terraform*
 **terraform.tfstate*
 settings
-cluster
+cluster/

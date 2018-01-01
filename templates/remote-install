@@ -1,3 +1,0 @@
-${exec} sudo -s <<"REMOTE-INSTALL"
-${contents}
-REMOTE-INSTALL

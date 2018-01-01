@@ -1,0 +1,4 @@
+$(value KWM_TYPE pki)
+$(value KWM_BASE_PATH pki)
+$(value KWM_CLUSTER_NAME)
+$(value KWM_ETCD_CLIENT_SUBJECT_NAMES)

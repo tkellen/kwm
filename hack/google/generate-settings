@@ -2,7 +2,7 @@
 
 here=$(dirname "$0")
 cat <<EOF
-KWM_NAME=$(terraform output NAME)
+KWM_CLUSTER_NAME=$(terraform output NAME)
 KWM_DOMAIN=test.com
 KWM_PUBLIC_IP="$(terraform output CONTROLPLANE_SSH_IPS | head -n 1 | sed 's/,$//')"
 KWM_APISERVER_PRIVATE_IP="$(terraform output CONTROLPLANE_PRIVATE_IPS | head -n 1 | sed 's/,$//')"

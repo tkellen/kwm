@@ -7,7 +7,7 @@
 # of generating a settings file with Terraform, see the `hack` folder.
 
 # Used in places where a top level name for the cluster is helpful for clarity.
-export KWM_NAME=kubernetes
+export KWM_CLUSTER_NAME=kubernetes
 
 # The domain used management of the cluster.
 export KWM_DOMAIN=core.aevitas.io

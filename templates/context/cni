@@ -1,0 +1,2 @@
+$(value KWM_TYPE kube-router)
+$(value KWM_VERSION_KUBE_ROUTER)

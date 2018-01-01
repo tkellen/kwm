@@ -1,5 +1,0 @@
-if [ -d "${dir}" ]; then
-  ${true}
-else
-  ${false}
-fi

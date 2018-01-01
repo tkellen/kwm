@@ -1,7 +1,7 @@
 openssl req -new -sha256 -key ${basePath}/${name}-private-key.pem -subj "${subj}" | \\
   openssl x509 -req -sha256 \\
-    -CA ${caPath}/${ca}-ca-cert.pem \\
-    -CAkey ${caPath}/${ca}-ca-private-key.pem \\
+    -CA ${basePath}/${ca}-ca-cert.pem \\
+    -CAkey ${basePath}/${ca}-ca-private-key.pem \\
     -CAcreateserial \\
     -out ${basePath}/${name}-cert.pem \\
     -days 3650 \\

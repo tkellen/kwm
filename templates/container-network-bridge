@@ -1,9 +1,0 @@
-{
-  "name": "kubernetes",
-  "type": "bridge",
-  "bridge": "kube-bridge",
-  "ipam": {
-    "type": "host-local"
-  },
-  "isDefaultGateway": true
-}

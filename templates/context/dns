@@ -1,0 +1,3 @@
+$(value KWM_TYPE manifest/dns)
+$(value KWM_VERSION_KUBE_DNS)
+$(value KWM_DNS_SERVICE_IP)

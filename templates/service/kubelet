@@ -5,7 +5,7 @@
   --anonymous-auth=false \\
   --authorization-mode=Webhook \\
   --client-ca-file=/etc/kubernetes/cluster-ca-cert.pem \\
-  --cluster-dns=${dnsServiceIp} \\
+  --cluster-dns=${clusterDns} \\
   --cluster-domain=cluster.local \\
   --container-runtime=remote \\
   --container-runtime-endpoint=unix:///var/run/cri-containerd.sock \\
