@@ -1,0 +1,9 @@
+Could not build ${command}, some context missing, could not find values for:
+
+${errors}
+
+Try validating your environment with the following command:
+  kwm context ${type}
+
+...if it looks good, try this:
+  env -S "\$(kwm context ${type}) kwm $command"

@@ -2,7 +2,7 @@ output "NAME" {
   value = "${local.name}"
 }
 
-output "ETCD_NAMES" {
+output "ETCD_HOSTNAMES" {
   value = "${vultr_instance.etcd.*.name}"
 }
 
@@ -14,7 +14,7 @@ output "ETCD_PRIVATE_IPS" {
   value = "${vultr_instance.etcd.*.ipv4_private_address}"
 }
 
-output "CONTROLPLANE_NAMES" {
+output "CONTROLPLANE_HOSTNAMES" {
   value = "${vultr_instance.controlplane.*.name}"
 }
 
@@ -34,6 +34,6 @@ output "WORKER_PRIVATE_IPS" {
   value = "${vultr_instance.worker.*.ipv4_private_address}"
 }
 
-output "WORKER_NAMES" {
+output "WORKER_HOSTNAMES" {
   value = "${vultr_instance.worker.*.name}"
 }

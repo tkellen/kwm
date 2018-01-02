@@ -1,0 +1,4 @@
+$(
+  $fn KWM_VERSION_KUBE_ROUTER
+  $fn KWM_TYPE kube-router
+)

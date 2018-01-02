@@ -1,0 +1,4 @@
+KWM_VERSION_CNI_PLUGIN
+  Controls what version of the cni plugins are installed on all nodes.
+
+  https://github.com/containernetworking/cni/releases

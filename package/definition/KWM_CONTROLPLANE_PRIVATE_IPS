@@ -1,0 +1,3 @@
+KWM_CONTROLPLANE_PRIVATE_IPS
+  A space delimited list of private IPs for each controlplane host. Used by
+  kube-apiserver as the IP to listen on.

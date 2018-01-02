@@ -2,7 +2,7 @@ output "NAME" {
   value = "${local.name}"
 }
 
-output "ETCD_NAMES" {
+output "ETCD_HOSTNAMES" {
   value = "${packet_device.etcd.*.hostname}"
 }
 
@@ -14,7 +14,7 @@ output "ETCD_PRIVATE_IPS" {
   value = "${packet_device.etcd.*.access_private_ipv4}"
 }
 
-output "CONTROLPLANE_NAMES" {
+output "CONTROLPLANE_HOSTNAMES" {
   value = "${packet_device.controlplane.*.hostname}"
 }
 
@@ -34,6 +34,6 @@ output "WORKER_PRIVATE_IPS" {
   value = "${packet_device.worker.*.access_private_ipv4}"
 }
 
-output "WORKER_NAMES" {
+output "WORKER_HOSTNAMES" {
   value = "${packet_device.worker.*.hostname}"
 }

@@ -1,7 +1,0 @@
-$(value KWM_TYPE etcd)
-$(value KWM_BASE_PATH /etc/kubernetes)
-$(value KWM_CONNECT)
-$(value KWM_PRIVATE_IP)
-$(value KWM_HOSTNAME)
-$(value KWM_ETCD_INITIAL_CLUSTER)
-$(value KWM_VERSION_ETCD)

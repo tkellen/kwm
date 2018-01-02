@@ -200,7 +200,7 @@ bin   dev   etc   home  proc  root  sys   tmp   usr   var
 
 **Start busybox on specific Node:**
 ```shell
-WORKER_NAME=$(echo $WORKER_NAMES | cut -d ',' -f 1)
+WORKER_NAME=$(echo $WORKER_HOSTNAMES | cut -d ',' -f 1)
 kubectl run networktest \
   --image=busybox \
   --overrides="{\"apiVersion\":\"extensions/v1beta1\",\"spec\":{\"template\":{\"spec\":{\"nodeSelector\":{\"kubernetes.io/hostname\":\"${WORKER_NAME}\"}}}}}" \

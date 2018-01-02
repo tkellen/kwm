@@ -1,0 +1,15 @@
+$(
+  $fn KWM_CONNECT
+  $fn KWM_SSH_IP
+  $fn KWM_PRIVATE_IP
+  $fn KWM_HOSTNAME
+  $fn KWM_APISERVER_PRIVATE_IP
+  $fn KWM_CLUSTER_NAME
+  $fn KWM_VERSION_KUBERNETES
+  $fn KWM_VERSION_CNI_PLUGIN
+  $fn KWM_VERSION_CRI_CONTAINERD
+  $fn KWM_POD_CIDR
+  $fn KWM_ROLE worker
+  $fn KWM_BASE_PATH /etc/kubernetes
+  $fn KWM_TYPE worker
+)

@@ -1,0 +1,2 @@
+KWM_KUBERNETES_SERVICE_IP
+  The IP used for kubernetes.default.svc.cluster.local

@@ -2,7 +2,7 @@ output "NAME" {
   value = "${local.name}"
 }
 
-output "CONTROLPLANE_NAMES" {
+output "CONTROLPLANE_HOSTNAMES" {
   value = "${aws_instance.controlplane.*.tags.Name}"
 }
 
@@ -14,7 +14,7 @@ output "CONTROLPLANE_PRIVATE_IPS" {
   value = "${aws_instance.controlplane.*.private_ip}"
 }
 
-output "ETCD_NAMES" {
+output "ETCD_HOSTNAMES" {
   value = "${aws_instance.etcd.*.tags.Name}"
 }
 
@@ -34,7 +34,7 @@ output "WORKER_PRIVATE_IPS" {
   value = "${aws_instance.worker.*.private_ip}"
 }
 
-output "WORKER_NAMES" {
+output "WORKER_HOSTNAMES" {
   value = "${aws_instance.worker.*.tags.Name}"
 }
 

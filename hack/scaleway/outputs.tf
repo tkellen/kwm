@@ -2,7 +2,7 @@ output "NAME" {
   value = "${local.name}"
 }
 
-output "ETCD_NAMES" {
+output "ETCD_HOSTNAMES" {
   value = "${scaleway_server.etcd.*.name}"
 }
 
@@ -14,7 +14,7 @@ output "ETCD_PRIVATE_IPS" {
   value = "${scaleway_server.etcd.*.private_ip}"
 }
 
-output "CONTROLPLANE_NAMES" {
+output "CONTROLPLANE_HOSTNAMES" {
   value = "${scaleway_server.controlplane.*.name}"
 }
 
@@ -34,6 +34,6 @@ output "WORKER_PRIVATE_IPS" {
   value = "${scaleway_server.worker.*.private_ip}"
 }
 
-output "WORKER_NAMES" {
+output "WORKER_HOSTNAMES" {
   value = "${scaleway_server.worker.*.name}"
 }

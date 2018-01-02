@@ -19,13 +19,13 @@ here=$(dirname "$0")
   echo export KWM_VERSION_CRI_CONTAINERD=1.0.0-beta.0
   echo export KWM_VERSION_KUBE_ROUTER=0.0.20
   echo export KWM_VERSION_TRAEFIK=1.5.0-rc2
-  echo export KWM_CONTROLPLANE_NAMES=$(terraform output CONTROLPLANE_NAMES | tr -d '\n')
+  echo export KWM_CONTROLPLANE_HOSTNAMES=$(terraform output CONTROLPLANE_HOSTNAMES | tr -d '\n')
   echo export KWM_CONTROLPLANE_SSH_IPS=$(terraform output CONTROLPLANE_SSH_IPS | tr -d '\n')
   echo export KWM_CONTROLPLANE_PRIVATE_IPS=$(terraform output CONTROLPLANE_PRIVATE_IPS | tr -d '\n')
-  echo export KWM_ETCD_NAMES=$(terraform output ETCD_NAMES | tr -d '\n')
+  echo export KWM_ETCD_HOSTNAMES=$(terraform output ETCD_HOSTNAMES | tr -d '\n')
   echo export KWM_ETCD_SSH_IPS=$(terraform output ETCD_SSH_IPS | tr -d '\n')
   echo export KWM_ETCD_PRIVATE_IPS=$(terraform output ETCD_PRIVATE_IPS | tr -d '\n')
-  echo export KWM_WORKER_NAMES=$(terraform output WORKER_NAMES | tr -d '\n')
+  echo export KWM_WORKER_HOSTNAMES=$(terraform output WORKER_HOSTNAMES | tr -d '\n')
   echo export KWM_WORKER_SSH_IPS=$(terraform output WORKER_SSH_IPS | tr -d '\n')
   echo export KWM_WORKER_PRIVATE_IPS=$(terraform output WORKER_PRIVATE_IPS | tr -d '\n')
 )

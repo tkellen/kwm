@@ -2,7 +2,7 @@ output "NAME" {
   value = "${local.name}"
 }
 
-output "ETCD_NAMES" {
+output "ETCD_HOSTNAMES" {
   value = "${azurerm_virtual_machine.etcd.*.name}"
 }
 
@@ -14,7 +14,7 @@ output "ETCD_PRIVATE_IPS" {
   value = "${azurerm_network_interface.etcd.*.private_ip_address}"
 }
 
-output "CONTROLPLANE_NAMES" {
+output "CONTROLPLANE_HOSTNAMES" {
   value = "${azurerm_virtual_machine.controlplane.*.name}"
 }
 
@@ -26,7 +26,7 @@ output "CONTROLPLANE_PRIVATE_IPS" {
   value = "${azurerm_network_interface.worker.*.private_ip_address}"
 }
 
-output "WORKER_NAMES" {
+output "WORKER_HOSTNAMES" {
   value = "${azurerm_virtual_machine.worker.*.name}"
 }
 

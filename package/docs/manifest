@@ -1,0 +1,3 @@
+Usage:
+  kwm manifest [cni dns]
+  kwm help render

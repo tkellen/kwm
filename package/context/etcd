@@ -1,0 +1,9 @@
+$(
+  $fn KWM_CONNECT
+  $fn KWM_PRIVATE_IP
+  $fn KWM_HOSTNAME
+  $fn KWM_ETCD_INITIAL_CLUSTER
+  $fn KWM_VERSION_ETCD
+  $fn KWM_BASE_PATH /etc/kubernetes
+  $fn KWM_TYPE etcd
+)

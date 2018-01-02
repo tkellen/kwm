@@ -2,7 +2,7 @@ output "NAME" {
   value = "${local.name}"
 }
 
-output "ETCD_NAMES" {
+output "ETCD_HOSTNAMES" {
   value = "${triton_machine.etcd.*.name}"
 }
 
@@ -14,7 +14,7 @@ output "ETCD_PRIVATE_IPS" {
   value = "${triton_machine.etcd.*.ips.1}"
 }
 
-output "CONTROLPLANE_NAMES" {
+output "CONTROLPLANE_HOSTNAMES" {
   value = "${triton_machine.controlplane.*.name}"
 }
 
@@ -34,6 +34,6 @@ output "WORKER_PRIVATE_IPS" {
   value = "${triton_machine.worker.*.ips.1}"
 }
 
-output "WORKER_NAMES" {
+output "WORKER_HOSTNAMES" {
   value = "${triton_machine.worker.*.name}"
 }

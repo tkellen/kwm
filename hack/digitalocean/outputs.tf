@@ -2,7 +2,7 @@ output "NAME" {
   value = "${local.name}"
 }
 
-output "ETCD_NAMES" {
+output "ETCD_HOSTNAMES" {
   value = "${digitalocean_droplet.etcd.*.name}"
 }
 
@@ -14,7 +14,7 @@ output "ETCD_PRIVATE_IPS" {
   value = "${digitalocean_droplet.etcd.*.ipv4_address_private}"
 }
 
-output "CONTROLPLANE_NAMES" {
+output "CONTROLPLANE_HOSTNAMES" {
   value = "${digitalocean_droplet.controlplane.*.name}"
 }
 
@@ -34,6 +34,6 @@ output "WORKER_PRIVATE_IPS" {
   value = "${digitalocean_droplet.worker.*.ipv4_address_private}"
 }
 
-output "WORKER_NAMES" {
+output "WORKER_HOSTNAMES" {
   value = "${digitalocean_droplet.worker.*.name}"
 }

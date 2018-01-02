@@ -1,0 +1,4 @@
+KWM_EXEC
+  A string describing how to connect to instances that will be used in the
+  cluster. During the generation of configuration files, the IP of each machine
+  will be appended.

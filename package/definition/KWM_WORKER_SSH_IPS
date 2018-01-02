@@ -1,0 +1,5 @@
+KWM_WORKER_SSH_IPS
+  A space delimited list of IPs for SSH access to each node host during
+  bootstrapping. This will likely be the same as the public IP for cloud
+  providers.
+  TODO: describe in more detail the usage.

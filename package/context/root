@@ -1,0 +1,5 @@
+$(
+  $fn KWM_CLUSTER_NAME
+  $fn KWM_PUBLIC_IP
+  $fn KWM_TYPE root
+)

@@ -1,0 +1,5 @@
+$(
+  $fn KWM_VERSION_KUBE_DNS
+  $fn KWM_DNS_SERVICE_IP
+  $fn KWM_TYPE manifest/dns
+)

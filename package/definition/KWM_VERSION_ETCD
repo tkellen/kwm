@@ -1,0 +1,4 @@
+KWM_VERSION_ETCD
+  Controls what version of the etcd binary is installed on etcd nodes.
+
+  https://github.com/coreos/etcd/releases/

@@ -1,114 +1,181 @@
 #!/bin/bash
+if [ ! -t 1 ]; then
+  STDOUT_IS_TERMINAL=false
+else
+  STDOUT_IS_TERMINAL=true
+fi
+SCRIPT_PATH="$(cd "$(dirname "$0")"; pwd -P)"
+REQUESTING_HELP=false
+case "$@" in
+  *--help*) REQUESTING_HELP=true ;;
+esac
 
 function main {
-  case "$1" in
-    "context") context $2 $3 ;;
-    "script") template script $2 ;;
-    "manifest") template manifest $2 ;;
-    "compose") render docs/compose ;;
-    *) render docs/usage ;;
-  esac
+  local command=$1
+  local type=$2
+  local index=$3
+  if [ "$command" = "context" ]; then context $type $index; exit 0; fi
+  if [ "$command" = "go" ]; then render docs go; exit 0; fi
+  if [ "$command" = "info" ]; then render docs info; exit 0; fi
+  if [ "$command" = "manifest" ]; then manifest $type; exit 0; fi
+  if [ "$command" = "script" ]; then script $type $index; exit 0; fi
+  render docs usage
+  exit 0
 }
 
-function value {
+function var-show {
   local key=$1
   local value=$2
   if [ -z "$value" ]; then
     value=${!key}
   fi
-  echo "$key=\"${value}\""
+  printf "$key=\"${value}\"\n"
 }
 
-function colorize {
-  if [ ! -t 0 ]; then
-    printf "$(tput setaf 4)$1$(tput op)\n"
+function var-validate {
+  local key=$1
+  local value=$2
+  if [ -z "$value" ]; then
+    printf "$key\n"
   fi
 }
 
+function var-help {
+  local var=$1
+  local value=${!var}
+  render definition $var
+  printf "\n"
+}
+
 function compile {
+  local template="$SCRIPT_PATH/package/$1"
+  echo "SCRIPT_PATH=$SCRIPT_PATH"
+  echo "STDOUT_IS_TERMINAL=$STDOUT_IS_TERMINAL"
   echo "cat <<RENDER"
-  cat "/Users/tkellen/code/kube/templates/$1"
+  cat "$template"
   echo "RENDER"
 }
 
 function render {
-  compile $@ | bash
+  local namespace=$1
+  local key=$2
+  compile $namespace/$key | bash
 }
-export -f value colorize compile render
+
+function highlight {
+  if $STDOUT_IS_TERMINAL; then
+    for name in ${!KWM*}; do
+      eval $name=\"$(tput setaf 4)${!name}$(tput op)\"
+    done
+  fi
+}
+export -f var-help var-validate var-show compile render
 
 function parse-input {
-  KWM_ETCD_NAMES=(${KWM_ETCD_NAMES//,/ })
-  KWM_ETCD_SSH_IPS=(${KWM_ETCD_SSH_IPS//,/ })
-  KWM_ETCD_PRIVATE_IPS=(${KWM_ETCD_PRIVATE_IPS//,/ })
-  KWM_CONTROLPLANE_NAMES=(${KWM_CONTROLPLANE_NAMES//,/ })
-  KWM_CONTROLPLANE_SSH_IPS=(${KWM_CONTROLPLANE_SSH_IPS//,/ })
-  KWM_CONTROLPLANE_PRIVATE_IPS=(${KWM_CONTROLPLANE_PRIVATE_IPS//,/ })
-  KWM_WORKER_NAMES=(${KWM_WORKER_NAMES//,/ })
-  KWM_WORKER_SSH_IPS=(${KWM_WORKER_SSH_IPS//,/ })
-  KWM_WORKER_PRIVATE_IPS=(${KWM_WORKER_PRIVATE_IPS//,/ })
-  for i in ${!KWM_ETCD_NAMES[@]}; do
-    KWM_ETCD_INITIAL_CLUSTER+=",${KWM_ETCD_NAMES[$i]}=https://${KWM_ETCD_PRIVATE_IPS[$i]}:2380"
-    KWM_ETCD_HOSTS+=",https://${KWM_ETCD_PRIVATE_IPS[$i]}:2379"
-    KWM_ETCD_CLIENT_SUBJECT_NAMES+=",IP:${KWM_ETCD_PRIVATE_IPS[$i]},DNS:${KWM_ETCD_NAMES[$i]}"
-  done
-  KWM_ETCD_INITIAL_CLUSTER=${KWM_ETCD_INITIAL_CLUSTER:1}
-  KWM_ETCD_HOSTS=${KWM_ETCD_HOSTS:1}
-  KWM_ETCD_CLIENT_SUBJECT_NAMES=${KWM_ETCD_CLIENT_SUBJECT_NAMES:1}
+  # Convert space separated values into bash arrays.
+  KWM_ETCD_HOSTNAMES=($KWM_ETCD_HOSTNAMES)
+  KWM_ETCD_SSH_IPS=($KWM_ETCD_SSH_IPS)
+  KWM_ETCD_PRIVATE_IPS=($KWM_ETCD_PRIVATE_IPS)
+  KWM_CONTROLPLANE_HOSTNAMES=($KWM_CONTROLPLANE_HOSTNAMES)
+  KWM_CONTROLPLANE_SSH_IPS=($KWM_CONTROLPLANE_SSH_IPS)
+  KWM_CONTROLPLANE_PRIVATE_IPS=($KWM_CONTROLPLANE_PRIVATE_IPS)
+  KWM_WORKER_HOSTNAMES=($KWM_WORKER_HOSTNAMES)
+  KWM_WORKER_SSH_IPS=($KWM_WORKER_SSH_IPS)
+  KWM_WORKER_PRIVATE_IPS=($KWM_WORKER_PRIVATE_IPS)
+  # Generate client subject altnames if it hasn't been provided.
+  if [ -z "$KWM_ETCD_CLIENT_SUBJECT_ALTNAMES" ]; then
+    for i in ${!KWM_ETCD_HOSTNAMES[@]}; do
+      KWM_ETCD_CLIENT_SUBJECT_ALTNAMES+=",IP:${KWM_ETCD_PRIVATE_IPS[$i]},DNS:${KWM_ETCD_HOSTNAMES[$i]}"
+    done
+    KWM_ETCD_CLIENT_SUBJECT_ALTNAMES=${KWM_ETCD_CLIENT_SUBJECT_ALTNAMES:1}
+  fi
+  # Generate etcd initial cluster config if it hasn't been provided.
+  if [ -z "$KWM_ETCD_CLIENT_SUBJECT_ALTNAMES" ]; then
+    for i in ${!KWM_ETCD_HOSTNAMES[@]}; do
+      KWM_ETCD_INITIAL_CLUSTER+=",${KWM_ETCD_HOSTNAMES[$i]}=https://${KWM_ETCD_PRIVATE_IPS[$i]}:2380"
+    done
+    KWM_ETCD_INITIAL_CLUSTER=${KWM_ETCD_INITIAL_CLUSTER:1}
+  fi
+  # Generate etcd hostnames if they aren't explictly provided already
+  if [ -z "$KWM_ETCD_CLIENT_SUBJECT_ALTNAMES" ]; then
+    for i in ${!KWM_ETCD_HOSTNAMES[@]}; do
+      KWM_ETCD_HOSTS+=",https://${KWM_ETCD_PRIVATE_IPS[$i]}:2379"
+    done
+    KWM_ETCD_HOSTS=${KWM_ETCD_HOSTS:1}
+  fi
+}
+
+# dynamically get array of the following:
+# KWM_<TYPE>_HOSTNAMES
+# KWM_<TYPE>_SSH_IPS
+# KWM_<TYPE>_PRIVATE_IPS
+function get-type {
+  local type=$1
+  parse-input
+  CONTEXT=$(echo $type | awk '{print toupper($0)}')
+  HOSTNAMES="KWM_${CONTEXT}_HOSTNAMES[@]"
+  SSH_IPS="KWM_${CONTEXT}_SSH_IPS[@]"
+  PRIVATE_IPS="KWM_${CONTEXT}_PRIVATE_IPS[@]"
+  HOSTNAMES=(${!HOSTNAMES})
+  SSH_IPS=(${!SSH_IPS})
+  PRIVATE_IPS=(${!PRIVATE_IPS})
+}
+
+function validate {
+  local type=$1
+  local command=$2
+  local errors=$(fn=var-validate render context $type)
+  if [ ! -z "$errors" ]; then
+    errors="$errors" type="$type" command=$command render error missing-context
+    exit 1
+  fi
 }
 
 function context {
   local type=$1
   local idx=$2
-  parse-input
-  # dynamically get array of the following:
-  # KWM_<TYPE>_NAMES
-  # KWM_<TYPE>_SSH_IPS
-  # KWM_<TYPE>_PRIVATE_IPS
-  CONTEXT=$(echo $type | awk '{print toupper($0)}')
-  NAMES="KWM_${CONTEXT}_NAMES[@]"
-  SSH_IPS="KWM_${CONTEXT}_SSH_IPS[@]"
-  PRIVATE_IPS="KWM_${CONTEXT}_PRIVATE_IPS[@]"
-  NAMES=(${!NAMES})
-  SSH_IPS=(${!SSH_IPS})
-  PRIVATE_IPS=(${!PRIVATE_IPS})
-  # render needed context for specified type
-  KWM_HOSTNAME="${NAMES[$idx]}" \
+  if [ -z "$type" ]; then
+    render docs context
+    exit 1
+  fi
+  local fn=var-show
+  if $REQUESTING_HELP; then
+    fn=var-help
+  fi
+  get-type $1
+  KWM_HOSTNAME="${HOSTNAMES[$idx]}" \
   KWM_CONNECT="${KWM_EXEC}${SSH_IPS[$idx]}" \
   KWM_SSH_IP="${SSH_IPS[$idx]}" \
   KWM_PRIVATE_IP="${PRIVATE_IPS[$idx]}" \
   KWM_ETCD_INITIAL_CLUSTER=${KWM_ETCD_INITIAL_CLUSTER} \
   KWM_ETCD_HOSTS=${KWM_ETCD_HOSTS} \
-  KWM_ETCD_CLIENT_SUBJECT_NAMES=${KWM_ETCD_CLIENT_SUBJECT_NAMES} \
-  render context/$type
+  KWM_ETCD_CLIENT_SUBJECT_ALTNAMES=${KWM_ETCD_CLIENT_SUBJECT_ALTNAMES} \
+  fn=$fn render context $type
 }
 
-function template {
-  local namespace=$1
-  local type=$2
-  local output
-  # if no type is supplied as argument, check environment
+function script {
+  local type=$1
+  local index=$2
   type=${type:-$KWM_TYPE}
-  # show usage if no typed is defined
   if [ -z "$type" ]; then
-    render docs/generate
+    render docs script
     exit 1
   fi
-  # colorize variables when stdout is a terminal
-  if [ -t 1 ]; then
-    for name in ${!KWM*}; do
-      eval $name=\"¦¦${!name}¦¦\"
-    done
+  highlight
+  validate $type script
+  render script $type
+}
+
+function manifest {
+  local type=$1
+  type=${type:-$KWM_TYPE}
+  if [ -z "$type" ]; then
+    render docs manifest
+    exit 1
   fi
-  case "${type:-$KWM_TYPE}" in
-    "")
-      echo "nope"
-      ;;
-    *)
-      output=$(render $namespace/$type)
-      ;;
-  esac
-  # colorize variables when stdout is a terminal
-  sed "s/\(¦¦\)\([^¦¦]*\)\(¦¦\)/$(tput setaf 4)\2$(tput op)/g" <<< "$output"
+  highlight
+  validate $type
+  render manifest $type
 }
 
 main "$@"

@@ -1,0 +1,13 @@
+KWM_TYPE
+  Signals what type of resource is being manipulated. The following commands are
+  equivalent:
+
+    $(tput setaf 2)KWM_TYPE=root$(tput op) KWM_CLUSTER_NAME=kwm KWM_PUBLIC_IP=54.34.32.100 kwm script
+    KWM_CLUSTER_NAME=kwm KWM_PUBLIC_IP=54.34.32.100 kwm script $(tput setaf 2)root$(tput op)
+
+  If a type is supplied at the command line KWM ignores the environment variable
+  KWM_TYPE. The following commands are equivalent:
+
+    $(tput setaf 2)KWM_TYPE=root$(tput op) KWM_CLUSTER_NAME=kwm KWM_PUBLIC_IP=54.34.32.100 kwm script
+    KWM_TYPE=cat KWM_CLUSTER_NAME=kwm KWM_PUBLIC_IP=54.34.32.100 kwm script $(tput setaf 2)root$(tput op)
+    $(tput setaf 2)^ ignored$(tput op)

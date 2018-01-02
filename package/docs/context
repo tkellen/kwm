@@ -1,0 +1,2 @@
+Usage:
+  kwm context [all cni controlplane dns etcd kubectl-root pki worker]
