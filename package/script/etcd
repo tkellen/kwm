@@ -4,7 +4,7 @@ echo Sending shared PKI to $KWM_HOSTNAME.
 $(files="etcd-ca-cert.pem etcd-ca-private-key.pem apiserver-to-etcd-private-key.pem apiserver-to-etcd-cert.pem" \
   exec="$KWM_CONNECT" \
   basePath="$KWM_BASE_PATH" \
-  sourcePath="pki" render util tar-copy
+  sourcePath="$KWM_LOCAL_PKI_PATH" render util tar-copy
 )
 #------------------------------------------------------------------------------#
 echo Installing $KWM_HOSTNAME.
@@ -39,8 +39,8 @@ $(path="/etc/systemd/system/etcd.service" content="$(
   exec="$(
     name="$KWM_HOSTNAME" \
     privateIp="$KWM_PRIVATE_IP" \
-    initialCluster="$KWM_ETCD_INITIAL_CLUSTER" render service/etcd
-  )" render service/unit)" render util write-file
+    initialCluster="$KWM_ETCD_INITIAL_CLUSTER" render service etcd
+  )" render service unit)" render util write-file
 )
 #------------------------------------------------------------------------------#
 echo Enabling and restarting service.

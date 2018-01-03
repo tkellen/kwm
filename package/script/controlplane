@@ -4,7 +4,7 @@ echo Sending shared PKI to $KWM_HOSTNAME.
 $(files="cluster-ca-cert.pem cluster-ca-private-key.pem etcd-ca-cert.pem etcd-ca-private-key.pem apiserver-to-etcd-cert.pem apiserver-to-etcd-private-key.pem service-account-private-key.pem service-account-public-key.pem" \
   exec="$KWM_CONNECT" \
   basePath="$KWM_BASE_PATH" \
-  sourcePath="$KWM_PKI_PATH" render util tar-copy
+  sourcePath="$KWM_LOCAL_PKI_PATH" render util tar-copy
 )
 #------------------------------------------------------------------------------#
 echo Installing $KWM_HOSTNAME.
@@ -21,8 +21,8 @@ $(basePath="$KWM_BASE_PATH" name="apiserver-to-kubelet" render pki private-key)
 #------------------------------------------------------------------------------#
 echo Generating cluster-ca signed certificate for client to apiserver communication.
 #------------------------------------------------------------------------------#
-$(pkiPath="$KWM_PKI_PATH" \
-  name="client-to-apiserver" \
+$(name="client-to-apiserver" \
+  basePath="$KWM_BASE_PATH" \
   subj="/CN=kube-apiserver" \
   ext="subjectAltName = IP:$KWM_PUBLIC_IP,IP:$KWM_KUBERNETES_SERVICE_IP,IP:$KWM_PRIVATE_IP,DNS:$KWM_HOSTNAME,DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.cluster,DNS:kubernetes.default.svc.cluster.local" \
   ca="cluster" render pki signed-cert

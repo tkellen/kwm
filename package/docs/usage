@@ -8,3 +8,5 @@ Available Commands:
   info      show information about this software
   manifest  compile a yaml manifest from environment variables
   script    compile a bash script from environment variables
+
+Use "kwm [command] --help" for more information about a given command.

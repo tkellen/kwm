@@ -64,7 +64,7 @@ $(path="/etc/kubernetes/kubelet.kubeconfig" \
     name="kubelet" \
     user="system:node:$KWM_HOSTNAME" \
     clusterName="$KWM_CLUSTER_NAME" \
-    privateIp="$KWM_APISERVER_PRIVATE_IP" \
+    apiserver="$KWM_APISERVER_PRIVATE_IP" \
     basePath="$KWM_BASE_PATH" render manifest kubeconfig
   )" render util write-file
 )
@@ -76,7 +76,7 @@ $(path="/etc/kubernetes/kube-router.kubeconfig" \
     name="kube-router" \
     user="kube-router" \
     clusterName="$KWM_CLUSTER_NAME" \
-    privateIp="$KWM_APISERVER_PRIVATE_IP" \
+    apiserver="$KWM_APISERVER_PRIVATE_IP" \
     basePath="$KWM_BASE_PATH" render manifest kubeconfig
   )" render util write-file
 )

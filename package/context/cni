@@ -1,4 +1,4 @@
 $(
-  $fn KWM_VERSION_KUBE_ROUTER
-  $fn KWM_TYPE kube-router
+  $DISPLAY KWM_VERSION_KUBE_ROUTER
+  $DISPLAY KWM_TYPE kube-router
 )
