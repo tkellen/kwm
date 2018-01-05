@@ -1,208 +1,258 @@
 #!/usr/bin/env bash
+# Kubernetes Without Magic
 
-# prepare some global variables
 SCRIPT_PATH="$(cd "$(dirname "$0")"; pwd -P)"
-HELP_REQUESTED=false
-case "$@" in
-  *--help*) HELP_REQUESTED=true ;;
-esac
-if [ ! -t 1 ]; then
+SCRIPT_NAME="$(basename -- "$0")"
+if [[ ! -t 1 ]]; then
   STDOUT_IS_TERMINAL=false
 else
   STDOUT_IS_TERMINAL=true
 fi
 DISPLAY=var-show
-if $HELP_REQUESTED; then
-  DISPLAY=var-help
-fi
 
-function main {
+main() {
   local command=$1
-  local type=$2
-  local index=$3
 
-  if [ "$command" = "context" ]; then context $type $index; exit 0; fi
-  if [ "$command" = "go" ]; then script all; exit 0; fi
-  if [ "$command" = "info" ]; then render docs info; exit 0; fi
-  if [ "$command" = "manifest" ]; then manifest $type; exit 0; fi
-  if [ "$command" = "script" ]; then script $type $index; exit 0; fi
-  if [ "$command" = "eject" ]; then eject; exit 0; fi
-  render docs usage
+  if [[ $command = connect ]]; then connect ${@:2}; exit 0; fi
+  if [[ $command = define ]]; then define ${@:2}; exit 0; fi
+  if [[ $command = env ]]; then env ${@:2}; exit 0; fi
+  if [[ $command = info ]]; then render usage info; exit 0; fi
+  if [[ $command = install ]]; then
+    echo "export PATH=\$PATH:$SCRIPT_PATH"
+    exit 0;
+  fi
+  if [[ $command = manifest ]]; then manifest ${@:2}; exit 0; fi
+  if [[ $command = script ]]; then script ${@:2}; exit 0; fi
+  if [[ $command = startup ]]; then script startup; exit 0; fi
+
+  render usage main
   exit 0
 }
 
-function if-help-requested {
-  if $HELP_REQUESTED; then
-    printf "$1"
-  fi
-}
-
-function var-show {
+var-show() {
   local key=$1
   local value=$2
-  if [ -z "$value" ]; then
+  if [[ -z $value ]]; then
     value=${!key}
   fi
   printf "$key=\"${value}\"\n"
 }
 
-function var-validate {
+var-validate() {
   local key=$1
-  local value=$2
-  if [ -z "$value" ]; then
+  local defaultValue=$2
+  local envValue=${!key}
+  local value=${envValue:-${defaultValue}}
+  if [[ -z $value ]]; then
     printf "$key\n"
   fi
 }
 
-function var-help {
+var-help() {
   local var=$1
   local value=${!var}
   render definition $var
   printf "\n"
 }
 
-function compile {
-  local template="$SCRIPT_PATH/package/$1"
+compile() {
   echo "SCRIPT_PATH=$SCRIPT_PATH"
   echo "STDOUT_IS_TERMINAL=$STDOUT_IS_TERMINAL"
   echo "DISPLAY=$DISPLAY"
+  echo "SCRIPT_NAME=$SCRIPT_NAME"
   echo "cat <<RENDER"
-  cat "$template"
+  cat "$1"
   echo "RENDER"
 }
 
-function render {
+render() {
   local namespace=$1
   local key=$2
-  compile $namespace/$key | bash
+  local template="$SCRIPT_PATH/package/$namespace/$key"
+  if [[ ! -f $template ]]; then
+    echo "$namespace $key not found."
+    render usage $namespace
+    exit 1
+  fi
+  compile $template | bash
 }
 
-function highlight {
+highlight() {
   if $STDOUT_IS_TERMINAL; then
     for name in ${!KWM*}; do
       eval $name=\"$(tput setaf 4)${!name}$(tput op)\"
     done
   fi
 }
-export -f var-help var-validate var-show compile render if-help-requested
 
-function validate {
-  local type=$1
-  local command=$2
-  local errors=$(DISPLAY=var-validate render context $type)
-  if [ ! -z "$errors" ]; then
-    errors="$errors" type="$type" command=$command render error missing-context
-    exit 1
-  fi
-}
-
-function upper-case {
+upper-case() {
   awk '{print toupper($0)}' <<< "$1"
 }
 
-function find-vars {
-  local search=$1
-  printf "$(declare -xp | grep "$search" | sed 's/declare -x \(.*\)=.*/\1/g')"
+find-vars() {
+  printf "$(declare -xp | grep "$1" | sed 's/declare -x \(.*\)=.*/\1/g')"
 }
 
-function hash-from-var {
+hash-from-var() {
   sed 's/.*_\(.*\)/\1/' <<< $1
 }
 
-function find-hosts {
-  for hit in $(find-vars "KWM_HOST_$(upper-case $1)_HOSTNAME*"); do
-    echo $(hash-from-var $hit)
+find-host-hashes() {
+  local type=$1
+  for hit in $(find-vars "KWM_HOST_ROLE*"); do
+    local hash="${hit##*_}"
+    if [[ $type == all || -z $type ]]; then
+      echo $hash
+    elif grep -q $type <<<${!hit}; then
+      echo $hash
+    fi
   done
 }
 
-function private-ip {
-  local lookup="KWM_HOST_$1_PRIVATE_IP_$2"
+host-value() {
+  local hash=$1
+  local key=$2
+  local lookup="KWM_HOST_${key}_${hash}"
   echo ${!lookup}
 }
 
-function hostname {
-  local lookup="KWM_HOST_$1_HOSTNAME_$2"
-  echo ${!lookup}
+get-defaults() {
+  export KWM_BASE_PATH=${KWM_BASE_PATH:-/etc/kubernetes}
+  export KWM_LOCAL_PKI_PATH=${KWM_LOCAL_PKI_PATH:-pki}
 }
 
-function derive-etcd-vars {
-  local hostHash privateIp hostname subjectAltnames initialCluster etcdHosts
-  for var in $(find-hosts etcd); do
-    hostHash=$(hash-from-var $var)
-    privateIp=$(private-ip ETCD $hostHash)
-    hostname=$(hostname ETCD $hostHash)
-    # generate subject altnames for etcd-ca certificate
-    subjectAltnames+=",IP:${privateIp},DNS:${hostname}"
-    # generate initial cluster config to pass as parameter to etcd unit
-    initialCluster+=",${hostname}=https://${privateIp}:2380"
-    # generate etcdHosts for kube-apiserver unit
-    etcdHosts+=",https://${privateIp}:2379"
-  done
-  if [ -z "$KWM_ETCD_CLIENT_SUBJECT_ALTNAMES" ]; then
-    KWM_ETCD_CLIENT_SUBJECT_ALTNAMES=${subjectAltnames:1}
-  fi
-  if [ -z "$KWM_ETCD_INITIAL_CLUSTER" ]; then
-    KWM_ETCD_INITIAL_CLUSTER=${initialCluster:1}
-  fi
-  if [ -z "$KWM_ETCD_HOSTS" ]; then
-    KWM_ETCD_HOSTS=${etcdHosts:1}
+get-host-meta() {
+  local hash=$1
+  export KWM_ROLE="$(host-value $hash ROLE)"
+  export KWM_HOSTNAME="$(host-value $hash NAME)"
+  export KWM_CONNECT="$(host-value $hash CONNECT)"
+  export KWM_PRIVATE_IP="$(host-value $hash PRIVATE_IP)"
+}
+
+get-etcd-meta() {
+  export KWM_ETCD_INITIAL_CLUSTER=$(etcd-initial-cluster)
+  export KWM_ETCD_CLIENT_SUBJECT_ALTNAMES=$(etcd-client-subjectaltnames)
+  export KWM_ETCD_HOSTS=$(etcd-hosts)
+}
+
+etcd-client-subjectaltnames() {
+  local output
+  if [[ -n $KWM_ETCD_CLIENT_SUBJECT_ALTNAMES ]]; then
+    echo $KWM_ETCD_CLIENT_SUBJECT_ALTNAMES
+  else
+    for hash in $(find-host-hashes etcd); do
+      output+=",IP:$(host-value $hash PRIVATE_IP),DNS:$(host-value $hash NAME)"
+    done
+    echo ${output:1}
   fi
 }
 
-function context {
+etcd-initial-cluster() {
+  local output
+  if [[ -n $KWM_ETCD_INITIAL_CLUSTER ]]; then
+    echo $KWM_ETCD_INITIAL_CLUSTER
+  else
+    for hash in $(find-host-hashes etcd); do
+      output+=",$(host-value $hash NAME)=https://$(host-value $hash PRIVATE_IP):2380"
+    done
+    echo ${output:1}
+  fi
+}
+
+etcd-hosts() {
+  local output
+  if [[ -n $KWM_ETCD_HOSTS ]]; then
+    echo $KWM_ETCD_HOSTS
+  else
+    for hash in $(find-host-hashes etcd); do
+      output+=",https://$(host-value $hash PRIVATE_IP):2379"
+    done
+    echo ${output:1}
+  fi
+}
+
+connect() {
+  local hash=$1
+  if [[ -z $hash ]]; then
+    render usage connect
+    export valid="$(find-host-hashes $type)"
+    export command="kwm connect [hash]"
+    render error missing-hash
+    exit 1
+  fi
+  $(host-value $hash CONNECT)
+}
+
+define() {
+  local var=$1
+  if [[ -z $var ]]; then
+    render usage define
+    exit 1
+  fi
+  render definition $var
+}
+
+env() {
   local type=$1
   local hash=$2
-
-  if [ -z "$type" ]; then
-    render docs context
+  if [[ -z $type ]]; then
+    render usage env
     exit 1
   fi
-
-  if [ -z "$hash" ]; then
-    valid="$(find-hosts $type)" type=$type render error context-missing-hash
+  if [[ -z $hash && $type =~ ^(etcd|controlplane|worker)$ ]]; then
+    export valid="$(find-host-hashes $type)"
+    export command="kwm env $type [hash]"
+    render error missing-hash
     exit 1
   fi
-
-  derive-etcd-vars
-
-  local typeUpperCase=$(upper-case $type)
-  HOSTNAME="KWM_HOST_${typeUpperCase}_HOSTNAME_${hash}"
-  SSH_IP="KWM_HOST_${typeUpperCase}_SSH_IP_${hash}"
-  PRIVATE_IP="KWM_HOST_${typeUpperCase}_PRIVATE_IP_${hash}"
-
-  KWM_HOSTNAME="${!HOSTNAME}" \
-  KWM_CONNECT="${KWM_EXEC}${!SSH_IP}" \
-  KWM_SSH_IP="${!SSH_IP}" \
-  KWM_PRIVATE_IP="${!PRIVATE_IP}" \
-  KWM_ETCD_INITIAL_CLUSTER=${KWM_ETCD_INITIAL_CLUSTER} \
-  KWM_ETCD_HOSTS=${KWM_ETCD_HOSTS} \
-  KWM_ETCD_CLIENT_SUBJECT_ALTNAMES=${KWM_ETCD_CLIENT_SUBJECT_ALTNAMES} \
-  render context $type
+  get-defaults
+  get-host-meta $hash
+  get-etcd-meta
+  highlight
+  render env $type
 }
 
-function script {
+manifest() {
   local type=$1
-  local index=$2
-  type=${type:-$KWM_TYPE}
-  if [ -z "$type" ]; then
-    render docs script
+  if [[ -z $type ]]; then
+    render usage manifest
     exit 1
   fi
   highlight
-  #validate $type script
-  render script $type
-}
-
-function manifest {
-  local type=$1
-  type=${type:-$KWM_TYPE}
-  if [ -z "$type" ]; then
-    render docs manifest
-    exit 1
-  fi
-  highlight
-  validate $type
   render manifest $type
 }
 
-main $(sed 's/ --help//g' <<< "$@")
+script() {
+  local type=$1
+  local hash=$2
+  if [[ -z $type ]]; then
+    render usage script
+    exit 1
+  fi
+  if [[ ! -z $hash && $type =~ ^(etcd|controlplane|worker)$ ]]; then
+    get-host-meta $hash
+  fi
+  get-etcd-meta
+  get-defaults
+  local errors=$(DISPLAY=var-validate render env $type)
+  if [[ -n $errors ]]; then
+    errors="$errors" type="$type" command=$command render error env-missing
+    exit 1
+  fi
+  highlight
+  render script $type
+}
+
+export -f \
+  var-help \
+  var-validate \
+  var-show \
+  compile \
+  render \
+  host-value \
+  find-host-hashes \
+  find-vars \
+  upper-case \
+  hash-from-var
+
+main "$@"

@@ -1,4 +1,0 @@
-KWM_CONTROLPLANE_HOSTNAMES
-  The hostnames of your controlplanes. The bootstrap script will ensure these
-  are actually set, and that the needed self-referential entries are present in
-  /etc/hosts (this may be redundant for some environments).

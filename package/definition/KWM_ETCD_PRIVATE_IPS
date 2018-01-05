@@ -1,3 +1,0 @@
-KWM_ETCD_PRIVATE_IPS
-  A space delimited list of private IPs for etcd host. Used by etcd as the IP
-  to listen on.

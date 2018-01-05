@@ -1,0 +1,10 @@
+Usage:
+  kwm env [cni controlplane dns etcd kubectl-root pki startup worker]
+
+Description:
+  Display the needed environment variables to generate a script or manifest.
+
+Examples:
+  To use the output of this command as the environment for another, try this:
+
+    env -S "\$(kwm env pki)" kwm script

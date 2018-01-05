@@ -1,11 +1,1 @@
 KWM_BASE_PATH
-  When used for commands run locally this is a relative path to the folder where
-  pem files will be generated. For example:
-
-    KWM_ETCD_CLIENT_SUBJECT_ALTNAMES="IP:10.100.0.5,DNS:aws-etcd-0" \\
-    KWM_BASE_PATH=pki \\
-    KWM_CLUSTER_NAME=example \\
-    kwm compile pki
-
-  When used for commands run remotely, this is the path where shared PKI files
-  will be copied / sourced.

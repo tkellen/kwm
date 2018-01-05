@@ -1,0 +1,2 @@
+Usage:
+  kwm script [controlplane etcd kubectl-root pki startup worker]

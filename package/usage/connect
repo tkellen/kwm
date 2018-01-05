@@ -1,0 +1,5 @@
+Usage:
+  kwm connect [hash]
+
+Description:
+  Connect to a host being managed by kwm.

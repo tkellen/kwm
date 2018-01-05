@@ -2,7 +2,7 @@ Welcome to Kubernetes Without Magic!
 
 This software aims to automate the creation and maintenance of Kubernetes
 clusters by dynamically generating shell scripts based on simple configuration
-expressed as environment variables. A familarity with UNIX fundamentals (stdin,
+expressed as environment variables. A familiarity with UNIX fundamentals (stdin,
 stdout, pipelines and redirection) is recommended to fully utilize this tool.
 
 Though a cluster can be created with a single command, new operators are

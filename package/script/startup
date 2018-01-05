@@ -1,0 +1,61 @@
+#------------------------------------------------------------------------------#
+# Configure your PKI:
+#------------------------------------------------------------------------------#
+kwm script pki | bash 2>&1 | sed 's/^/[public key infrastructure] /'
+#------------------------------------------------------------------------------#
+# Configure your kubectl for cluster admin access
+#------------------------------------------------------------------------------#
+kwm script kubectl-root | bash 2>&1 | sed 's/^/[get root access to cluster] /'
+#------------------------------------------------------------------------------#
+# Configure your etcd nodes
+#------------------------------------------------------------------------------#
+$(
+  for hash in $(find-host-hashes etcd); do
+    echo "kwm script etcd ${hash} | bash 2>&1 | sed 's/^/[installing $hash] /'"
+  done
+)
+#------------------------------------------------------------------------------#
+# Configure your controlplane nodes
+#------------------------------------------------------------------------------#
+$(
+  for hash in $(find-host-hashes controlplane); do
+    echo "kwm script controlplane $hash| bash 2>&1 | sed 's/^/[installing $hash] /'"
+    echo "kwm script worker $hash | bash 2>&1 | sed 's/^/[installing $hash] /'"
+  done
+)
+#------------------------------------------------------------------------------#
+# Confirm controlplane is running
+#------------------------------------------------------------------------------#
+kubectl get componentstatus
+#------------------------------------------------------------------------------#
+# Configure your worker nodes
+#------------------------------------------------------------------------------#
+$(
+  for hash in $(find-host-hashes worker); do
+    echo "kwm script worker $hash | bash 2>&1 | sed 's/^/[installing $hash] /'"
+  done
+)
+#------------------------------------------------------------------------------#
+# Install a container networking plugin:
+#------------------------------------------------------------------------------#
+kwm manifest cni > cni.yml
+kubectl apply -f cni.yml | sed 's/^/[container networking] /'
+#------------------------------------------------------------------------------#
+# HACK bounce containerd to pick up cni settings from above
+#------------------------------------------------------------------------------#
+sleep 10
+(
+$(
+  for hash in $(find-host-hashes controlplane); do
+    echo "  echo \"sudo systemctl restart containerd\" | kwm connect $hash"
+  done
+  for hash in $(find-host-hashes worker); do
+    echo "  echo \"sudo systemctl restart containerd\" | kwm connect $hash"
+  done
+)
+) | bash 2>&1 | sed 's/^/[hack] /'
+#------------------------------------------------------------------------------#
+# Install kube-dns
+#------------------------------------------------------------------------------#
+kwm manifest dns > kube-dns.yml
+kubectl apply -f kube-dns.yml

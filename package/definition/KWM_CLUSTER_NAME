@@ -1,4 +1,2 @@
 KWM_CLUSTER_NAME
-  Used in places where a namespacing the cluster is helpful. For an example, try
-
-    kwm script root
+  Used in places where cluster name can provide meaningful context.

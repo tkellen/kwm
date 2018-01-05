@@ -1,5 +1,0 @@
-$(
-  $DISPLAY KWM_CLUSTER_NAME
-  $DISPLAY KWM_BASE_PATH pki
-  $DISPLAY KWM_TYPE kubectl-root
-)

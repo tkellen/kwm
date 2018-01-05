@@ -43,7 +43,7 @@ echo Generating CNI network configuration.
 $(content='{ "cniVersion": "0.3.1", "type": "loopback" }' \
   path="/etc/cni/net.d/99-loopback.conf" render util write-file
 )
-$(content='{"name": "kubernetes", "type": "bridge", "bridge": "kube-bridge", "ipam": { "type": "host-local" }, "isDefaultGateway": true }'
+$(content='{"name": "kubernetes", "type": "bridge", "bridge": "kube-bridge", "ipam": { "type": "host-local" }, "isDefaultGateway": true }' \
   path="/etc/cni/net.d/10-kuberouter.conf" render util write-file
 )
 #------------------------------------------------------------------------------#

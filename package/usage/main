@@ -1,0 +1,20 @@
+Usage:
+  kwm [command]
+
+Available Commands:
+  connect   output a command to connect to a kwm-managed host
+  define    output a definition for an environment variable
+  env       display environment variables needed to render a manifest or script
+  info      output information about this software
+  manifest  output a yaml manifest from environment variables
+  script    output a bash script from environment variables
+  startup   output a script to bootstrap a cluster in one command
+$(
+  if [[ "$(which $SCRIPT_NAME)" != "$SCRIPT_PATH/$SCRIPT_NAME" ]]; then
+    tput setaf 1
+    printf "\n"
+    echo "$SCRIPT_NAME not found in PATH, run this to configure your shell:"
+    echo "  eval \$($SCRIPT_PATH/$SCRIPT_NAME install)"
+    tput op
+  fi
+)

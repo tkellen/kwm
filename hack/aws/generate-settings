@@ -6,7 +6,6 @@ export KWM_CLUSTER_NAME=$(terraform output NAME)
 export KWM_DOMAIN=test.com
 export KWM_PUBLIC_IP=$(terraform output PUBLIC_IP)
 export KWM_APISERVER_PRIVATE_IP=$(terraform output CONTROLPLANE_PRIVATE_IPS | head -n 1 | sed 's/,$//')
-export KWM_EXEC="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@"
 export KWM_POD_CIDR=10.1.0.0/16
 export KWM_SERVICE_CIDR=10.10.0.0/24
 export KWM_KUBERNETES_SERVICE_IP=10.10.0.1
@@ -29,9 +28,10 @@ PRIVATE_IPS=($(terraform output ETCD_PRIVATE_IPS | tr ',\n' ' '))
 for idx in ${!HOSTNAMES[@]}; do
   key=$(hash ${HOSTNAMES[$idx]})
   cat <<EOF
-export KWM_HOST_ETCD_HOSTNAME_${key}=${HOSTNAMES[$idx]}
-export KWM_HOST_ETCD_SSH_IP_${key}=${SSH_IPS[$idx]}
-export KWM_HOST_ETCD_PRIVATE_IP_${key}=${PRIVATE_IPS[$idx]}
+export KWM_HOST_NAME_${key}=${HOSTNAMES[$idx]}
+export KWM_HOST_CONNECT_${key}="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@${SSH_IPS[$idx]}"
+export KWM_HOST_PRIVATE_IP_${key}=${PRIVATE_IPS[$idx]}
+export KWM_HOST_ROLE_${key}=etcd
 EOF
 done
 
@@ -41,9 +41,10 @@ PRIVATE_IPS=($(terraform output CONTROLPLANE_PRIVATE_IPS | tr ',\n' ' '))
 for idx in ${!HOSTNAMES[@]}; do
   key=$(hash ${HOSTNAMES[$idx]})
   cat <<EOF
-export KWM_HOST_CONTROLPLANE_HOSTNAME_${key}=${HOSTNAMES[$idx]}
-export KWM_HOST_CONTROLPLANE_SSH_IP_${key}=${SSH_IPS[$idx]}
-export KWM_HOST_CONTROLPLANE_PRIVATE_IP_${key}=${PRIVATE_IPS[$idx]}
+export KWM_HOST_NAME_${key}=${HOSTNAMES[$idx]}
+export KWM_HOST_CONNECT_${key}="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@${SSH_IPS[$idx]}"
+export KWM_HOST_PRIVATE_IP_${key}=${PRIVATE_IPS[$idx]}
+export KWM_HOST_ROLE_${key}=controlplane
 EOF
 done
 
@@ -53,8 +54,9 @@ PRIVATE_IPS=($(terraform output WORKER_PRIVATE_IPS | tr ',\n' ' '))
 for idx in ${!HOSTNAMES[@]}; do
   key=$(hash ${HOSTNAMES[$idx]})
   cat <<EOF
-export KWM_HOST_WORKER_HOSTNAME_${key}=${HOSTNAMES[$idx]}
-export KWM_HOST_WORKER_SSH_IP_${key}=${SSH_IPS[$idx]}
-export KWM_HOST_WORKER_PRIVATE_IP_${key}=${PRIVATE_IPS[$idx]}
+export KWM_HOST_NAME_${key}=${HOSTNAMES[$idx]}
+export KWM_HOST_CONNECT_${key}="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@${SSH_IPS[$idx]}"
+export KWM_HOST_PRIVATE_IP_${key}=${PRIVATE_IPS[$idx]}
+export KWM_HOST_ROLE_${key}=worker
 EOF
 done

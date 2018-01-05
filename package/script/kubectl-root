@@ -7,8 +7,8 @@ kubectl config set-cluster ${KWM_CLUSTER_NAME} \\
   --server=https://${KWM_PUBLIC_IP}:6443
 
 kubectl config set-credentials ${KWM_CLUSTER_NAME}-root \\
-  --client-certificate=${KWM_BASE_PATH}/cluster-admin-to-apiserver-cert.pem \\
-  --client-key=${KWM_BASE_PATH}/cluster-admin-to-apiserver-private-key.pem \\
+  --client-certificate=${KWM_LOCAL_PKI_PATH}/cluster-admin-to-apiserver-cert.pem \\
+  --client-key=${KWM_LOCAL_PKI_PATH}/cluster-admin-to-apiserver-private-key.pem \\
   --embed-certs=true
 
 kubectl config set-context ${KWM_CLUSTER_NAME} \\

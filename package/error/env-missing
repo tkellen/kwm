@@ -1,0 +1,8 @@
+Some environment variables missing, could not generate ${command} ${type}.
+
+Please supply values for:
+
+${errors}
+
+Check your current values with:
+  kwm env ${type}

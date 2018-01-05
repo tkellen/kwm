@@ -1,6 +1,0 @@
-KWM_WORKER_HOSTNAMES
-  The hostnames of your worker nodes. The bootstrap script ensures these are
-  actually set and that the needed self-referential entries are present in
-  /etc/hosts (this may be redundant for some environments).
-  Used in TLS certificate as subjectAltName and organization name to facilitate
-  secure registration with the cluster.

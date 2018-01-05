@@ -1,4 +1,3 @@
 $(
   $DISPLAY KWM_VERSION_KUBE_ROUTER
-  $DISPLAY KWM_TYPE kube-router
 )
