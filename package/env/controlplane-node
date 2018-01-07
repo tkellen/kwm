@@ -13,7 +13,7 @@ $(
   display KWM_KUBERNETES_SERVICE_IP
   display KWM_DNS_SERVICE_IP
   display KWM_PUBLIC_IP
-  display KWM_ETCD_HOSTS
+  display KWM_ETCD_SERVERS
   display KWM_LOCAL_PKI_PATH
   display KWM_CONFIG_PATH
 )

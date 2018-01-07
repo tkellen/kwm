@@ -4,7 +4,7 @@ Usage:
   kwm env [cluster-admin cni dns pki startup]
   kwm env [controlplane-node etcd-node worker-node] <node-key>
 
-Note:
+Examples:
   Use this command to familiarize yourself with what input is needed to
   generate scripts and manifests.
 
@@ -15,7 +15,8 @@ Note:
 
   This can be illustrated by the following commands:
 
-    KWM_ROLE_node0=etcd kwm env etcd-node node0
-    KWM_ROLE_node0=etcd kwm env etcd-node node1
+    KWM_ROLE_node0=worker kwm env worker-node node0
+    KWM_ROLE_node0=worker kwm env worker-node node1
 
-  Note how the value in KWM_ROLE_test is collapsed into the value KWM_ROLE.
+  Note how the value in KWM_ROLE_test is collapsed into the value KWM_ROLE
+  when there is a corresponding entry for KWM_ROLE_[node-key].

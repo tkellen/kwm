@@ -1,13 +1,13 @@
 A command to connect to your Node.
 
 Examples:
-  # If your Node is directly accessible:
+  # If your Node is directly reachable by the machine running kwm.
   ssh root@55.55.55.55
 
-  # Accessing your Node through a bastion host:
+  # If your Node must be accessed through a bastion host.
   ssh -A -t root@44.44.44.44 ssh -A root@55.55.55.55
 
-  # If you don't care about trust-on-first-use security:
+  # If you don't care about trust-on-first-use.
   ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@55.55.55.55
 
 Note:

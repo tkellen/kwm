@@ -1,4 +1,4 @@
-Supplied as the "--initial-cluster" value to etcd for bootstrapping the cluster.
+Supplied as the "--etcd-servers" value to kube-apiserver.
 
 If not specified explicitly, this is "magically" produced by kwm using all hosts
 in the environment with a role of etcd.
@@ -6,20 +6,20 @@ in the environment with a role of etcd.
 For example, given the following hosts in the environment:
 
 KWM_ROLE_node0=etcd
-KWM_HOSTNAME_node0=etcd0
 KWM_PRIVATE_IP_node0=10.100.0.5
 ...
 KWM_ROLE_node1=etcd
-KWM_HOSTNAME_node1=etcd1
 KWM_PRIVATE_IP_node1=10.100.1.5
 ...
 KWM_ROLE_node2=etcd
-KWM_HOSTNAME_node2=etcd2
 KWM_PRIVATE_IP_node0=10.100.2.5
 
 ...the resultant value would be:
-KWM_ETCD_INITIAL_CLUSTER=aws-etcd-0=https://10.100.0.5:2380,aws-etcd-1=https://10.100.1.5:2380,aws-etcd-2=https://10.100.2.5:2380
+https://10.100.0.5:2379,https://10.100.1.5:2379,https://10.100.2.5:2379
 
 Examples:
-  # Inspect this value by looking at the etcd node installation script.
-  kwm script etcd-node <node-key>
+  # Inspect this value by looking at pki generation.
+  kwm script pki
+
+  # Inspect this value by reading the generated cert directly.
+  openssl x509 -noout -text -in apiserver-to-etcd-cert.pem | grep DNS

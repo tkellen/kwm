@@ -1,0 +1,32 @@
+Supply additional, arbitrary command line flags to the kubelet.
+
+If not specified explicitly, this is "magically" produced so Nodes can have work
+scheduled to them based on their role.
+
+In this form, the affected Node will not allow Pods to be scheduled to unless
+they "tolerate" the taint:
+
+  KWM_ROLE_node0="controlplane"
+
+  ...the resultant "magic" value would be:
+  KWM_KUBELET_FLAGS="
+    --node-labels="node-role.kubernetes.io/controlplane=true"
+    --register-with-taints="note-role.kubernetes.io/controlplane=true:NoSchedule
+  "
+
+In this form, the affected Node has two roles and is NOT tainted to disallow
+scheduling:
+
+  KWM_ROLE_node0="controlplane worker"
+
+  ...the resultant "magic" value would be:
+  KWM_KUBELET_FLAGS="
+    --node-labels="node-role.kubernetes.io/controlplane=true,node-role.kubernetes.io/worker=true"
+    --register-with-taints="note-role.kubernetes.io/controlplane=true:NoSchedule
+  "
+
+Note:
+  This should be removed as soon as it is possible to do this with environment
+  variables or configuration manifests.
+
+  https://kubernetes.io/docs/tasks/administer-cluster/kubelet-config-file/

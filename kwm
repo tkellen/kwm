@@ -133,11 +133,11 @@ magic-kubelet-flags() {
 
 magic-etcd-meta() {
   export KWM_ETCD_INITIAL_CLUSTER=${KWM_ETCD_INITIAL_CLUSTER:-$(magic-etcd-initial-cluster)}
-  export KWM_ETCD_CLIENT_SUBJECT_ALTNAMES=${KWM_ETCD_CLIENT_SUBJECT_ALTNAMES:-$(magic-etcd-client-subjectaltnames)}
-  export KWM_ETCD_HOSTS=${KWM_ETCD_HOSTS:-$(magic-etcd-nodes)}
+  export KWM_ETCD_CLIENT_SANS=${KWM_ETCD_CLIENT_SANS:-$(magic-etcd-client-sans)}
+  export KWM_ETCD_SERVERS=${KWM_ETCD_SERVERS:-$(magic-etcd-servers)}
 }
 
-magic-etcd-client-subjectaltnames() {
+magic-etcd-client-sans() {
   local output
   for node in $(find-nodes etcd); do
     output+=",IP:$(node-value $node PRIVATE_IP),DNS:$(node-value $node HOSTNAME)"
@@ -154,7 +154,7 @@ magic-etcd-initial-cluster() {
 
 }
 
-magic-etcd-nodes() {
+magic-etcd-servers() {
   local output
   for node in $(find-nodes etcd); do
     output+=",https://$(node-value $node PRIVATE_IP):2379"

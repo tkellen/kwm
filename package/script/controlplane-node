@@ -53,7 +53,7 @@ $(path="/etc/systemd/system/kube-apiserver.service" content="$(
     count="1" \
     privateIp="$KWM_PRIVATE_IP" \
     serviceCidr="$KWM_SERVICE_CIDR" \
-    etcdHosts="$KWM_ETCD_HOSTS" render service kube-apiserver
+    etcdServers="$KWM_ETCD_SERVERS" render service kube-apiserver
   )" render service unit)" render util write-file
 )
 #------------------------------------------------------------------------------#

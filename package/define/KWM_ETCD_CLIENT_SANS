@@ -1,4 +1,5 @@
-Supplied as the "--initial-cluster" value to etcd for bootstrapping the cluster.
+Supplied as the valid Subject Alternative Names to openssl when generating the
+certificate for securing communication from the apiserver to etcd.
 
 If not specified explicitly, this is "magically" produced by kwm using all hosts
 in the environment with a role of etcd.
@@ -18,8 +19,8 @@ KWM_HOSTNAME_node2=etcd2
 KWM_PRIVATE_IP_node0=10.100.2.5
 
 ...the resultant value would be:
-KWM_ETCD_INITIAL_CLUSTER=aws-etcd-0=https://10.100.0.5:2380,aws-etcd-1=https://10.100.1.5:2380,aws-etcd-2=https://10.100.2.5:2380
+KWM_ETCD_CLIENT_SANS=IP:10.100.0.5,DNS:etcd0,IP:10.100.1.5,DNS:etcd1,IP:10.100.2.5,DNS:etcd2
 
 Examples:
-  # Inspect this value by looking at the etcd node installation script.
-  kwm script etcd-node <node-key>
+  # Inspect this value by looking at the controlplane node installation script.
+  kwm script controlplane-node <node-key>

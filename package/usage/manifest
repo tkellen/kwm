@@ -4,6 +4,11 @@ Usage:
   kwm manifest [cni dns]
 
 Examples:
-  kwm manifest cni             # inspect manifest
-  kwm manifest cni > cni.yml   # save manifest
-  kubecatl -f cni.yml          # apply manifest to your cluster
+  # Inspect yaml manifest to install container networking interface.
+  kwm manifest cni
+
+  # Save yaml manifest to install container networking interface.
+  kwm manifest cni > cni.yml
+
+  # Install container networking solution in your cluster.
+  kubecatl -f cni.yml

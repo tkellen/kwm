@@ -34,7 +34,7 @@ echo Generating etcd-ca signed certificate for apiserver to etcd communication.
 $(basePath="$KWM_LOCAL_PKI_PATH" \
   name="apiserver-to-etcd" \
   subj="/CN=etcd" \
-  ext="subjectAltName = $KWM_ETCD_CLIENT_SUBJECT_ALTNAMES" \
+  ext="subjectAltName = $KWM_ETCD_CLIENT_SANS" \
   ca="etcd" render pki signed-cert)
 #------------------------------------------------------------------------------#
 echo Generating public/private keypair for service accounts

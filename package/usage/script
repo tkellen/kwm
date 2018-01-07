@@ -1,10 +1,15 @@
-Generate a bash script to prepare the provided resource.
+Generate a bash script to prepare the specified resource.
 
 Usage:
   kwm script [cluster-admin pki startup]
   kwm script [controlplane-host etcd-host worker-host] <node-key>
 
 Examples:
-  kwm script pki                  # inspect script
-  kwm script pki | bash           # run script immediately
-  kwm script pki > generate-pki   # save script for later
+  # Inspect script to generate public key infrastructure.
+  kwm script pki
+
+  # Run script to generate public key infrastructure.
+  kwm script pki | bash
+
+  # Save script to generate public key infrastructure (to share with others).
+  kwm script pki > generate-pki

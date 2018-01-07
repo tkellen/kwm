@@ -13,7 +13,7 @@
   --etcd-cafile=/etc/kubernetes/etcd-ca-cert.pem \\
   --etcd-certfile=/etc/kubernetes/apiserver-to-etcd-cert.pem \\
   --etcd-keyfile=/etc/kubernetes/apiserver-to-etcd-private-key.pem \\
-  --etcd-servers=${etcdHosts} \\
+  --etcd-servers=${etcdServers} \\
   --event-ttl=1h \\
   --insecure-bind-address=127.0.0.1 \\
   --kubelet-preferred-address-types=InternalIP,Hostname,ExternalIP \\
