@@ -1,7 +1,0 @@
-Please specify a valid host hash.
-
-  $command
-
-Found the following:
-
-$(sed 's/^/  /' <<<"${valid:-None}")

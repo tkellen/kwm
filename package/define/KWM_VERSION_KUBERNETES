@@ -1,0 +1,6 @@
+Controls what version of these binaries are installed on Nodes:
+
+  kube-apiserver
+  kube-controller-mananger
+  kube-scheduler
+  kubelet

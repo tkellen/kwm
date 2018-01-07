@@ -1,0 +1,5 @@
+No nodes found with a role of "${role}" in your environment.
+
+Check your environment with the following:
+
+  env | grep "KWM_ROLE_.*"

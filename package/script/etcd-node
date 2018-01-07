@@ -1,0 +1,49 @@
+#------------------------------------------------------------------------------#
+echo Sending shared PKI to $KWM_HOSTNAME.
+#------------------------------------------------------------------------------#
+$(files="etcd-ca-cert.pem etcd-ca-private-key.pem apiserver-to-etcd-private-key.pem apiserver-to-etcd-cert.pem" \
+  exec="$KWM_CONNECT" \
+  basePath="$KWM_CONFIG_PATH" \
+  sourcePath="$KWM_LOCAL_PKI_PATH" render util tar-copy
+)
+#------------------------------------------------------------------------------#
+echo Installing $KWM_HOSTNAME.
+#------------------------------------------------------------------------------#
+$(exec="$KWM_CONNECT" content="
+#------------------------------------------------------------------------------#
+echo Generating private key for etcd server to etcd server communication.
+#------------------------------------------------------------------------------#
+$(basePath="$KWM_CONFIG_PATH" name="etcd-to-etcd" render pki private-key)
+#------------------------------------------------------------------------------#
+echo Generating etcd-ca signed certificate for etcd server to etcd server communication.
+#------------------------------------------------------------------------------#
+$(name="etcd-to-etcd" \
+  basePath="$KWM_CONFIG_PATH" \
+  subj="/CN=etcd-to-etcd/O=etcd" \
+  ext="subjectAltName = IP:$KWM_PRIVATE_IP,DNS:$KWM_HOSTNAME" \
+  ca="etcd" render pki signed-cert)
+#------------------------------------------------------------------------------#
+echo Ensuring hostname and loopback reference are set.
+#------------------------------------------------------------------------------#
+$(name="$KWM_HOSTNAME" render util set-hostname)
+#------------------------------------------------------------------------------#
+echo Installing etcd at version $KWM_VERSION_ETCD.
+#------------------------------------------------------------------------------#
+$(version="$KWM_VERSION_ETCD" render installer etcd)
+#------------------------------------------------------------------------------#
+echo Generating etcd service file.
+#------------------------------------------------------------------------------#
+$(path="/etc/systemd/system/etcd.service" content="$(
+  name="etcd" \
+  after="network.target" \
+  exec="$(
+    name="$KWM_HOSTNAME" \
+    privateIp="$KWM_PRIVATE_IP" \
+    initialCluster="$KWM_ETCD_INITIAL_CLUSTER" render service etcd
+  )" render service unit)" render util write-file
+)
+#------------------------------------------------------------------------------#
+echo Enabling and restarting service.
+#------------------------------------------------------------------------------#
+$(name="etcd" render service enable)
+" render util remote-script)

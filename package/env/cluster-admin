@@ -1,5 +1,4 @@
 $(
   display KWM_CLUSTER_NAME
-  display KWM_ETCD_CLIENT_SUBJECT_ALTNAMES
   display KWM_LOCAL_PKI_PATH
 )

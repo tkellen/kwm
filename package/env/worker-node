@@ -1,0 +1,14 @@
+$(
+  display KWM_CONNECT
+  display KWM_PRIVATE_IP
+  display KWM_HOSTNAME
+  display KWM_ROLE
+  display KWM_APISERVER_PRIVATE_IP
+  display KWM_CLUSTER_NAME
+  display KWM_VERSION_KUBERNETES
+  display KWM_VERSION_CNI_PLUGIN
+  display KWM_VERSION_CRI_CONTAINERD
+  display KWM_POD_CIDR
+  display KWM_LOCAL_PKI_PATH
+  display KWM_CONFIG_PATH
+)

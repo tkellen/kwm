@@ -1,5 +1,0 @@
-KWM_POD_CIDR
-  The network used by all Pods. Used by kubelet, kube-controller-manager and
-  kube-router.
-
-  TODO: define further

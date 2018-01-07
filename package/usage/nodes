@@ -1,0 +1,15 @@
+List all nodes of a given type which are present in your environment.
+
+Usage:
+  kwm nodes [all etcd controlplane worker]
+
+Note:
+  This can be used in conjunction with xargs to perform actions on multiple
+  nodes at once. For example, this will generate a script to bootstrap all
+  etcd nodes:
+
+    kwm nodes etcd | xargs -n 1 kwm script etcd-node
+
+  This would execute it immediately, 5 nodes at a time:
+
+    kwm nodes etcd | xargs -n 1 -P 5 kwm script etcd-node | bash

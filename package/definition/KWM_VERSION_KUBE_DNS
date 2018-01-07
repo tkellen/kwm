@@ -1,4 +1,0 @@
-KWM_VERSION_KUBE_DNS
-  Controls what container image version is used for kube-dns Pods.
-
-  https://github.com/kubernetes/dns/releases

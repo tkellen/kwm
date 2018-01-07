@@ -1,2 +1,10 @@
+Generate a bash script to prepare the provided resource.
+
 Usage:
-  kwm script [controlplane etcd kubectl-root pki startup worker]
+  kwm script [cluster-admin pki startup]
+  kwm script [controlplane-host etcd-host worker-host] <node-key>
+
+Examples:
+  kwm script pki                  # inspect script
+  kwm script pki | bash           # run script immediately
+  kwm script pki > generate-pki   # save script for later

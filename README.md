@@ -1,24 +1,14 @@
 # KWM
 > Kubernetes Without Magic
 
-## Warning
-This is an early stage work in progress. Do not expect anything here to be
-stable, yet.
-
 ## Description
 This is a learning exercise in operationalizing Kubernetes.
 
 ## Setup
 1. Clone this repository.
-2. Install `kubectl` and `jq`.
-3. Create a `settings` file (read `settings.example` for guidance).
+2. Install `kubectl`.
 4. Run `./kwm`.
 5. Follow the prompts.
-
-## TODO
-Consider how DNS is scheduled:
-https://github.com/kubernetes-incubator/kube-aws/issues/566
-Author smoke tests that illustrate how core functionality works.
 
 ### Acknowledgements
 It was quite a challenge learning how to do this. Here are some resources I used
@@ -36,11 +26,6 @@ along the way:
 [Deploying Kubernetes from Scratch]: https://nixaid.com/deploying-kubernetes-cluster-from-scratch/
 [Kube-Linode]: https://github.com/kahkhang/kube-linode
 [Linux Networking Explained]: http://events.linuxfoundation.org/sites/events/files/slides/2016%20-%20Linux%20Networking%20explained_0.pdf
-
-```
-env $(tr "\\n" " " < .env-pki) kwm pki > render
-env $(tr "\\n" " " < .env-pki) kwm getroot > render
-```
 
 <!--
 The goal of this project is to provide a single-file bootstrap script for

@@ -1,4 +1,6 @@
 **.terraform*
 **terraform.tfstate*
 settings
-cluster/
+pki
+manifests
+.vagrant

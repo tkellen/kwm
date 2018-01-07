@@ -1,0 +1,3 @@
+Controls what version of the etcd binary is installed on etcd Nodes.
+
+https://github.com/coreos/etcd/releases/

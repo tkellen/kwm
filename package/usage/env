@@ -1,10 +1,21 @@
+Display environment variables needed to generate a script or manifest.
+
 Usage:
-  kwm env [cni controlplane dns etcd kubectl-root pki startup worker]
+  kwm env [cluster-admin cni dns pki startup]
+  kwm env [controlplane-node etcd-node worker-node] <node-key>
 
-Description:
-  Display the needed environment variables to generate a script or manifest.
+Note:
+  Use this command to familiarize yourself with what input is needed to
+  generate scripts and manifests.
 
-Examples:
-  To use the output of this command as the environment for another, try this:
+  When a node-key is specified, KWM looks for KWM_*_[node-key] environment
+  variables and reassigns them to the same name without the node key. For
+  example, KWM_ROLE_nodekey=test becomes KWM_ROLE=test for the duration of
+  the command.
 
-    env -S "\$(kwm env pki)" kwm script
+  This can be illustrated by the following commands:
+
+    KWM_ROLE_node0=etcd kwm env etcd-node node0
+    KWM_ROLE_node0=etcd kwm env etcd-node node1
+
+  Note how the value in KWM_ROLE_test is collapsed into the value KWM_ROLE.

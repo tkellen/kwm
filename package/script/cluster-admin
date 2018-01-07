@@ -1,0 +1,18 @@
+#------------------------------------------------------------------------------#
+echo Configuring kubectl for administrative access to cluster.
+#------------------------------------------------------------------------------#
+kubectl config set-cluster ${KWM_CLUSTER_NAME} \\
+  --certificate-authority=pki/cluster-ca-cert.pem \\
+  --embed-certs=true \\
+  --server=https://${KWM_PUBLIC_IP}:6443
+
+kubectl config set-credentials ${KWM_CLUSTER_NAME}-root \\
+  --client-certificate=${KWM_LOCAL_PKI_PATH}/cluster-admin-to-apiserver-cert.pem \\
+  --client-key=${KWM_LOCAL_PKI_PATH}/cluster-admin-to-apiserver-private-key.pem \\
+  --embed-certs=true
+
+kubectl config set-context ${KWM_CLUSTER_NAME} \\
+  --cluster=${KWM_CLUSTER_NAME} \\
+  --user=${KWM_CLUSTER_NAME}-root
+
+kubectl config use-context ${KWM_CLUSTER_NAME}

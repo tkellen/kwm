@@ -1,2 +1,8 @@
+Display a detailed description of what an environment variable is for.
+
 Usage:
-  kwm define [environment-variable-name]
+  kwm define <variable>
+
+Note:
+  The following variables are available to be defined:
+$(sed 's/^/  /' <<<"${vars:-None}")

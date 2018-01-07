@@ -77,7 +77,7 @@ spec:
       - key: CriticalAddonsOnly
         operator: Exists
       - effect: NoSchedule
-        key: node-role.kubernetes.io/master
+        key: node-role.kubernetes.io/controlplane
         operator: Exists
       volumes:
       - name: lib-modules

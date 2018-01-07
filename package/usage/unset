@@ -1,0 +1,4 @@
+Unset all environment variables that begin with KWM_.
+
+Usage:
+  . <(kwm zap)

@@ -5,57 +5,39 @@ kwm script pki | bash 2>&1 | sed 's/^/[public key infrastructure] /'
 #------------------------------------------------------------------------------#
 # Configure your kubectl for cluster admin access
 #------------------------------------------------------------------------------#
-kwm script kubectl-root | bash 2>&1 | sed 's/^/[get root access to cluster] /'
+kwm script cluster-admin | bash 2>&1 | sed 's/^/[getting admin to cluster] /'
 #------------------------------------------------------------------------------#
-# Configure your etcd nodes
+# Configure your nodes.
 #------------------------------------------------------------------------------#
-$(
-  for hash in $(find-host-hashes etcd); do
-    echo "kwm script etcd ${hash} | bash 2>&1 | sed 's/^/[installing $hash] /'"
-  done
-)
-#------------------------------------------------------------------------------#
-# Configure your controlplane nodes
-#------------------------------------------------------------------------------#
-$(
-  for hash in $(find-host-hashes controlplane); do
-    echo "kwm script controlplane $hash| bash 2>&1 | sed 's/^/[installing $hash] /'"
-    echo "kwm script worker $hash | bash 2>&1 | sed 's/^/[installing $hash] /'"
-  done
-)
-#------------------------------------------------------------------------------#
-# Confirm controlplane is running
-#------------------------------------------------------------------------------#
-kubectl get componentstatus
-#------------------------------------------------------------------------------#
-# Configure your worker nodes
-#------------------------------------------------------------------------------#
-$(
-  for hash in $(find-host-hashes worker); do
-    echo "kwm script worker $hash | bash 2>&1 | sed 's/^/[installing $hash] /'"
-  done
-)
+kwm nodes etcd | xargs -n1 -P 10 kwm script etcd-node | bash 2>&1 | sed 's/^/[etcd] /'
+kwm nodes controlplane | xargs -n1 -P 10 kwm script controlplane-node | bash 2>&1 | sed 's/^/[controlplane] /'
+kwm nodes worker | xargs -n1 -P 10 kwm script worker-node | bash 2>&1 | sed 's/^/[worker] /'
 #------------------------------------------------------------------------------#
 # Install a container networking plugin:
 #------------------------------------------------------------------------------#
-kwm manifest cni > cni.yml
-kubectl apply -f cni.yml | sed 's/^/[container networking] /'
+mkdir -p manifests/system
+kwm manifest cni > manifests/system/cni.yml
+kubectl --context=${KWM_CLUSTER_NAME} apply -f manifests/system/cni.yml | sed 's/^/[container networking] /'
+echo "Waiting for container networking to start..."
 #------------------------------------------------------------------------------#
 # HACK bounce containerd to pick up cni settings from above
 #------------------------------------------------------------------------------#
-sleep 10
-(
-$(
-  for hash in $(find-host-hashes controlplane); do
-    echo "  echo \"sudo systemctl restart containerd\" | kwm connect $hash"
-  done
-  for hash in $(find-host-hashes worker); do
-    echo "  echo \"sudo systemctl restart containerd\" | kwm connect $hash"
-  done
-)
-) 2>&1 | sed 's/^/[hack] /'
+sleep 20
+((kwm nodes controlplane && kwm nodes worker) | uniq | while read node; do
+  echo "sudo systemctl restart containerd" | kwm connect \$node &
+done
+wait) 2>&1 | sed 's/^/[hack] /'
 #------------------------------------------------------------------------------#
 # Install kube-dns
 #------------------------------------------------------------------------------#
-kwm manifest dns > kube-dns.yml
-kubectl apply -f kube-dns.yml
+mkdir -p manifests/system
+kwm manifest dns > manifests/system/kube-dns.yml
+kubectl --context=${KWM_CLUSTER_NAME} apply -f manifests/system/kube-dns.yml | sed 's/^/[cluster dns] /'
+echo "Waiting for kube-dns to start..."
+#------------------------------------------------------------------------------#
+# Confirm the cluster is functional
+#------------------------------------------------------------------------------#
+sleep 30
+kubectl --context=${KWM_CLUSTER_NAME} get componentstatus
+kubectl --context=${KWM_CLUSTER_NAME} get nodes -o wide
+kubectl --context=${KWM_CLUSTER_NAME} get pods -o wide --all-namespaces

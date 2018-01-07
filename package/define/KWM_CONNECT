@@ -1,0 +1,16 @@
+A command to connect to your Node.
+
+Examples:
+  # If your Node is directly accessible:
+  ssh root@55.55.55.55
+
+  # Accessing your Node through a bastion host:
+  ssh -A -t root@44.44.44.44 ssh -A root@55.55.55.55
+
+  # If you don't care about trust-on-first-use security:
+  ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@55.55.55.55
+
+Note:
+  Be sure to quote this environment variable or things will get strange fast.
+
+  KWM_CONNECT="ssh root@55.55.55.55"

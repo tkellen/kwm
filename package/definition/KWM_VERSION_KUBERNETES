@@ -1,7 +1,0 @@
-KWM_VERSION_KUBERNETES
-  Controls what version of these binaries are installed on nodes:
-
-    kube-apiserver
-    kube-controller-mananger
-    kube-scheduler
-    kubelet

@@ -1,5 +1,11 @@
-Usage:
-  kwm connect [hash]
+Connect to a node being managed by Kubernetes Without Magic.
 
-Description:
-  Connect to a host being managed by kwm.
+Usage:
+  kwm connect <node-key>
+
+Examples:
+  # Restart kublet on a specified node
+  echo "systemctl status kubelet" | kwm connect <node-key>
+
+Note:
+  Try running "kwm nodes" to see which are available.

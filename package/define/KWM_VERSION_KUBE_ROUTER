@@ -1,0 +1,3 @@
+Controls what container image version is used for kube-router Pods.
+
+https://github.com/cloudnativelabs/kube-router/releases

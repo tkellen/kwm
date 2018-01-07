@@ -1,0 +1,9 @@
+$(
+  display KWM_CONNECT
+  display KWM_PRIVATE_IP
+  display KWM_HOSTNAME
+  display KWM_ETCD_INITIAL_CLUSTER
+  display KWM_VERSION_ETCD
+  display KWM_LOCAL_PKI_PATH
+  display KWM_CONFIG_PATH
+)

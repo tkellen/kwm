@@ -1,2 +1,9 @@
+Generate manifests required to get a baseline cluster running.
+
 Usage:
   kwm manifest [cni dns]
+
+Examples:
+  kwm manifest cni             # inspect manifest
+  kwm manifest cni > cni.yml   # save manifest
+  kubecatl -f cni.yml          # apply manifest to your cluster

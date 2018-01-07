@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Kubernetes Without Magic
 
 SCRIPT_PATH="$(cd "$(dirname "$0")"; pwd -P)"
 SCRIPT_NAME="$(basename -- "$0")"
@@ -8,57 +7,41 @@ if [[ ! -t 1 ]]; then
 else
   STDOUT_IS_TERMINAL=true
 fi
-DISPLAY=var-show
+VALIDATE=false
 
 main() {
   local command=$1
-
-  if [[ $command = connect ]]; then connect ${@:2}; exit 0; fi
-  if [[ $command = define ]]; then define ${@:2}; exit 0; fi
-  if [[ $command = env ]]; then env ${@:2}; exit 0; fi
-  if [[ $command = info ]]; then render usage info; exit 0; fi
-  if [[ $command = install ]]; then
+  if [[ $command == connect ]]; then connect ${@:2}; exit 0; fi
+  if [[ $command == define ]]; then define ${@:2}; exit 0; fi
+  if [[ $command == env ]]; then getenv ${@:2}; exit 0; fi
+  if [[ $command == help ]]; then render usage help; exit 0; fi
+  if [[ $command == nodes ]]; then nodes ${@:2}; exit 0; fi
+  if [[ $command == install ]]; then
     echo "export PATH=\$PATH:$SCRIPT_PATH"
     exit 0;
   fi
-  if [[ $command = manifest ]]; then manifest ${@:2}; exit 0; fi
-  if [[ $command = script ]]; then script ${@:2}; exit 0; fi
-  if [[ $command = startup ]]; then script startup; exit 0; fi
-
+  if [[ $command == manifest ]]; then manifest ${@:2}; exit 0; fi
+  if [[ $command == script ]]; then script ${@:2}; exit 0; fi
+  if [[ $command == startup ]]; then startup; exit 0; fi
+  if [[ $command == unset ]]; then unsetter; exit 0; fi
   render usage main
   exit 0
 }
 
-var-show() {
-  local key=$1
-  local value=$2
-  if [[ -z $value ]]; then
-    value=${!key}
-  fi
-  printf "$key=\"${value}\"\n"
-}
-
-var-validate() {
+display() {
   local key=$1
   local defaultValue=$2
   local envValue=${!key}
-  local value=${envValue:-${defaultValue}}
-  if [[ -z $value ]]; then
-    printf "$key\n"
+  local value=${envValue:-$defaultValue}
+  if [[ $VALIDATE == false || ($VALIDATE == true && -z $value) ]]; then
+    printf "$key=\"$value\"\n"
   fi
-}
-
-var-help() {
-  local var=$1
-  local value=${!var}
-  render definition $var
-  printf "\n"
 }
 
 compile() {
   echo "SCRIPT_PATH=$SCRIPT_PATH"
   echo "STDOUT_IS_TERMINAL=$STDOUT_IS_TERMINAL"
-  echo "DISPLAY=$DISPLAY"
+  echo "VALIDATE=$VALIDATE"
   echo "SCRIPT_NAME=$SCRIPT_NAME"
   echo "cat <<RENDER"
   cat "$1"
@@ -68,13 +51,19 @@ compile() {
 render() {
   local namespace=$1
   local key=$2
+
   local template="$SCRIPT_PATH/package/$namespace/$key"
   if [[ ! -f $template ]]; then
-    echo "$namespace $key not found."
+    missing=$key error resource-not-found
+    printf "\n"
     render usage $namespace
     exit 1
   fi
   compile $template | bash
+}
+
+error() {
+  (tput setaf 1; render error $1; tput op) >&2
 }
 
 highlight() {
@@ -85,131 +74,151 @@ highlight() {
   fi
 }
 
-upper-case() {
-  awk '{print toupper($0)}' <<< "$1"
+validate-env() {
+  local method=$1
+  local type=$2
+  local errors="$(VALIDATE=true render env $type)"
+  if [[ -n $errors ]]; then
+    errors="$errors" type="$type" method="$method" error env-missing
+    exit 1
+  fi
 }
 
 find-vars() {
   printf "$(declare -xp | grep "$1" | sed 's/declare -x \(.*\)=.*/\1/g')"
 }
 
-hash-from-var() {
-  sed 's/.*_\(.*\)/\1/' <<< $1
-}
-
-find-host-hashes() {
+find-nodes() {
   local type=$1
-  for hit in $(find-vars "KWM_HOST_ROLE*"); do
-    local hash="${hit##*_}"
-    if [[ $type == all || -z $type ]]; then
-      echo $hash
-    elif grep -q $type <<<${!hit}; then
-      echo $hash
+  for hit in $(find-vars "KWM_ROLE_.*"); do
+    local node="${hit##*_}"
+    if [[ $type == all || ${!hit} =~ $type ]]; then
+      echo $node
     fi
   done
 }
 
-host-value() {
-  local hash=$1
-  local key=$2
-  local lookup="KWM_HOST_${key}_${hash}"
-  echo ${!lookup}
+node-value() {
+  local node=$1
+  local var=$2
+  local nodeLookup="KWM_${var}_${node}"
+  local defaultLookup="KWM_${var}"
+  local nodeValue=${!nodeLookup}
+  local defaultValue=${!defaultLookup}
+  echo ${defaultValue:-$nodeValue}
 }
 
-get-defaults() {
-  export KWM_BASE_PATH=${KWM_BASE_PATH:-/etc/kubernetes}
-  export KWM_LOCAL_PKI_PATH=${KWM_LOCAL_PKI_PATH:-pki}
+magic-node-meta() {
+  local node=$1
+  export KWM_ROLE="${KWM_ROLE:-$(node-value $node ROLE)}"
+  export KWM_HOSTNAME="${KWM_HOSTNAME:-$(node-value $node HOSTNAME)}"
+  export KWM_CONNECT="${KWM_CONNECT:-$(node-value $node CONNECT)}"
+  export KWM_PRIVATE_IP="${KWM_PRIVATE_IP:-$(node-value $node PRIVATE_IP)}"
+  export KWM_KUBELET_FLAGS="${KWM_KUBELET_FLAGS:-$(magic-kubelet-flags $node)}"
 }
 
-get-host-meta() {
-  local hash=$1
-  export KWM_ROLE="$(host-value $hash ROLE)"
-  export KWM_HOSTNAME="$(host-value $hash NAME)"
-  export KWM_CONNECT="$(host-value $hash CONNECT)"
-  export KWM_PRIVATE_IP="$(host-value $hash PRIVATE_IP)"
-}
-
-get-etcd-meta() {
-  export KWM_ETCD_INITIAL_CLUSTER=$(etcd-initial-cluster)
-  export KWM_ETCD_CLIENT_SUBJECT_ALTNAMES=$(etcd-client-subjectaltnames)
-  export KWM_ETCD_HOSTS=$(etcd-hosts)
-}
-
-etcd-client-subjectaltnames() {
+magic-kubelet-flags() {
+  local node=$1
+  local roles="$(node-value $node ROLE)"
   local output
-  if [[ -n $KWM_ETCD_CLIENT_SUBJECT_ALTNAMES ]]; then
-    echo $KWM_ETCD_CLIENT_SUBJECT_ALTNAMES
-  else
-    for hash in $(find-host-hashes etcd); do
-      output+=",IP:$(host-value $hash PRIVATE_IP),DNS:$(host-value $hash NAME)"
-    done
-    echo ${output:1}
+  for role in $roles; do
+    output+=",node-role.kubernetes.io/$role=true"
+  done
+  [[ -n $output ]] && output="--node-labels=\"${output:1}\""
+  if [[ $roles == *"controlplane"* && $roles != *"worker"* ]]; then
+    output+=" --register-with-taints=\"node-role.kubernetes.io/controlplane=true:NoSchedule\""
   fi
+  [[ -n $output ]] && echo "$output"
 }
 
-etcd-initial-cluster() {
-  local output
-  if [[ -n $KWM_ETCD_INITIAL_CLUSTER ]]; then
-    echo $KWM_ETCD_INITIAL_CLUSTER
-  else
-    for hash in $(find-host-hashes etcd); do
-      output+=",$(host-value $hash NAME)=https://$(host-value $hash PRIVATE_IP):2380"
-    done
-    echo ${output:1}
-  fi
+magic-etcd-meta() {
+  export KWM_ETCD_INITIAL_CLUSTER=${KWM_ETCD_INITIAL_CLUSTER:-$(magic-etcd-initial-cluster)}
+  export KWM_ETCD_CLIENT_SUBJECT_ALTNAMES=${KWM_ETCD_CLIENT_SUBJECT_ALTNAMES:-$(magic-etcd-client-subjectaltnames)}
+  export KWM_ETCD_HOSTS=${KWM_ETCD_HOSTS:-$(magic-etcd-nodes)}
 }
 
-etcd-hosts() {
+magic-etcd-client-subjectaltnames() {
   local output
-  if [[ -n $KWM_ETCD_HOSTS ]]; then
-    echo $KWM_ETCD_HOSTS
-  else
-    for hash in $(find-host-hashes etcd); do
-      output+=",https://$(host-value $hash PRIVATE_IP):2379"
-    done
-    echo ${output:1}
-  fi
+  for node in $(find-nodes etcd); do
+    output+=",IP:$(node-value $node PRIVATE_IP),DNS:$(node-value $node HOSTNAME)"
+  done
+  [[ -n $output ]] && echo ${output:1}
+}
+
+magic-etcd-initial-cluster() {
+  local output=""
+  for node in $(find-nodes etcd); do
+    output+=",$(node-value $node HOSTNAME)=https://$(node-value $node PRIVATE_IP):2380"
+  done
+  [[ -n $output ]] && echo ${output:1}
+
+}
+
+magic-etcd-nodes() {
+  local output
+  for node in $(find-nodes etcd); do
+    output+=",https://$(node-value $node PRIVATE_IP):2379"
+  done
+  [[ -n $output ]] && echo ${output:1}
 }
 
 connect() {
-  local hash=$1
-  if [[ -z $hash ]]; then
+  local node=$1
+  local call
+  call=$(node-value $node CONNECT) || return
+  if [[ -z $node ]]; then
     render usage connect
-    export valid="$(find-host-hashes $type)"
-    export command="kwm connect [hash]"
-    render error missing-hash
     exit 1
   fi
-  $(host-value $hash CONNECT)
+  if [[ -z $call ]]; then
+    requested=$node error invalid-node
+    exit 1
+  fi
+  $call
 }
 
 define() {
   local var=$1
   if [[ -z $var ]]; then
-    render usage define
+    vars="$(ls $SCRIPT_PATH/package/define)" render usage define
     exit 1
   fi
-  render definition $var
+  echo $var
+  render define $var
 }
 
-env() {
+getenv() {
   local type=$1
-  local hash=$2
+  local node=$2
   if [[ -z $type ]]; then
     render usage env
     exit 1
   fi
-  if [[ -z $hash && $type =~ ^(etcd|controlplane|worker)$ ]]; then
-    export valid="$(find-host-hashes $type)"
-    export command="kwm env $type [hash]"
-    render error missing-hash
+  if [[ $type =~ node ]]; then
+    magic-node-meta $node
+    if [[ -z $node ]]; then
+      type=$type error no-node-for-env
+      printf "\n"
+    fi
+  fi
+  magic-etcd-meta
+  highlight
+
+  render env $type
+}
+
+nodes() {
+  local role=$1
+  if [[ -z $role ]]; then
+    render usage nodes
+    exit
+  fi
+  local nodes="$(find-nodes $role)"
+  if [[ -z $nodes ]]; then
+    role=$role error no-nodes-for-role
     exit 1
   fi
-  get-defaults
-  get-host-meta $hash
-  get-etcd-meta
-  highlight
-  render env $type
+  echo "$nodes"
 }
 
 manifest() {
@@ -218,41 +227,45 @@ manifest() {
     render usage manifest
     exit 1
   fi
+  validate-env manifest $type
   highlight
   render manifest $type
 }
 
 script() {
   local type=$1
-  local hash=$2
+  local node=$2
   if [[ -z $type ]]; then
     render usage script
     exit 1
   fi
-  if [[ ! -z $hash && $type =~ ^(etcd|controlplane|worker)$ ]]; then
-    get-host-meta $hash
+  magic-etcd-meta
+  if [[ $type =~ node ]]; then
+    magic-node-meta $node
   fi
-  get-etcd-meta
-  get-defaults
-  local errors=$(DISPLAY=var-validate render env $type)
-  if [[ -n $errors ]]; then
-    errors="$errors" type="$type" command=$command render error env-missing
-    exit 1
-  fi
+  validate-env script $type
   highlight
   render script $type
 }
 
-export -f \
-  var-help \
-  var-validate \
-  var-show \
-  compile \
-  render \
-  host-value \
-  find-host-hashes \
-  find-vars \
-  upper-case \
-  hash-from-var
+startup() {
+  validate-env script startup
+  if [[ -z "$(find-nodes etcd)$(find-nodes controlplane)$(find-nodes worker)" ]]; then
+    error startup-no-nodes
+    exit 1
+  fi
+  magic-etcd-meta
+  render script startup
+}
+
+unsetter() {
+  if $STDOUT_IS_TERMINAL; then
+    render usage unset
+    exit 0
+  fi
+  env | grep KWM_.*\= | cut -f1 -d= | xargs -n 1 echo unset
+}
+
+export -f display compile render node-value find-nodes
 
 main "$@"

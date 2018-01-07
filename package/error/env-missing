@@ -1,8 +1,8 @@
-Some environment variables missing, could not generate ${command} ${type}.
+Sorry, cannot generate ${type} ${method} yet.
 
-Please supply values for:
+Please provide values for these variables:
 
-${errors}
+$(sed 's/^/  /' <<<"${errors:-None}")
 
-Check your current values with:
-  kwm env ${type}
+Note:
+  Run "kwm env ${type}" to see required variables and their current values.

@@ -85,7 +85,7 @@ spec:
         scheduler.alpha.kubernetes.io/critical-pod: ''
     spec:
       nodeSelector:
-        kubernetes.io/role: worker
+        node-role.kubernetes.io/worker: "true"
       tolerations:
       - key: "CriticalAddonsOnly"
         operator: "Exists"
