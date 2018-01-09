@@ -1,0 +1,17 @@
+Almost there! If you want to use the startup script to bootstrap a cluster with
+a single command, you'll need to include configuration for at least one node in
+each role (etcd, controlplane and worker).
+
+If you're testing this for the first time, try defining a single node that
+performs all roles. That's not a good plan for production, but it is great
+for getting things running quickly to play around.
+
+Here's some boilerplate to get you started:
+
+export KWM_ROLE_now=etcd controlplane worker
+export KWM_HOSTNAME_now=tiny
+export KWM_PRIVATE_IP_now=[your-private-ip]
+export KWM_CONNECT_now="ssh [your-sudo-capable-user]@[your-ssh-accessible-ip]"
+
+Note:
+  Run "kwm define <variable>" for more information about the listed variables.

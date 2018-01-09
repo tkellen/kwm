@@ -1,3 +1,0 @@
-Used in places where cluster name can provide meaningful context.
-
-Perhaps most importantly, this is the --cluster value for using kubectl.

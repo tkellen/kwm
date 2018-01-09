@@ -21,10 +21,10 @@
 17. gcloud services enable iam.googleapis.com
 18. gcloud organizations add-iam-policy-binding ${OID} --member serviceAccount:terraform@${PROJECT}.iam.gserviceaccount.com --role roles/resourcemanager.projectCreator
 19. gcloud organizations add-iam-policy-binding ${OID} --member serviceAccount:terraform@${PROJECT}.iam.gserviceaccount.com --role roles/billing.user
-20. `cd ../..`
-21. `source settings`
-22. `./kwm`
-23. Follow the prompts.
+20. `./generate-settings` (inspect output before using)
+21. `. <(kwm unset)` (clear any previous KWM_ values)
+22. `. <(./generate-settings)`
+23. `kwm startup | bash`
 
 ## Notes
 Still setting stuff up. Non-functional.

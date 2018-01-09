@@ -4,7 +4,7 @@ cd $(dirname "$0")
 cat <<EOF
 export KWM_CLUSTER_NAME=$(terraform output NAME)
 export KWM_DOMAIN=test.com
-export KWM_PUBLIC_IP=$(terraform output PUBLIC_IP)
+export KWM_APISERVER_PUBLIC_IP=$(terraform output PUBLIC_IP)
 export KWM_APISERVER_PRIVATE_IP=$(terraform output CONTROLPLANE_PRIVATE_IPS | head -n 1 | sed 's/,$//')
 export KWM_POD_CIDR=10.1.0.0/16
 export KWM_SERVICE_CIDR=10.10.0.0/24

@@ -1,9 +1,0 @@
-Sorry, cannot generate ${type} ${method} yet.
-
-Please provide values for these variables:
-
-$(sed 's/^/  /' <<<"${errors:-None}")
-
-Note:
-  Run "kwm env ${type}" to see required variables and their current values.
-  Run "kwm nodes ${type%%-node}" to see which node keys are available.

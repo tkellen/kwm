@@ -1,5 +1,0 @@
-Kubelets communicate with the apiserver using this value.
-
-See \$KWM_CONFIG_PATH/kubelet.kubeconfig on any worker node.
-
-# TODO: ensure there is a HA mode for this

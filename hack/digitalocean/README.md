@@ -4,11 +4,10 @@
 1. `export DIGITALOCEAN_TOKEN=<your token>`
 2. `terraform init`
 3. `terraform apply`
-4. `./generate-settings > ../../settings`
-5. `cd ../..`
-6. `source settings`
-7. `./kwm`
-8. Follow the prompts.
+4. `./generate-settings` (inspect output before using)
+5. `. <(kwm unset)` (clear any previous KWM_ values)
+6. `. <(./generate-settings)`
+7. `kwm startup | bash`
 
 ## Notes
 Cross-node pod-to-pod communication without an overlay network is not yet

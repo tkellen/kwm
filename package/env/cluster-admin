@@ -1,4 +1,0 @@
-$(
-  display KWM_CLUSTER_NAME
-  display KWM_LOCAL_PKI_PATH
-)

@@ -7,10 +7,10 @@
 4. `export VULTR_API_KEY=<your key>`
 5. `terraform init`
 6. `terraform apply`
-7. `./generate-settings > ../../settings`
-7. `source settings`
-8. `./kwm`
-9. Follow the prompts.
+7. `./generate-settings` (inspect output before using)
+8. `. <(kwm unset)` (clear any previous KWM_ values)
+9. `. <(./generate-settings)`
+10. `kwm startup | bash`
 
 ## Notes
 Vultr offers private networking but the networks must be configured by the end

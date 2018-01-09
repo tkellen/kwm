@@ -1,0 +1,43 @@
+#------------------------------------------------------------------------------#
+# Configure your PKI:
+#------------------------------------------------------------------------------#
+kwm script pki | bash 2>&1 | sed 's/^/[public key infrastructure] /'
+#------------------------------------------------------------------------------#
+# Configure your kubectl for cluster admin access
+#------------------------------------------------------------------------------#
+kwm script cluster-admin | bash 2>&1 | sed 's/^/[getting admin to cluster] /'
+#------------------------------------------------------------------------------#
+# Configure your nodes.
+#------------------------------------------------------------------------------#
+kwm nodes etcd | xargs -n1 kwm script etcd-node | bash 2>&1 | sed 's/^/[etcd] /'
+kwm nodes controlplane | xargs -n1 kwm script controlplane-node | bash 2>&1 | sed 's/^/[controlplane] /'
+kwm nodes worker | xargs -n1 kwm script worker-node | bash 2>&1 | sed 's/^/[worker] /'
+#------------------------------------------------------------------------------#
+# Install a container networking plugin:
+#------------------------------------------------------------------------------#
+mkdir -p manifests/system
+kwm manifest cni > manifests/system/cni.yml
+kubectl --context=${KWM_CLUSTER_NAME} apply -f manifests/system/cni.yml | sed 's/^/[container networking] /'
+echo "Waiting for container networking to start..."
+#------------------------------------------------------------------------------#
+# HACK bounce containerd to pick up cni settings from above
+#------------------------------------------------------------------------------#
+sleep 30
+((kwm nodes controlplane && kwm nodes worker) | uniq | while read node; do
+  echo "sudo systemctl restart containerd" | kwm connect \$node &
+done
+wait) 2>&1 | sed 's/^/[hack] /'
+#------------------------------------------------------------------------------#
+# Install kube-dns
+#------------------------------------------------------------------------------#
+mkdir -p manifests/system
+kwm manifest dns > manifests/system/kube-dns.yml
+kubectl --context=${KWM_CLUSTER_NAME} apply -f manifests/system/kube-dns.yml | sed 's/^/[cluster dns] /'
+echo "Waiting for kube-dns to start..."
+#------------------------------------------------------------------------------#
+# Confirm the cluster is functional
+#------------------------------------------------------------------------------#
+sleep 30
+kubectl --context=${KWM_CLUSTER_NAME} get componentstatus
+kubectl --context=${KWM_CLUSTER_NAME} get nodes -o wide
+kubectl --context=${KWM_CLUSTER_NAME} get pods -o wide --all-namespaces

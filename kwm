@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 
+VERSION=dev
 SCRIPT_PATH="$(cd "$(dirname "$0")"; pwd -P)"
 SCRIPT_NAME="$(basename -- "$0")"
+TEMPLATE_PATH="${TEMPLATE_PATH:-$SCRIPT_PATH/template}"
 if [[ ! -t 1 ]]; then
   STDOUT_IS_TERMINAL=false
 else
@@ -24,6 +26,8 @@ main() {
   if [[ $command == script ]]; then script ${@:2}; exit 0; fi
   if [[ $command == startup ]]; then startup; exit 0; fi
   if [[ $command == unset ]]; then unsetter; exit 0; fi
+  if [[ $command == version ]]; then echo $VERSION; exit 0; fi
+
   render usage main
   exit 0
 }
@@ -40,26 +44,34 @@ display() {
 
 compile() {
   echo "SCRIPT_PATH=$SCRIPT_PATH"
+  echo "SCRIPT_NAME=$SCRIPT_NAME"
+  echo "TEMPLATE_PATH=$TEMPLATE_PATH"
   echo "STDOUT_IS_TERMINAL=$STDOUT_IS_TERMINAL"
   echo "VALIDATE=$VALIDATE"
-  echo "SCRIPT_NAME=$SCRIPT_NAME"
+  echo "VERSION=$VERSION"
   echo "cat <<RENDER"
-  cat "$1"
+  echo "$1"
   echo "RENDER"
 }
 
 render() {
   local namespace=$1
   local key=$2
-
-  local template="$SCRIPT_PATH/package/$namespace/$key"
-  if [[ ! -f $template ]]; then
+  local template="$TEMPLATE_PATH/$namespace/$key"
+  local embedded_template_key="template_${namespace}_${key//-/_}"
+  local embedded_template=${!embedded_template_key}
+  # prefer template files on disk if they are available
+  if [[ ! -f $template && -z $embedded_template ]]; then
     missing=$key error resource-not-found
     printf "\n"
     render usage $namespace
     exit 1
   fi
-  compile $template | bash
+  if [[ -f $template ]]; then
+    compile "$(cat $template)" | bash
+  else
+    compile "$embedded_template" | bash
+  fi
 }
 
 error() {
@@ -74,7 +86,7 @@ highlight() {
   fi
 }
 
-validate-env() {
+validateEnv() {
   local method=$1
   local type=$2
   local errors="$(VALIDATE=true render env $type)"
@@ -84,13 +96,13 @@ validate-env() {
   fi
 }
 
-find-vars() {
+findVars() {
   printf "$(declare -xp | grep "$1" | sed 's/declare -x \(.*\)=.*/\1/g')"
 }
 
-find-nodes() {
+findNodes() {
   local type=$1
-  for hit in $(find-vars "KWM_ROLE_.*"); do
+  for hit in $(findVars "KWM_ROLE_.*"); do
     local node="${hit##*_}"
     if [[ $type == all || ${!hit} =~ $type ]]; then
       echo $node
@@ -98,7 +110,7 @@ find-nodes() {
   done
 }
 
-node-value() {
+nodeValue() {
   local node=$1
   local var=$2
   local nodeLookup="KWM_${var}_${node}"
@@ -108,18 +120,18 @@ node-value() {
   echo ${defaultValue:-$nodeValue}
 }
 
-magic-node-meta() {
+magicNodeMeta() {
   local node=$1
-  export KWM_ROLE="${KWM_ROLE:-$(node-value $node ROLE)}"
-  export KWM_HOSTNAME="${KWM_HOSTNAME:-$(node-value $node HOSTNAME)}"
-  export KWM_CONNECT="${KWM_CONNECT:-$(node-value $node CONNECT)}"
-  export KWM_PRIVATE_IP="${KWM_PRIVATE_IP:-$(node-value $node PRIVATE_IP)}"
-  export KWM_KUBELET_FLAGS="${KWM_KUBELET_FLAGS:-$(magic-kubelet-flags $node)}"
+  export KWM_ROLE="${KWM_ROLE:-$(nodeValue $node ROLE)}"
+  export KWM_HOSTNAME="${KWM_HOSTNAME:-$(nodeValue $node HOSTNAME)}"
+  export KWM_CONNECT="${KWM_CONNECT:-$(nodeValue $node CONNECT)}"
+  export KWM_PRIVATE_IP="${KWM_PRIVATE_IP:-$(nodeValue $node PRIVATE_IP)}"
+  export KWM_KUBELET_FLAGS="${KWM_KUBELET_FLAGS:-$(magicKubeletFlags $node)}"
 }
 
-magic-kubelet-flags() {
+magicKubeletFlags() {
   local node=$1
-  local roles="$(node-value $node ROLE)"
+  local roles="$(nodeValue $node ROLE)"
   local output
   for role in $roles; do
     output+=",node-role.kubernetes.io/$role=true"
@@ -131,33 +143,33 @@ magic-kubelet-flags() {
   [[ -n $output ]] && echo "$output"
 }
 
-magic-etcd-meta() {
-  export KWM_ETCD_INITIAL_CLUSTER=${KWM_ETCD_INITIAL_CLUSTER:-$(magic-etcd-initial-cluster)}
-  export KWM_ETCD_CLIENT_SANS=${KWM_ETCD_CLIENT_SANS:-$(magic-etcd-client-sans)}
-  export KWM_ETCD_SERVERS=${KWM_ETCD_SERVERS:-$(magic-etcd-servers)}
+magicEtcdMeta() {
+  export KWM_ETCD_INITIAL_CLUSTER=${KWM_ETCD_INITIAL_CLUSTER:-$(magicEtcdInitialCluster)}
+  export KWM_ETCD_CLIENT_SANS=${KWM_ETCD_CLIENT_SANS:-$(magicEtcdClientSans)}
+  export KWM_ETCD_SERVERS=${KWM_ETCD_SERVERS:-$(magicEtcdServers)}
 }
 
-magic-etcd-client-sans() {
+magicEtcdClientSans() {
   local output
-  for node in $(find-nodes etcd); do
-    output+=",IP:$(node-value $node PRIVATE_IP),DNS:$(node-value $node HOSTNAME)"
+  for node in $(findNodes etcd); do
+    output+=",IP:$(nodeValue $node PRIVATE_IP),DNS:$(nodeValue $node HOSTNAME)"
   done
   [[ -n $output ]] && echo ${output:1}
 }
 
-magic-etcd-initial-cluster() {
+magicEtcdInitialCluster() {
   local output=""
-  for node in $(find-nodes etcd); do
-    output+=",$(node-value $node HOSTNAME)=https://$(node-value $node PRIVATE_IP):2380"
+  for node in $(findNodes etcd); do
+    output+=",$(nodeValue $node HOSTNAME)=https://$(nodeValue $node PRIVATE_IP):2380"
   done
   [[ -n $output ]] && echo ${output:1}
 
 }
 
-magic-etcd-servers() {
+magicEtcdServers() {
   local output
-  for node in $(find-nodes etcd); do
-    output+=",https://$(node-value $node PRIVATE_IP):2379"
+  for node in $(findNodes etcd); do
+    output+=",https://$(nodeValue $node PRIVATE_IP):2379"
   done
   [[ -n $output ]] && echo ${output:1}
 }
@@ -165,7 +177,7 @@ magic-etcd-servers() {
 connect() {
   local node=$1
   local call
-  call=$(node-value $node CONNECT) || return
+  call=$(nodeValue $node CONNECT) || return
   if [[ -z $node ]]; then
     render usage connect
     exit 1
@@ -177,10 +189,18 @@ connect() {
   $call
 }
 
+getDefinable() {
+  if [[ $VERSION == dev ]]; then
+    echo "$(ls $TEMPLATE_PATH/define)"
+  else
+    echo "$(findVars "template_define*" | sed 's/template_define_//g')"
+  fi
+}
+
 define() {
   local var=$1
   if [[ -z $var ]]; then
-    vars="$(ls $SCRIPT_PATH/package/define)" render usage define
+    vars="$(getDefinable)" render usage define
     exit 1
   fi
   echo $var
@@ -195,13 +215,13 @@ getenv() {
     exit 1
   fi
   if [[ $type =~ node ]]; then
-    magic-node-meta $node
+    magicNodeMeta $node
     if [[ -z $node ]]; then
       type=$type error no-node-for-env
       printf "\n"
     fi
   fi
-  magic-etcd-meta
+  magicEtcdMeta
   highlight
 
   render env $type
@@ -213,7 +233,7 @@ nodes() {
     render usage nodes
     exit
   fi
-  local nodes="$(find-nodes $role)"
+  local nodes="$(findNodes $role)"
   if [[ -z $nodes ]]; then
     role=$role error no-nodes-for-role
     exit 1
@@ -227,7 +247,7 @@ manifest() {
     render usage manifest
     exit 1
   fi
-  validate-env manifest $type
+  validateEnv manifest $type
   highlight
   render manifest $type
 }
@@ -239,22 +259,22 @@ script() {
     render usage script
     exit 1
   fi
-  magic-etcd-meta
+  magicEtcdMeta
   if [[ $type =~ node ]]; then
-    magic-node-meta $node
+    magicNodeMeta $node
   fi
-  validate-env script $type
+  validateEnv script $type
   highlight
   render script $type
 }
 
 startup() {
-  validate-env script startup
-  if [[ -z "$(find-nodes etcd)$(find-nodes controlplane)$(find-nodes worker)" ]]; then
+  validateEnv script startup
+  if [[ -z "$(findNodes etcd)$(findNodes controlplane)$(findNodes worker)" ]]; then
     error startup-no-nodes
     exit 1
   fi
-  magic-etcd-meta
+  magicEtcdMeta
   render script startup
 }
 
@@ -266,6 +286,8 @@ unsetter() {
   env | grep KWM_.*\= | cut -f1 -d= | xargs -n 1 echo unset
 }
 
-export -f display compile render node-value find-nodes
+export -f display compile render error nodeValue findNodes
+
+#--EMBED-TEMPLATES-HERE--#
 
 main "$@"

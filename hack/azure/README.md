@@ -11,19 +11,12 @@
 7. `export ARM_CLIENT_SECRET=<password in response from "az ad sp....">`
 8. `terraform init`
 9. `terraform apply`
-10. `terraform apply`
-11. `./generate-settings > ../../settings`
-12. `cd ../..`
-13. `source settings`
-14. `./kwm`
-15. Follow the prompts.
-
+10. `terraform apply` (yes, do it twice)
+11. `./generate-settings` (inspect output before using)
+12. `. <(kwm unset)` (clear any previous KWM_ values)
+13. `. <(./generate-settings)`
+14. `kwm startup | bash`
 
 ## Notes
-cross-node pod communication doesn't work.
-sysctl net.ipv4.ip_forward is set to 1
-traffic leaving pod destinated for ip of pod on different node passes through
-kube-bridge to eth0 but never arrives at destination
-static route is present.
-
-not sure how to debug further.
+Cross-node pod communication doesn't work.
+See notes for digitalocean. Same issue.

@@ -1,6 +1,7 @@
 **.terraform*
 **terraform.tfstate*
 settings
-pki/
 manifests
 .vagrant
+build/
+hack/**/pki

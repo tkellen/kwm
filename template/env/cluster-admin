@@ -1,0 +1,5 @@
+$(
+  display KWM_CLUSTER_NAME
+  display KWM_APISERVER_PUBLIC_IP
+  display KWM_LOCAL_PKI_PATH
+)

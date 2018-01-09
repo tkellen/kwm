@@ -19,7 +19,7 @@ locals {
   cidr = "10.100.0.0/16"
   etcd_count = 3
   etcd_instance_type = "t2.medium"
-  controlplane_count = 2
+  controlplane_count = 1
   controlplane_instance_type = "t2.medium"
   worker_count = 3
   worker_instance_type = "t2.medium"

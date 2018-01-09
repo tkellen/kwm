@@ -1,0 +1,6 @@
+Ensures cluster-aware DNS is available at a known IP within the cluster.
+
+The "clusterIP" for the kube-dns Service spec uses this value.
+
+The "--cluster-dns" command line flag for Kubelets use this value. Every
+container in the cluster will have this value placed in /etc/resolv.conf.

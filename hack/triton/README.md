@@ -5,11 +5,9 @@
 2. `export TRITON_KEY_ID=${$(ssh-keygen -l -E md5 -f ~/.ssh/id_rsa.pub | awk '{print $2}')#MD5:}`
 3. `terraform init`
 4. `terraform apply`
-5. `./generate-settings > ../../settings`
-6. `cd ../..`
-7. `source settings`
-8. `./kwm`
-9. Follow the prompts.
+5. `./generate-settings > settings`
+6. `. ./settings`
+7. `kwm startup | bash`
 
 ## Notes
 Triton infrastructure containers do not permit direct access to the kernel.

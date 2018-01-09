@@ -1,0 +1,8 @@
+Used during the installation of any node to ensure the machine hostname is set
+correctly and a loopback reference is available in /etc/hosts.
+
+Examples:
+  # Inspect this value by looking at the node installation scripts.
+  kwm script etcd-node <nodeKey>
+  kwm script controlplane-node <nodeKey>
+  kwm script worker-node <nodeKey>

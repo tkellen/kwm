@@ -1,0 +1,9 @@
+Sorry, cannot generate ${type} ${method} yet.
+
+Please provide values for these variables:
+
+$(sed 's/^/  /' <<<"${errors:-None}")
+
+Note:
+  Run "kwm env ${type}" to see all required variables and their current values.
+  Run "kwm define <variable>" for more information about the listed variables.

@@ -5,11 +5,10 @@
 2. `export SCALEWAY_TOKEN=<your scaleway token>`
 3. `terraform init`
 4. `terraform apply`
-5. `./generate-settings > ../../settings`
-6. `cd ../..`
-7. `source settings`
-8. `./kwm`
-9. Follow the prompts.
+5. `./generate-settings` (inspect output before using)
+6. `. <(kwm unset)` (clear any previous KWM_ values)
+7. `. <(./generate-settings)`
+8. `kwm startup | bash`
 
 ## Notes
 cri-containerd doesn't run.
