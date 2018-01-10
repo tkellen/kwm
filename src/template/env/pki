@@ -1,5 +1,5 @@
 $(
-  display KWM_CLUSTER_NAME
-  display KWM_ETCD_CLIENT_SANS
-  display KWM_LOCAL_PKI_PATH
+  showVar KWM_CLUSTER_NAME
+  showVar KWM_ETCD_CLIENT_SANS
+  showVar KWM_LOCAL_PKI_PATH
 )

@@ -3,7 +3,7 @@
 ##
 #
 #
-display() {
+showVar() {
   local key=$1
   local defaultValue=$2
   local envValue=${!key}
@@ -14,4 +14,4 @@ display() {
 }
 
 # This must be exported to allow templates to render partial content.
-export -f display
+export -f showVar

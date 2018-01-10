@@ -39,7 +39,7 @@ compile() {
     else
       # ensure templates have been inlined before main is called
       if [[ ${line:0:5} == "main " ]]; then
-        printf '%s\n' "$(compileTemplates)"
+        printf '%s\n' "$(compileTemplates "src/template")"
       fi
       printf '%s\n' "$line"
     fi
@@ -68,12 +68,25 @@ templateWrapper() {
 }
 
 compileTemplates() {
-  local key content
-  find src/template -type file | while read item; do
-    key="$(allUnderscores <<<${item:4})"
-    content="$(templateWrapper "$(escapeBackslashes <<<"$(cat $item)")")"
-    echo -e "export $key=$content\n"
+  local basePath=$1
+  find $basePath/* -type directory | while read namespace; do
+    templateNamespace "$basePath" "${namespace##*/}"
   done
+}
+
+templateNamespace() {
+  local basePath=$1
+  local namespace=$2
+  local fn="template_$namespace"
+  echo "$fn() {"
+  find $basePath/$namespace/* -type file | while read template; do
+    key=${template##*/}
+    content="$(templateWrapper "$(escapeBackslashes <<<"$(cat $template)")")"
+    echo -e "local ${key//-/_}=$content\n"
+  done
+  echo "  echo \"\${!1}\""
+  echo "}"
+  echo -e "export -f $fn\n"
 }
 
 main "@"

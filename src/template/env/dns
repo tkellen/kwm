@@ -1,4 +1,4 @@
 $(
-  display KWM_VERSION_KUBE_DNS
-  display KWM_DNS_SERVICE_IP
+  showVar KWM_VERSION_KUBE_DNS
+  showVar KWM_DNS_SERVICE_IP
 )

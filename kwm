@@ -13,6 +13,10 @@
 . src/startup.sh
 . src/unsetter.sh
 
+# this function is only consumed by the env templates.
+# TOOD: fix this weirdness
+. src/showVar.sh
+
 ##
 # Wire command line arguments to method calls in the script.
 # TODO: simplify with eval?

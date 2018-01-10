@@ -1,26 +1,32 @@
-. src/globals.sh
-. src/compile.sh
 . src/error.sh
+
+_compile() {
+  echo "cat <<RENDER"
+  echo "$1"
+  echo "RENDER"
+}
+
+# This must be exported to allow templates to render partial content.
 
 render() {
   local namespace=$1
   local key=$2
-  local template="$TEMPLATE_PATH/$namespace/$key"
-  local embedded_template_key="template_${namespace}_${key//-/_}"
-  local embedded_template=${!embedded_template_key}
-  # prefer template files on disk if they are available
-  if [[ ! -f $template && -z $embedded_template ]]; then
+  local templatePath="$TEMPLATE_PATH/$namespace/$key"
+  local templateFn="template_${namespace}"
+  local templateContent
+  if [[ -n $(type -t $templateFn) ]]; then
+    templateContent="$($templateFn ${key//-/_})"
+  else
+    templateContent="$(cat $templatePath)"
+  fi
+  if [[ -z $templateContent ]]; then
     missing=$key error resource-not-found
     printf "\n"
     render usage $namespace
     exit 1
   fi
-  if [[ -f $template ]]; then
-    compile "$(cat $template)" | bash
-  else
-    compile "$embedded_template" | bash
-  fi
+  _compile "$templateContent" | bash
 }
 
 # This must be exported to allow templates to render partial content.
-export -f render
+export -f _compile render

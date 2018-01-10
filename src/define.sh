@@ -1,4 +1,3 @@
-. src/globals.sh
 . src/render.sh
 
 ##

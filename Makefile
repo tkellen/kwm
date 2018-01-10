@@ -1,11 +1,16 @@
 VERSION=$(shell cat VERSION)
-TEMPLATES:=$(shell find src/template -type f)
+SOURCE_FILES:=$(shell find src -type f)
+TEST_FILES:=$(shell find test -type f)
 
 .PHONY: clean
 clean:
 	rm -rf build
 
-build: kwm $(TEMPLATES)
+.PHONY: test
+test: $(TEST_FILES)
+	tasks/test -f tap test/*.sh
+
+build: test kwm $(SOURCE_FILES)
 	VERSION=$(VERSION) tasks/build
 
 release: build
