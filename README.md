@@ -1,13 +1,13 @@
-# KWM
+# KWM [![Build Status](https://travis-ci.org/tkellen/kwm.svg?branch=master)](https://travis-ci.org/tkellen/kwm)
 > Kubernetes Without Magic
 
 ## Description
 This is a learning exercise in operationalizing Kubernetes.
 
 ## Setup
-1. Install KWM: `wget https://github.com/tkellen/kwm/releases/download/v0.1.0/kwm`
-2. Install [Kubectl] (to manage the cluster)   
-4. Follow the prompts.
+1. Download the current version of KWM: `wget https://github.com/tkellen/kwm/releases/download/v0.1.0/kwm && chmod +x kwm`
+2. Install [kubectl] (to manage the cluster)   
+3. Run `./kwm` and follow the prompts.
 
 ### Acknowledgements
 It was quite a challenge learning how to do this. Here are some resources I used
