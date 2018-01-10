@@ -1,13 +1,14 @@
 VERSION=$(shell cat VERSION)
-TEMPLATES:=$(shell find template -type f)
+TEMPLATES:=$(shell find src/template -type f)
 
 .PHONY: clean
 clean:
 	rm -rf build
 
 build: kwm $(TEMPLATES)
-	VERSION=$(VERSION) script/build
+	VERSION=$(VERSION) tasks/build
 
 release: build
-	VERSION=$(VERSION) script/create
-	VERSION=$(VERSION) script/upload
+	VERSION=$(VERSION) tasks/create-release
+	VERSION=$(VERSION) tasks/upload-artifact
+	VERSION=$(VERSION) tasks/update-readme

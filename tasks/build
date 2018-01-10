@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+
+here="$(cd "$(dirname "$0")"; pwd -P)"
+root="$here/../"
+depCache=""
+
+source $here/config
+
+main() {
+  mkdir -p build
+  compile $root kwm > build/kwm
+  chmod +x build/kwm
+}
+
+# This inlines all dependencies and produces a single-file bash script for
+# consumption by end users.
+# TODO: surely something like this exists already? What have I missed here?
+compile() {
+  local basePath=$1
+  local file=$2
+  local depKey depRoot depName;
+  while IFS= read -r line; do
+    # check if the current line sources another file
+    if [[ ${line:0:1} == . ]]; then
+      # get the absolute path to the dependency
+      depKey="$(realpath "${line:2}")"
+      # if we already inlined it, bail out
+      if [[ $depCache == *"$depKey"* ]]; then
+        continue
+      fi
+      # otherwise, carry on!
+      depCache+="$depKey"
+      # find the base directory being sourced
+      depRoot="$(dirname ${line:2})"
+      # find the filename being sourced
+      depName="$(basename ${line:2})"
+      # otherwise, go a bit further down the rabbit hole!
+      compile "$depRoot" "$depName"
+    else
+      # ensure templates have been inlined before main is called
+      if [[ ${line:0:5} == "main " ]]; then
+        printf '%s\n' "$(compileTemplates)"
+      fi
+      printf '%s\n' "$line"
+    fi
+  done < $basePath/$file
+}
+
+# Convert all dashes and slahes to underscores. This is for giving templates
+# bash-friendly variable names when they are inlined.
+allUnderscores() {
+  sed 's/[\/-]/_/g'
+}
+
+# Ensures templates with backslash line continuations retain their
+# newlines through heredoc template expansion.
+escapeBackslashes() {
+  sed 's:\\:\\\\\\:g'
+}
+
+# This wrapper is needed to inline template files so they can be assigned
+# as variables.
+templateWrapper() {
+  echo "\$(cat <<'TEMPLATE'"
+  echo -e "$1"
+  echo "TEMPLATE"
+  echo ")"
+}
+
+compileTemplates() {
+  local key content
+  find src/template -type file | while read item; do
+    key="$(allUnderscores <<<${item:4})"
+    content="$(templateWrapper "$(escapeBackslashes <<<"$(cat $item)")")"
+    echo -e "export $key=$content\n"
+  done
+}
+
+main "@"

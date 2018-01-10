@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Create a github release and tag to attach an artifact to.
 
 source $(dirname "$0")/config
 

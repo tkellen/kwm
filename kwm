@@ -1,16 +1,22 @@
 #!/usr/bin/env bash
+# Kubernetes Without Magic
+# A tool for learning how to operationalize Kubernetes.
 
-VERSION=dev
-SCRIPT_PATH="$(cd "$(dirname "$0")"; pwd -P)"
-SCRIPT_NAME="$(basename -- "$0")"
-TEMPLATE_PATH="${TEMPLATE_PATH:-$SCRIPT_PATH/template}"
-if [[ ! -t 1 ]]; then
-  STDOUT_IS_TERMINAL=false
-else
-  STDOUT_IS_TERMINAL=true
-fi
-VALIDATE=false
+. src/globals.sh
+. src/connect.sh
+. src/define.sh
+. src/getenv.sh
+. src/render.sh
+. src/nodes.sh
+. src/manifest.sh
+. src/script.sh
+. src/startup.sh
+. src/unsetter.sh
 
+##
+# Wire command line arguments to method calls in the script.
+# TODO: simplify with eval?
+#
 main() {
   local command=$1
   if [[ $command == connect ]]; then connect ${@:2}; exit 0; fi
@@ -27,267 +33,10 @@ main() {
   if [[ $command == startup ]]; then startup; exit 0; fi
   if [[ $command == unset ]]; then unsetter; exit 0; fi
   if [[ $command == version ]]; then echo $VERSION; exit 0; fi
-
   render usage main
   exit 0
 }
 
-display() {
-  local key=$1
-  local defaultValue=$2
-  local envValue=${!key}
-  local value=${envValue:-$defaultValue}
-  if [[ $VALIDATE == false || ($VALIDATE == true && -z $value) ]]; then
-    printf "$key=\"$value\"\n"
-  fi
-}
-
-compile() {
-  echo "SCRIPT_PATH=$SCRIPT_PATH"
-  echo "SCRIPT_NAME=$SCRIPT_NAME"
-  echo "TEMPLATE_PATH=$TEMPLATE_PATH"
-  echo "STDOUT_IS_TERMINAL=$STDOUT_IS_TERMINAL"
-  echo "VALIDATE=$VALIDATE"
-  echo "VERSION=$VERSION"
-  echo "cat <<RENDER"
-  echo "$1"
-  echo "RENDER"
-}
-
-render() {
-  local namespace=$1
-  local key=$2
-  local template="$TEMPLATE_PATH/$namespace/$key"
-  local embedded_template_key="template_${namespace}_${key//-/_}"
-  local embedded_template=${!embedded_template_key}
-  # prefer template files on disk if they are available
-  if [[ ! -f $template && -z $embedded_template ]]; then
-    missing=$key error resource-not-found
-    printf "\n"
-    render usage $namespace
-    exit 1
-  fi
-  if [[ -f $template ]]; then
-    compile "$(cat $template)" | bash
-  else
-    compile "$embedded_template" | bash
-  fi
-}
-
-error() {
-  (tput setaf 1; render error $1; tput op) >&2
-}
-
-highlight() {
-  if $STDOUT_IS_TERMINAL; then
-    for name in ${!KWM*}; do
-      eval $name=\"$(tput setaf 4)${!name}$(tput op)\"
-    done
-  fi
-}
-
-validateEnv() {
-  local method=$1
-  local type=$2
-  local errors="$(VALIDATE=true render env $type)"
-  if [[ -n $errors ]]; then
-    errors="$errors" type="$type" method="$method" error env-missing
-    exit 1
-  fi
-}
-
-findVars() {
-  printf "$(declare -xp | grep "$1" | sed 's/declare -x \(.*\)=.*/\1/g')"
-}
-
-findNodes() {
-  local type=$1
-  for hit in $(findVars "KWM_ROLE_.*"); do
-    local node="${hit##*_}"
-    if [[ $type == all || ${!hit} =~ $type ]]; then
-      echo $node
-    fi
-  done
-}
-
-nodeValue() {
-  local node=$1
-  local var=$2
-  local nodeLookup="KWM_${var}_${node}"
-  local defaultLookup="KWM_${var}"
-  local nodeValue=${!nodeLookup}
-  local defaultValue=${!defaultLookup}
-  echo ${defaultValue:-$nodeValue}
-}
-
-magicNodeMeta() {
-  local node=$1
-  export KWM_ROLE="${KWM_ROLE:-$(nodeValue $node ROLE)}"
-  export KWM_HOSTNAME="${KWM_HOSTNAME:-$(nodeValue $node HOSTNAME)}"
-  export KWM_CONNECT="${KWM_CONNECT:-$(nodeValue $node CONNECT)}"
-  export KWM_PRIVATE_IP="${KWM_PRIVATE_IP:-$(nodeValue $node PRIVATE_IP)}"
-  export KWM_KUBELET_FLAGS="${KWM_KUBELET_FLAGS:-$(magicKubeletFlags $node)}"
-}
-
-magicKubeletFlags() {
-  local node=$1
-  local roles="$(nodeValue $node ROLE)"
-  local output
-  for role in $roles; do
-    output+=",node-role.kubernetes.io/$role=true"
-  done
-  [[ -n $output ]] && output="--node-labels=\"${output:1}\""
-  if [[ $roles == *"controlplane"* && $roles != *"worker"* ]]; then
-    output+=" --register-with-taints=\"node-role.kubernetes.io/controlplane=true:NoSchedule\""
-  fi
-  [[ -n $output ]] && echo "$output"
-}
-
-magicEtcdMeta() {
-  export KWM_ETCD_INITIAL_CLUSTER=${KWM_ETCD_INITIAL_CLUSTER:-$(magicEtcdInitialCluster)}
-  export KWM_ETCD_CLIENT_SANS=${KWM_ETCD_CLIENT_SANS:-$(magicEtcdClientSans)}
-  export KWM_ETCD_SERVERS=${KWM_ETCD_SERVERS:-$(magicEtcdServers)}
-}
-
-magicEtcdClientSans() {
-  local output
-  for node in $(findNodes etcd); do
-    output+=",IP:$(nodeValue $node PRIVATE_IP),DNS:$(nodeValue $node HOSTNAME)"
-  done
-  [[ -n $output ]] && echo ${output:1}
-}
-
-magicEtcdInitialCluster() {
-  local output=""
-  for node in $(findNodes etcd); do
-    output+=",$(nodeValue $node HOSTNAME)=https://$(nodeValue $node PRIVATE_IP):2380"
-  done
-  [[ -n $output ]] && echo ${output:1}
-
-}
-
-magicEtcdServers() {
-  local output
-  for node in $(findNodes etcd); do
-    output+=",https://$(nodeValue $node PRIVATE_IP):2379"
-  done
-  [[ -n $output ]] && echo ${output:1}
-}
-
-connect() {
-  local node=$1
-  local call
-  call=$(nodeValue $node CONNECT) || return
-  if [[ -z $node ]]; then
-    render usage connect
-    exit 1
-  fi
-  if [[ -z $call ]]; then
-    requested=$node error invalid-node
-    exit 1
-  fi
-  $call
-}
-
-getDefinable() {
-  if [[ $VERSION == dev ]]; then
-    echo "$(ls $TEMPLATE_PATH/define)"
-  else
-    echo "$(findVars "template_define*" | sed 's/template_define_//g')"
-  fi
-}
-
-define() {
-  local var=$1
-  if [[ -z $var ]]; then
-    vars="$(getDefinable)" render usage define
-    exit 1
-  fi
-  echo $var
-  render define $var
-}
-
-getenv() {
-  local type=$1
-  local node=$2
-  if [[ -z $type ]]; then
-    render usage env
-    exit 1
-  fi
-  if [[ $type =~ node ]]; then
-    magicNodeMeta $node
-    if [[ -z $node ]]; then
-      type=$type error no-node-for-env
-      printf "\n"
-    fi
-  fi
-  magicEtcdMeta
-  highlight
-
-  render env $type
-}
-
-nodes() {
-  local role=$1
-  if [[ -z $role ]]; then
-    render usage nodes
-    exit
-  fi
-  local nodes="$(findNodes $role)"
-  if [[ -z $nodes ]]; then
-    role=$role error no-nodes-for-role
-    exit 1
-  fi
-  echo "$nodes"
-}
-
-manifest() {
-  local type=$1
-  if [[ -z $type ]]; then
-    render usage manifest
-    exit 1
-  fi
-  validateEnv manifest $type
-  highlight
-  render manifest $type
-}
-
-script() {
-  local type=$1
-  local node=$2
-  if [[ -z $type ]]; then
-    render usage script
-    exit 1
-  fi
-  magicEtcdMeta
-  if [[ $type =~ node ]]; then
-    magicNodeMeta $node
-  fi
-  validateEnv script $type
-  highlight
-  render script $type
-}
-
-startup() {
-  validateEnv script startup
-  if [[ -z "$(findNodes etcd)$(findNodes controlplane)$(findNodes worker)" ]]; then
-    error startup-no-nodes
-    exit 1
-  fi
-  magicEtcdMeta
-  render script startup
-}
-
-unsetter() {
-  if $STDOUT_IS_TERMINAL; then
-    render usage unset
-    exit 0
-  fi
-  env | grep KWM_.*\= | cut -f1 -d= | xargs -n 1 echo unset
-}
-
-export -f display compile render error nodeValue findNodes
-
-#--EMBED-TEMPLATES-HERE--#
-
-main "$@"
+# Kick off the KWM, removing any command line flags from the argument listing.
+# TODO: should I bother with an options parser?
+main $(sed 's/ --ignore-missing-env//g' <<< "$@")

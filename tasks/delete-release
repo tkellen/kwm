@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Delete the defined release and associated tag on github.
 
 source $(dirname "$0")/config
 
