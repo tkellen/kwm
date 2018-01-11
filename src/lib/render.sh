@@ -23,6 +23,7 @@ render() {
     templateContent="$(sed 's/\\/\\\\/g' <<<"$(cat $templatePath)")"
   fi
   if [[ -z $templateContent ]]; then
+    # TODO: fix case where a recursive loop with no bottom could occur
     missing=$key error resource-not-found
     printf "\n"
     render usage $namespace

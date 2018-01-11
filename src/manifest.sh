@@ -14,4 +14,5 @@ manifest() {
   validateEnv manifest $type
   highlight $STDOUT_IS_TERMINAL
   render manifest $type
+  exit 0
 }

@@ -24,4 +24,5 @@ define() {
   fi
   printf "%s\n" $var
   render define $var
+  exit 0
 }

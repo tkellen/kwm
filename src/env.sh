@@ -23,4 +23,5 @@ getenv() {
   magicEtcdMeta
   highlight $STDOUT_IS_TERMINAL
   VALIDATE=false render env $type
+  exit 0
 }

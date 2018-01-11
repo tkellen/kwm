@@ -16,4 +16,5 @@ startup() {
   fi
   magicEtcdMeta
   render script startup
+  exit 0
 }

@@ -8,5 +8,6 @@ unsetter() {
     render usage unset
     exit 0
   fi
+
   env | grep KWM_.*\= | cut -f1 -d= | xargs -n 1 echo unset
 }

@@ -3,12 +3,26 @@ cd ../..
 . src/unsetter.sh
 
 test_unsetter() {
-  local expected actual
-
   export KWM_FIRST=set
   export KWM_SECOND=set
-  expected=$'unset KWM_FIRST\nunset KWM_SECOND'
-  actual="$(STDOUT_IS_TERMINAL=false unsetter)"
-  assert_equals "$expected" "$actual" \
-    "should return a list of unset commands for every KWM_* value when stdout is not a terminal"
+  local result="$(STDOUT_IS_TERMINAL=false unsetter)"
+
+  if grep -q "unset KWM_FIRST" <<<$result; then
+    assert true
+  else
+    assert false "should include environment values that are set"
+  fi
+
+  if grep -q "unset KWM_SECOND" <<<$result; then
+    assert true
+  else
+    assert false "should include environment values that are set"
+  fi
+
+  if grep -q "unset KWM_SECONDs" <<<$result; then
+    assert false "should not include environment values that don't exist"
+  else
+    assert true
+  fi
+
 }

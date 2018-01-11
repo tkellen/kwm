@@ -36,6 +36,8 @@ export VALIDATE=false
 . src/connect.sh
 . src/define.sh
 . src/env.sh
+. src/help.sh
+. src/install.sh
 . src/lib/render.sh
 . src/nodes.sh
 . src/manifest.sh
@@ -53,20 +55,18 @@ export VALIDATE=false
 #
 main() {
   local command=$1
-  if [[ $command == connect ]]; then connect ${@:2}; exit 0; fi
-  if [[ $command == define ]]; then define ${@:2}; exit 0; fi
-  if [[ $command == env ]]; then getenv ${@:2}; exit 0; fi
-  if [[ $command == help ]]; then help ${@:2} exit 0; fi
-  if [[ $command == nodes ]]; then nodes ${@:2}; exit 0; fi
-  if [[ $command == install ]]; then
-    echo "export PATH=\$PATH:$SCRIPT_PATH"
-    exit 0;
-  fi
-  if [[ $command == manifest ]]; then manifest ${@:2}; exit 0; fi
-  if [[ $command == script ]]; then script ${@:2}; exit 0; fi
-  if [[ $command == startup ]]; then startup; exit 0; fi
-  if [[ $command == unset ]]; then unsetter; exit 0; fi
-  if [[ $command == version ]]; then echo $VERSION; exit 0; fi
+  if [[ $command == connect ]]; then connect ${@:2}; fi
+  if [[ $command == define ]]; then define ${@:2}; fi
+  if [[ $command == env ]]; then getenv ${@:2}; fi
+  if [[ $command == help ]]; then help ${@:2}; fi
+  if [[ $command == nodes ]]; then nodes ${@:2}; fi
+  if [[ $command == install ]]; then install; fi
+  if [[ $command == manifest ]]; then manifest ${@:2}; fi
+  if [[ $command == script ]]; then script ${@:2}; fi
+  if [[ $command == startup ]]; then startup; fi
+  if [[ $command == unset ]]; then unsetter; fi
+  if [[ $command == version ]]; then echo $VERSION; fi
+
   render usage main
   exit 0
 }

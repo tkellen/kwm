@@ -9,7 +9,7 @@ nodes() {
   local role=$1
   if [[ -z $role ]]; then
     render usage nodes
-    exit
+    exit 0
   fi
   local nodes="$(findNodes $role)"
   if [[ -z $nodes ]]; then
@@ -17,4 +17,5 @@ nodes() {
     exit 1
   fi
   printf "%s\n" "$nodes"
+  exit 0
 }

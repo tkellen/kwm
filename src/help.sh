@@ -1,5 +1,6 @@
 . src/lib/render.sh
 
 function help() {
-  render usage help;
+  render usage help
+  exit 0
 }

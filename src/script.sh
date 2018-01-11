@@ -21,4 +21,5 @@ script() {
   validateEnv script $type
   highlight $STDOUT_IS_TERMINAL
   render script $type
+  exit 0
 }
