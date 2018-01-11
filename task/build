@@ -8,7 +8,7 @@ source $here/config
 
 main() {
   mkdir -p build
-  compile $root kwm > build/kwm
+  compile $root kwm | sed "s/VERSION=dev/VERSION=$VERSION/" > build/kwm
   chmod +x build/kwm
 }
 
@@ -52,8 +52,8 @@ allUnderscores() {
   sed 's/[\/-]/_/g'
 }
 
-# Ensures templates with backslash line continuations retain their
-# newlines through heredoc template expansion.
+# Add an additional backslash so line continuations in templates
+# are not lost.
 escapeBackslashes() {
   sed 's:\\:\\\\\\:g'
 }
@@ -61,10 +61,10 @@ escapeBackslashes() {
 # This wrapper is needed to inline template files so they can be assigned
 # as variables.
 templateWrapper() {
-  echo "\$(cat <<'TEMPLATE'"
-  echo -e "$1"
-  echo "TEMPLATE"
-  echo ")"
+  printf "%b\n" "\$(cat <<'TEMPLATE'"
+  printf "%b\n" "$1"
+  printf "%b\n" "TEMPLATE"
+  printf "%b\n" ")"
 }
 
 compileTemplates() {
@@ -77,16 +77,22 @@ compileTemplates() {
 templateNamespace() {
   local basePath=$1
   local namespace=$2
+  local templateList=""
   local fn="template_$namespace"
-  echo "$fn() {"
-  find $basePath/$namespace/* -type file | while read template; do
+  printf "%s\n" "$fn() {"
+  while IFS= read -r template; do
     key=${template##*/}
     content="$(templateWrapper "$(escapeBackslashes <<<"$(cat $template)")")"
-    echo -e "local ${key//-/_}=$content\n"
-  done
-  echo "  echo \"\${!1}\""
-  echo "}"
-  echo -e "export -f $fn\n"
+    templateList+="$key\n"
+    printf "%b\n" "local ${key//-/_}=$content"
+  done <<<"$(find $basePath/$namespace/* -type file)"
+  printf "%s\n" '  if [[ $# -eq 0 ]]; then'
+  printf "%s\n" "    printf \"%b\" \"$templateList\""
+  printf "%s\n" '  else'
+  printf "%s\n" '    printf "%b" "${!1}"'
+  printf "%s\n" '  fi'
+  printf "%s\n" '}'
+  printf "%s\n" "export -f $fn"
 }
 
 main "@"

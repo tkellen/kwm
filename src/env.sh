@@ -1,7 +1,7 @@
-. src/render.sh
-. src/magicNodeMeta.sh
-. src/error.sh
-. src/highlight.sh
+. src/lib/render.sh
+. src/lib/magicNodeMeta.sh
+. src/lib/error.sh
+. src/lib/highlight.sh
 
 ##
 # Display current values in environment for a specified type of resource.
@@ -21,6 +21,6 @@ getenv() {
     fi
   fi
   magicEtcdMeta
-  highlight
+  highlight $STDOUT_IS_TERMINAL
   VALIDATE=false render env $type
 }

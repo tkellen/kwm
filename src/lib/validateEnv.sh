@@ -1,5 +1,5 @@
-. src/render.sh
-. src/error.sh
+. src/lib/render.sh
+. src/lib/error.sh
 
 validateEnv() {
   local method=$1

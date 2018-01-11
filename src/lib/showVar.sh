@@ -1,7 +1,5 @@
-. src/globals.sh
-
 ##
-#
+# TODO: refactor this mess
 #
 showVar() {
   local key=$1

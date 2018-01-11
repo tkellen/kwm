@@ -18,13 +18,13 @@ kwm nodes worker | xargs -n1 kwm script worker-node | bash 2>&1 | sed 's/^/[work
 mkdir -p manifests/system
 kwm manifest cni > manifests/system/cni.yml
 kubectl --context=${KWM_CLUSTER_NAME} apply -f manifests/system/cni.yml | sed 's/^/[container networking] /'
-echo "Waiting for container networking to start..."
+printf "%s\n" "Waiting for container networking to start..."
 #------------------------------------------------------------------------------#
 # HACK bounce containerd to pick up cni settings from above
 #------------------------------------------------------------------------------#
 sleep 30
 ((kwm nodes controlplane && kwm nodes worker) | uniq | while read node; do
-  echo "sudo systemctl restart containerd" | kwm connect \$node &
+  printf "%s\n" "sudo systemctl restart containerd" | kwm connect \$node &
 done
 wait) 2>&1 | sed 's/^/[hack] /'
 #------------------------------------------------------------------------------#
@@ -33,7 +33,7 @@ wait) 2>&1 | sed 's/^/[hack] /'
 mkdir -p manifests/system
 kwm manifest dns > manifests/system/kube-dns.yml
 kubectl --context=${KWM_CLUSTER_NAME} apply -f manifests/system/kube-dns.yml | sed 's/^/[cluster dns] /'
-echo "Waiting for kube-dns to start..."
+printf "%s\n" "Waiting for kube-dns to start..."
 #------------------------------------------------------------------------------#
 # Confirm the cluster is functional
 #------------------------------------------------------------------------------#

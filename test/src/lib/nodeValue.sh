@@ -1,6 +1,6 @@
-cd ../
+cd ../../..
 
-. ./src/nodeValue.sh
+. src/lib/nodeValue.sh
 
 test_nodeValue() {
   local expected actual

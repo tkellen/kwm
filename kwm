@@ -2,11 +2,41 @@
 # Kubernetes Without Magic
 # A tool for learning how to operationalize Kubernetes.
 
-. src/globals.sh
+# Give help system access to the current version of KWM.
+export VERSION=dev
+
+# Get an absolute path to KWM itself.
+export SCRIPT_PATH="$(cd "$(dirname "$0")"; pwd -P)"
+
+# Get the name of KWM, just in case it has been changed.
+export SCRIPT_NAME="$(basename -- "$0")"
+
+# Many commands highlight user supplied input with coloring. This variable is
+# used to control instances where colors should not be applied. For example,
+# a user may run `kwm script pki` to inspect the commands needed to generate
+# PKI for Kubernetes. If they actually want to execute those commands, as in
+# `kwm script pki | bash`, the highlighting of their values should not be
+# present.
+if [[ ! -t 1 ]]; then
+  export STDOUT_IS_TERMINAL=false
+else
+  export STDOUT_IS_TERMINAL=true
+fi
+
+# A convenience flag that allows users to generate invalid scripts and manifests
+# by providing partially complete environment values. This makes it easy to
+# explore where individual enviroment values wind up.
+case "$@" in
+  *--ignore-missing-env*) export IGNORE_MISSING_ENV=true ;;
+esac
+
+# TODO: eliminate this gross thing
+export VALIDATE=false
+
 . src/connect.sh
 . src/define.sh
-. src/getenv.sh
-. src/render.sh
+. src/env.sh
+. src/lib/render.sh
 . src/nodes.sh
 . src/manifest.sh
 . src/script.sh
@@ -15,7 +45,7 @@
 
 # this function is only consumed by the env templates.
 # TOOD: fix this weirdness
-. src/showVar.sh
+. src/lib/showVar.sh
 
 ##
 # Wire command line arguments to method calls in the script.
@@ -26,7 +56,7 @@ main() {
   if [[ $command == connect ]]; then connect ${@:2}; exit 0; fi
   if [[ $command == define ]]; then define ${@:2}; exit 0; fi
   if [[ $command == env ]]; then getenv ${@:2}; exit 0; fi
-  if [[ $command == help ]]; then render usage help; exit 0; fi
+  if [[ $command == help ]]; then help ${@:2} exit 0; fi
   if [[ $command == nodes ]]; then nodes ${@:2}; exit 0; fi
   if [[ $command == install ]]; then
     echo "export PATH=\$PATH:$SCRIPT_PATH"

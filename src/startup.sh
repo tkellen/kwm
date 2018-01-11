@@ -1,8 +1,8 @@
-. src/validateEnv.sh
-. src/error.sh
-. src/findNodes.sh
-. src/magicEtcdMeta.sh
-. src/render.sh
+. src/lib/validateEnv.sh
+. src/lib/error.sh
+. src/lib/findNodes.sh
+. src/lib/magicEtcdMeta.sh
+. src/lib/render.sh
 
 ##
 # Generate a one-shot script for bootstrapping a Kubernetes cluster. This

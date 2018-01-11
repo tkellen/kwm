@@ -1,8 +1,8 @@
-. src/render.sh
-. src/magicEtcdMeta.sh
-. src/magicNodeMeta.sh
-. src/validateEnv.sh
-. src/highlight.sh
+. src/lib/render.sh
+. src/lib/magicEtcdMeta.sh
+. src/lib/magicNodeMeta.sh
+. src/lib/validateEnv.sh
+. src/lib/highlight.sh
 
 ##
 # Generate a script for bootstrapping a Kubernetes cluster.
@@ -19,6 +19,6 @@ script() {
     magicNodeMeta $nodeKey
   fi
   validateEnv script $type
-  highlight
+  highlight $STDOUT_IS_TERMINAL
   render script $type
 }

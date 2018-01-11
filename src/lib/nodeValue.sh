@@ -16,7 +16,7 @@ nodeValue() {
   local defaultLookup="KWM_${var}"
   local nodeValue=${!nodeLookup}
   local defaultValue=${!defaultLookup}
-  echo ${nodeValue:-$defaultValue}
+  printf "%s\n" ${nodeValue:-$defaultValue}
 }
 
 # This must be exported to allow templates to render partial content.

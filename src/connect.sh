@@ -1,5 +1,6 @@
-. src/nodeValue.sh
-. src/error.sh
+. src/lib/nodeValue.sh
+. src/lib/render.sh
+. src/lib/error.sh
 
 ##
 # Connect to a Node by executing the command specified under

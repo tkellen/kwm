@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------#
-echo Configuring kubectl for administrative access to cluster.
+printf "%s\n" Configuring kubectl for administrative access to cluster.
 #------------------------------------------------------------------------------#
 kubectl config set-cluster ${KWM_CLUSTER_NAME} \\
   --certificate-authority=pki/cluster-ca-cert.pem \\

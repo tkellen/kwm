@@ -1,4 +1,4 @@
-. src/render.sh
+. src/lib/render.sh
 
 ##
 # Get a list of possible environment values to be defined. In the development of
@@ -7,9 +7,9 @@
 #
 _getDefinable() {
   if [[ $VERSION == dev ]]; then
-    echo "$(ls $TEMPLATE_PATH/define)"
+    printf "%s\n" "$(ls src/template/define)"
   else
-    echo "$(findVars "template_define*" | sed 's/template_define_//g')"
+    printf "%s\n" "$(template_define)"
   fi
 }
 
@@ -22,6 +22,6 @@ define() {
     vars="$(_getDefinable)" render usage define
     exit 1
   fi
-  echo $var
+  printf "%s\n" $var
   render define $var
 }

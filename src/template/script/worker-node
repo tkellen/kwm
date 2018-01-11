@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------#
-echo Sending shared PKI to $KWM_HOSTNAME.
+printf "%s\n" Sending shared PKI to $KWM_HOSTNAME.
 #------------------------------------------------------------------------------#
 $(files="cluster-ca-cert.pem cluster-ca-private-key.pem" \
   exec="$KWM_CONNECT" \
@@ -7,19 +7,19 @@ $(files="cluster-ca-cert.pem cluster-ca-private-key.pem" \
   sourcePath="pki" render util tar-copy
 )
 #------------------------------------------------------------------------------#
-echo Installing $KWM_HOSTNAME.
+printf "%s\n" Installing $KWM_HOSTNAME.
 #------------------------------------------------------------------------------#
 $(exec="$KWM_CONNECT" content="
 #------------------------------------------------------------------------------#
-echo Generating private key for kublet.
+printf "%s\n" Generating private key for kublet.
 #------------------------------------------------------------------------------#
 $(basePath="$KWM_CONFIG_PATH" name="kubelet" render pki private-key)
 #------------------------------------------------------------------------------#
-echo Generating private key for kube-router.
+printf "%s\n" Generating private key for kube-router.
 #------------------------------------------------------------------------------#
 $(basePath="$KWM_CONFIG_PATH" name="kube-router" render pki private-key)
 #------------------------------------------------------------------------------#
-echo Generating cluster-ca signed certificate for kubelet to apiserver communication.
+printf "%s\n" Generating cluster-ca signed certificate for kubelet to apiserver communication.
 #------------------------------------------------------------------------------#
 $(name="kubelet" \
   basePath="$KWM_CONFIG_PATH" \
@@ -27,18 +27,18 @@ $(name="kubelet" \
   ext="subjectAltName = IP:$KWM_PRIVATE_IP,DNS:$KWM_HOSTNAME" \
   ca="cluster" render pki signed-cert)
 #------------------------------------------------------------------------------#
-echo Generating cluster-ca signed certificate for kube-router to apiserver communication.
+printf "%s\n" Generating cluster-ca signed certificate for kube-router to apiserver communication.
 #------------------------------------------------------------------------------#
 $(name="kube-router" \
   basePath="$KWM_CONFIG_PATH" \
   subj="/CN=kube-router" \
   ca="cluster" render pki signed-cert)
 #------------------------------------------------------------------------------#
-echo Ensuring hostname and loopback reference are set.
+printf "%s\n" Ensuring hostname and loopback reference are set.
 #------------------------------------------------------------------------------#
 $(name="$KWM_HOSTNAME" render util set-hostname)
 #------------------------------------------------------------------------------#
-echo Generating CNI network configuration.
+printf "%s\n" Generating CNI network configuration.
 #------------------------------------------------------------------------------#
 $(content='{ "cniVersion": "0.3.1", "type": "loopback" }' \
   path="/etc/cni/net.d/99-loopback.conf" render util write-file
@@ -47,17 +47,17 @@ $(content='{"name": "kubernetes", "type": "bridge", "bridge": "kube-bridge", "ip
   path="/etc/cni/net.d/10-kuberouter.conf" render util write-file
 )
 #------------------------------------------------------------------------------#
-echo Installing cri-containerd.
+printf "%s\n" Installing cri-containerd.
 #------------------------------------------------------------------------------#
 $(version="$KWM_VERSION_CRI_CONTAINERD" render installer containerd)
 $(name="containerd" render service enable)
 $(name="cri-containerd" render service enable)
 #------------------------------------------------------------------------------#
-echo Installing container networking plugins at version $KWM_VERSION_CNI_PLUGIN.
+printf "%s\n" Installing container networking plugins at version $KWM_VERSION_CNI_PLUGIN.
 #------------------------------------------------------------------------------#
 $(version="$KWM_VERSION_CNI_PLUGIN" render installer cni-plugins)
 #------------------------------------------------------------------------------#
-echo Generating kubelet config.
+printf "%s\n" Generating kubelet config.
 #------------------------------------------------------------------------------#
 $(path="/etc/kubernetes/kubelet.kubeconfig" \
   content="$(
@@ -69,7 +69,7 @@ $(path="/etc/kubernetes/kubelet.kubeconfig" \
   )" render util write-file
 )
 #------------------------------------------------------------------------------#
-echo Generating kube-router config.
+printf "%s\n" Generating kube-router config.
 #------------------------------------------------------------------------------#
 $(path="/etc/kubernetes/kube-router.kubeconfig" \
   content="$(
@@ -81,11 +81,11 @@ $(path="/etc/kubernetes/kube-router.kubeconfig" \
   )" render util write-file
 )
 #------------------------------------------------------------------------------#
-echo Installing kubelet at version $KWM_VERSION_KUBERNETES.
+printf "%s\n" Installing kubelet at version $KWM_VERSION_KUBERNETES.
 #------------------------------------------------------------------------------#
 $(name="kubelet" version="$KWM_VERSION_KUBERNETES" render installer k8s)
 #------------------------------------------------------------------------------#
-echo Generating kubelet service.
+printf "%s\n" Generating kubelet service.
 #------------------------------------------------------------------------------#
 $(path="/etc/systemd/system/kubelet.service" content="
   $(name="kubelet" \
@@ -99,11 +99,11 @@ $(path="/etc/systemd/system/kubelet.service" content="
     )" render service unit
 )" render util write-file)
 #------------------------------------------------------------------------------#
-echo Enabling and restarting service.
+printf "%s\n" Enabling and restarting service.
 #------------------------------------------------------------------------------#
 $(name="kubelet" render service enable)
 #------------------------------------------------------------------------------#
-echo Installing socat to power kubectl proxy.
+printf "%s\n" Installing socat to power kubectl proxy.
 #------------------------------------------------------------------------------#
 $(render installer socat)
 

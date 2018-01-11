@@ -8,12 +8,12 @@ clean:
 
 .PHONY: test
 test: $(TEST_FILES)
-	tasks/test -f tap test/*.sh
+	task/test -f tap test/**/*.sh
 
 build: test kwm $(SOURCE_FILES)
-	VERSION=$(VERSION) tasks/build
+	VERSION=$(VERSION) task/build
 
 release: build
-	VERSION=$(VERSION) tasks/create-release
-	VERSION=$(VERSION) tasks/upload-artifact
-	VERSION=$(VERSION) tasks/update-readme
+	VERSION=$(VERSION) task/create-release
+	VERSION=$(VERSION) task/upload-artifact
+	VERSION=$(VERSION) task/update-readme

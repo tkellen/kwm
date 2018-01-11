@@ -1,4 +1,4 @@
-. src/nodeValue.sh
+. src/lib/nodeValue.sh
 
 ##
 # When generating scripts for nodes, try to assign environment values in the
@@ -51,5 +51,5 @@ _magicKubeletFlags() {
   if [[ $roles == *"controlplane"* && $roles != *"worker"* ]]; then
     output+=" --register-with-taints=\"node-role.kubernetes.io/controlplane=true:NoSchedule\""
   fi
-  [[ -n $output ]] && echo "$output"
+  [[ -n $output ]] && printf "%s\n" "$output"
 }

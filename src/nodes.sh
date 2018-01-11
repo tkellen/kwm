@@ -1,6 +1,6 @@
-. src/render.sh
-. src/findNodes.sh
-. src/error.sh
+. src/lib/render.sh
+. src/lib/error.sh
+. src/lib/findNodes.sh
 
 ##
 # List all nodes in the environment filtered by their role.
@@ -16,5 +16,5 @@ nodes() {
     role=$role error no-nodes-for-role
     exit 1
   fi
-  echo "$nodes"
+  printf "%s\n" "$nodes"
 }

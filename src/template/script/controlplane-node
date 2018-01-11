@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------#
-echo Sending shared PKI to $KWM_HOSTNAME.
+printf "%s\n" Sending shared PKI to $KWM_HOSTNAME.
 #------------------------------------------------------------------------------#
 $(files="cluster-ca-cert.pem cluster-ca-private-key.pem etcd-ca-cert.pem etcd-ca-private-key.pem apiserver-to-etcd-cert.pem apiserver-to-etcd-private-key.pem service-account-private-key.pem service-account-public-key.pem" \
   exec="$KWM_CONNECT" \
@@ -7,19 +7,19 @@ $(files="cluster-ca-cert.pem cluster-ca-private-key.pem etcd-ca-cert.pem etcd-ca
   sourcePath="$KWM_LOCAL_PKI_PATH" render util tar-copy
 )
 #------------------------------------------------------------------------------#
-echo Installing $KWM_HOSTNAME.
+printf "%s\n" Installing $KWM_HOSTNAME.
 #------------------------------------------------------------------------------#
 $(exec="$KWM_CONNECT" content="
 #------------------------------------------------------------------------------#
-echo Generating private key for client to apiserver communication.
+printf "%s\n" Generating private key for client to apiserver communication.
 #------------------------------------------------------------------------------#
 $(basePath="$KWM_CONFIG_PATH" name="client-to-apiserver" render pki private-key)
 #------------------------------------------------------------------------------#
-echo Generating private key for apiserver to kubelet communication.
+printf "%s\n" Generating private key for apiserver to kubelet communication.
 #------------------------------------------------------------------------------#
 $(basePath="$KWM_CONFIG_PATH" name="apiserver-to-kubelet" render pki private-key)
 #------------------------------------------------------------------------------#
-echo Generating cluster-ca signed certificate for client to apiserver communication.
+printf "%s\n" Generating cluster-ca signed certificate for client to apiserver communication.
 #------------------------------------------------------------------------------#
 $(name="client-to-apiserver" \
   basePath="$KWM_CONFIG_PATH" \
@@ -28,7 +28,7 @@ $(name="client-to-apiserver" \
   ca="cluster" render pki signed-cert
 )
 #------------------------------------------------------------------------------#
-echo Generating cluster-ca signed certificate for apiserver to kubelet communication.
+printf "%s\n" Generating cluster-ca signed certificate for apiserver to kubelet communication.
 #------------------------------------------------------------------------------#
 $(name="apiserver-to-kubelet" \
   basePath="$KWM_CONFIG_PATH" \
@@ -36,15 +36,15 @@ $(name="apiserver-to-kubelet" \
   ca="cluster" render pki signed-cert
 )
 #------------------------------------------------------------------------------#
-echo Ensuring hostname and loopback reference are set.
+printf "%s\n" Ensuring hostname and loopback reference are set.
 #------------------------------------------------------------------------------#
 $(name="$KWM_HOSTNAME" render util set-hostname)
 #------------------------------------------------------------------------------#
-echo Installing kube-apiserver at version $KWM_VERSION_KUBERNETES.
+printf "%s\n" Installing kube-apiserver at version $KWM_VERSION_KUBERNETES.
 #------------------------------------------------------------------------------#
 $(version="$KWM_VERSION_KUBERNETES" name="kube-apiserver" render installer k8s)
 #------------------------------------------------------------------------------#
-echo Generating kube-apiserver service file.
+printf "%s\n" Generating kube-apiserver service file.
 #------------------------------------------------------------------------------#
 $(path="/etc/systemd/system/kube-apiserver.service" content="$(
   name="kube-apiserver" \
@@ -57,15 +57,15 @@ $(path="/etc/systemd/system/kube-apiserver.service" content="$(
   )" render service unit)" render util write-file
 )
 #------------------------------------------------------------------------------#
-echo Enabling kube-apiserver service.
+printf "%s\n" Enabling kube-apiserver service.
 #------------------------------------------------------------------------------#
 $(name="kube-apiserver" render service enable)
 #------------------------------------------------------------------------------#
-echo Installing kube-controller-manager at version $KWM_VERSION_KUBERNETES.
+printf "%s\n" Installing kube-controller-manager at version $KWM_VERSION_KUBERNETES.
 #------------------------------------------------------------------------------#
 $(version="$KWM_VERSION_KUBERNETES" name="kube-controller-manager" render installer k8s)
 #------------------------------------------------------------------------------#
-echo Generating kube-controller service file.
+printf "%s\n" Generating kube-controller service file.
 #------------------------------------------------------------------------------#
 $(path="/etc/systemd/system/kube-controller-manager.service" content="$(
   name="kube-controller-manager" \
@@ -79,15 +79,15 @@ $(path="/etc/systemd/system/kube-controller-manager.service" content="$(
   )" render service unit)" render util write-file
 )
 #------------------------------------------------------------------------------#
-echo Enabling kube-controller-manager service.
+printf "%s\n" Enabling kube-controller-manager service.
 #------------------------------------------------------------------------------#
 $(name="kube-controller-manager" render service enable)
 #------------------------------------------------------------------------------#
-echo Installing kube-scheduler at version $KWM_VERSION_KUBERNETES.
+printf "%s\n" Installing kube-scheduler at version $KWM_VERSION_KUBERNETES.
 #------------------------------------------------------------------------------#
 $(version="$KWM_VERSION_KUBERNETES" name="kube-scheduler" render installer k8s)
 #------------------------------------------------------------------------------#
-echo Generating kube-scheduler service file.
+printf "%s\n" Generating kube-scheduler service file.
 #------------------------------------------------------------------------------#
 $(path="/etc/systemd/system/kube-scheduler.service" content="$(
   name="kube-scheduler" \
@@ -96,11 +96,11 @@ $(path="/etc/systemd/system/kube-scheduler.service" content="$(
   exec="$(render service kube-scheduler)" render service unit)" render util write-file
 )
 #------------------------------------------------------------------------------#
-echo Enabling kube-scheduler service.
+printf "%s\n" Enabling kube-scheduler service.
 #------------------------------------------------------------------------------#
 $(version="$KWM_VERSION_KUBERNETES" name="kube-scheduler" render service enable)
 #------------------------------------------------------------------------------#
-echo Installing kubectl at version $KWM_VERSION_KUBERNETES.
+printf "%s\n" Installing kubectl at version $KWM_VERSION_KUBERNETES.
 #------------------------------------------------------------------------------#
 $(version="$KWM_VERSION_KUBERNETES" name="kubectl" render installer k8s)
 

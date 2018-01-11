@@ -1,4 +1,4 @@
-. src/render.sh
+. src/lib/render.sh
 
 ##
 # Generate commands needed to unset all KWM_* values.

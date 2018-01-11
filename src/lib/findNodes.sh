@@ -1,4 +1,4 @@
-. src/findVars.sh
+. src/lib/findVars.sh
 
 ##
 # Find all Node keys specified in the environment.
@@ -9,7 +9,7 @@ findNodes() {
   for hit in $(findVars "KWM_ROLE_.*"); do
     nodeKey="${hit##*_}"
     if [[ $type == all || ${!hit} =~ $type ]]; then
-      echo $nodeKey
+      printf "%s\n" $nodeKey
     fi
   done
 }

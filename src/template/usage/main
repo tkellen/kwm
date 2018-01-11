@@ -16,13 +16,11 @@ Available Commands:
 
 Note:
   Please run "kwm help | less" if you are just getting started with KWM.
-
 $(
   if [[ "$(which $SCRIPT_NAME)" != "$SCRIPT_PATH/$SCRIPT_NAME" ]]; then
     tput setaf 1
-    printf "\n"
-    echo "$SCRIPT_NAME not found in PATH, run this to configure your shell:"
-    echo ". <($SCRIPT_PATH/$SCRIPT_NAME install)"
+    printf "\n%b\n" "$SCRIPT_NAME not found in PATH, run this to configure your shell:"
+    printf "%b" ". <($SCRIPT_PATH/$SCRIPT_NAME install)"
     tput op
   fi
 )

@@ -1,6 +1,6 @@
-. src/validateEnv.sh
-. src/highlight.sh
-. src/render.sh
+. src/lib/validateEnv.sh
+. src/lib/highlight.sh
+. src/lib/render.sh
 
 ##
 # Generate a yaml manifest for application into a cluster.
@@ -12,6 +12,6 @@ manifest() {
     exit 1
   fi
   validateEnv manifest $type
-  highlight
+  highlight $STDOUT_IS_TERMINAL
   render manifest $type
 }
