@@ -114,7 +114,7 @@ export env_worker_node=(
 . src/define.sh
 . src/env.sh
 . src/help.sh
-. src/install.sh
+. src/installer.sh
 . src/nodes.sh
 . src/render.sh
 . src/startup.sh
@@ -133,7 +133,7 @@ main() {
   if [[ $command == env ]]; then getenv ${@:2}; fi
   if [[ $command == help ]]; then help ${@:2}; fi
   if [[ $command == nodes ]]; then nodes ${@:2}; fi
-  if [[ $command == install ]]; then install; fi
+  if [[ $command == install ]]; then installer; fi
   if [[ $command == render ]]; then render ${@:2}; fi
   if [[ $command == startup ]]; then startup; fi
   if [[ $command == unset ]]; then unsetter; fi
