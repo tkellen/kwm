@@ -3,6 +3,6 @@ correctly and a loopback reference is available in /etc/hosts.
 
 Examples:
   # Inspect this value by looking at the node installation scripts.
-  kwm script etcd-node <nodeKey>
-  kwm script controlplane-node <nodeKey>
-  kwm script worker-node <nodeKey>
+  kwm render etcd-node <nodeKey>
+  kwm render controlplane-node <nodeKey>
+  kwm render worker-node <nodeKey>

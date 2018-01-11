@@ -19,7 +19,7 @@ https://10.100.0.5:2379,https://10.100.1.5:2379,https://10.100.2.5:2379
 
 Examples:
   # Inspect this value by looking at pki generation.
-  kwm script pki
+  kwm render pki
 
   # Inspect this value by reading the generated cert directly.
   openssl x509 -noout -text -in apiserver-to-etcd-cert.pem | grep DNS

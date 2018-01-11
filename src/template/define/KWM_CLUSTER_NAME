@@ -2,9 +2,9 @@ Used in places where cluster name can provide meaningful context.
 
 Example:
   # See how this variable is used in defining configuration for kubectl.
-  KWM_APISERVER_PUBLIC_IP=55.55.55.55 KWM_CLUSTER_NAME=test KWM_LOCAL_PKI_PATH=pki kwm script cluster-admin
-  KWM_APISERVER_PUBLIC_IP=55.55.55.55 KWM_CLUSTER_NAME=test KWM_LOCAL_PKI_PATH=pki kwm script cluster-admin | grep test
+  KWM_APISERVER_PUBLIC_IP=55.55.55.55 KWM_CLUSTER_NAME=test KWM_LOCAL_PKI_PATH=pki kwm render cluster-admin
+  KWM_APISERVER_PUBLIC_IP=55.55.55.55 KWM_CLUSTER_NAME=test KWM_LOCAL_PKI_PATH=pki kwm render cluster-admin | grep test
 
   # See how this variable is used in defining common names for pki.
-  KWM_APISERVER_PUBLIC_IP=55.55.55.55 KWM_CLUSTER_NAME=test KWM_LOCAL_PKI_PATH=pki KWM_ETCD_CLIENT_SANS=junk kwm script pki
-  KWM_APISERVER_PUBLIC_IP=55.55.55.55 KWM_CLUSTER_NAME=test KWM_LOCAL_PKI_PATH=pki KWM_ETCD_CLIENT_SANS=junk kwm script pki | grep test
+  KWM_APISERVER_PUBLIC_IP=55.55.55.55 KWM_CLUSTER_NAME=test KWM_LOCAL_PKI_PATH=pki KWM_ETCD_CLIENT_SANS=junk kwm render pki
+  KWM_APISERVER_PUBLIC_IP=55.55.55.55 KWM_CLUSTER_NAME=test KWM_LOCAL_PKI_PATH=pki KWM_ETCD_CLIENT_SANS=junk kwm render pki | grep test

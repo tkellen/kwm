@@ -1,6 +1,6 @@
-cd ../..
+cd ../../..
 
-. src/script.sh
+. src/lib/template.sh
 
 test_render() {
   : # tests needed

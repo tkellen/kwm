@@ -7,9 +7,9 @@ _compile() {
 }
 
 ##
-# Render templates from disk (local dev) or embedded lookup functions (built).
+# Render templates from disk (dev) or embedded lookup functions (compiled).
 #
-render() {
+template() {
   local namespace=$1
   local key=$2
   local templatePath="src/template/$namespace/$key"
@@ -26,11 +26,9 @@ render() {
     # TODO: fix case where a recursive loop with no bottom could occur
     missing=$key error resource-not-found
     printf "\n"
-    render usage $namespace
+    template usage $namespace
     exit 1
   fi
   _compile "$templateContent" | bash
 }
-
-# This must be exported to allow templates to render partial content.
-export -f _compile render
+export -f _compile template # allow subprocesses to access these functions

@@ -24,5 +24,4 @@ test_unsetter() {
   else
     assert true
   fi
-
 }

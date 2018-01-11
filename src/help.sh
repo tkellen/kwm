@@ -1,6 +1,9 @@
-. src/lib/render.sh
+. src/lib/template.sh
 
+##
+# Show help menu, duh.
+#
 function help() {
-  render usage help
+  template usage help
   exit 0
 }

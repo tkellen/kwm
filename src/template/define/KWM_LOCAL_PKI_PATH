@@ -3,7 +3,7 @@ during bootstrapping, where it will be sourced from.
 
 Examples:
   # See how this value affects PKI generation.
-  kwm script pki
+  kwm render pki
 
   # See how this value affects copying PKI.
-  kwm script etcd-node <nodeKey> | head -n 10
+  kwm render etcd-node <nodeKey> | head -n 10

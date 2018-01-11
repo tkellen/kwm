@@ -5,6 +5,20 @@
 # Give help system access to the current version of KWM.
 export VERSION=dev
 
+# Set some sane defaults.
+export KWM_POD_CIDR=${KWM_POD_CIDR:-10.1.0.0/16}
+export KWM_SERVICE_CIDR=${KWM_SERVICE_CIDR:-10.10.0.0/24}
+export KWM_KUBERNETES_SERVICE_IP=${KWM_KUBERNETES_SERVICE_IP:-10.10.0.1}
+export KWM_DNS_SERVICE_IP=${KWM_DNS_SERVICE_IP:-10.10.0.2}
+export KWM_CONFIG_PATH=${KWM_CONFIG_PATH:-/etc/kubernetes}
+export KWM_LOCAL_PKI_PATH=${KWM_LOCAL_PKI_PATH:-pki}
+export KWM_VERSION_ETCD=${KWM_VERSION_ETCD:-3.2.11}
+export KWM_VERSION_KUBERNETES=${KWM_VERSION_KUBERNETES:-1.9.1}
+#export KWM_VERSION_KUBE_DNS=${KWM_VERSION_KUBE_DNS:-1.14.7}
+export KWM_VERSION_CNI_PLUGIN=${KWM_VERSION_CNI_PLUGIN:-0.6.0}
+export KWM_VERSION_CRI_CONTAINERD=${KWM_VERSION_CRI_CONTAINERD:-1.0.0-beta.0}
+export KWM_VERSION_KUBE_ROUTER=${KWM_VERSION_KUBE_ROUTER:-0.0.20}
+
 # Get an absolute path to KWM itself.
 export SCRIPT_PATH="$(cd "$(dirname "$0")"; pwd -P)"
 
@@ -13,9 +27,9 @@ export SCRIPT_NAME="$(basename -- "$0")"
 
 # Many commands highlight user supplied input with coloring. This variable is
 # used to control instances where colors should not be applied. For example,
-# a user may run `kwm script pki` to inspect the commands needed to generate
+# a user may run `kwm render pki` to inspect the commands needed to generate
 # PKI for Kubernetes. If they actually want to execute those commands, as in
-# `kwm script pki | bash`, the highlighting of their values should not be
+# `kwm render pki | bash`, the highlighting of their values should not be
 # present.
 if [[ ! -t 1 ]]; then
   export STDOUT_IS_TERMINAL=false
@@ -23,31 +37,90 @@ else
   export STDOUT_IS_TERMINAL=true
 fi
 
-# A convenience flag that allows users to generate invalid scripts and manifests
-# by providing partially complete environment values. This makes it easy to
+# A convenience flag that allows users to generate invalid resources by
+# providing partially complete environment values. This makes it easy to
 # explore where individual enviroment values wind up.
 case "$@" in
   *--ignore-missing-env*) export IGNORE_MISSING_ENV=true ;;
 esac
 
-# TODO: eliminate this gross thing
-export VALIDATE=false
+# Enumerate required environment variables for each resource type.
+export env_pki=(KWM_CLUSTER_NAME KWM_APISERVER_PUBLIC_IP KWM_LOCAL_PKI_PATH)
+export env_cni_manifest=(KWM_VERSION_KUBE_ROUTER)
+export env_controlplane_node=(
+  KWM_CONNECT
+  KWM_PRIVATE_IP
+  KWM_HOSTNAME
+  KWM_ROLE
+  KWM_APISERVER_PRIVATE_IP
+  KWM_CLUSTER_NAME
+  KWM_VERSION_KUBERNETES
+  KWM_VERSION_CNI_PLUGIN
+  KWM_VERSION_CRI_CONTAINERD
+  KWM_POD_CIDR
+  KWM_SERVICE_CIDR
+  KWM_KUBERNETES_SERVICE_IP
+  KWM_DNS_SERVICE_IP
+  KWM_APISERVER_PUBLIC_IP
+  KWM_ETCD_SERVERS
+  KWM_LOCAL_PKI_PATH
+  KWM_CONFIG_PATH
+)
+export env_dns_manifest=(KWM_VERSION_KUBE_DNS KWM_DNS_SERVICE_IP)
+export env_etcd_node=(
+  KWM_CONNECT
+  KWM_PRIVATE_IP
+  KWM_HOSTNAME
+  KWM_ETCD_INITIAL_CLUSTER
+  KWM_VERSION_ETCD
+  KWM_LOCAL_PKI_PATH
+  KWM_CONFIG_PATH
+)
+export env_startup=(
+  KWM_CLUSTER_NAME
+  KWM_DOMAIN
+  KWM_APISERVER_PUBLIC_IP
+  KWM_APISERVER_PRIVATE_IP
+  KWM_POD_CIDR
+  KWM_SERVICE_CIDR
+  KWM_KUBERNETES_SERVICE_IP
+  KWM_DNS_SERVICE_IP
+  KWM_CONFIG_PATH
+  KWM_LOCAL_PKI_PATH
+  KWM_VERSION_ETCD
+  KWM_VERSION_KUBERNETES
+  KWM_VERSION_KUBE_DNS
+  KWM_VERSION_CNI_PLUGIN
+  KWM_VERSION_CRI_CONTAINERD
+  KWM_VERSION_KUBE_ROUTER
+)
+export env_worker_node=(
+  KWM_CONNECT
+  KWM_PRIVATE_IP
+  KWM_HOSTNAME
+  KWM_ROLE
+  KWM_APISERVER_PRIVATE_IP
+  KWM_CLUSTER_NAME
+  KWM_VERSION_KUBERNETES
+  KWM_VERSION_CNI_PLUGIN
+  KWM_VERSION_CRI_CONTAINERD
+  KWM_POD_CIDR
+  KWM_LOCAL_PKI_PATH
+  KWM_CONFIG_PATH
+)
 
+# Load commands
 . src/connect.sh
 . src/define.sh
 . src/env.sh
 . src/help.sh
 . src/install.sh
-. src/lib/render.sh
 . src/nodes.sh
-. src/manifest.sh
-. src/script.sh
+. src/render.sh
 . src/startup.sh
 . src/unsetter.sh
-
-# this function is only consumed by the env templates.
-# TOOD: fix this weirdness
-. src/lib/showVar.sh
+. src/usage.sh
+. src/version.sh
 
 ##
 # Wire command line arguments to method calls in the script.
@@ -61,14 +134,11 @@ main() {
   if [[ $command == help ]]; then help ${@:2}; fi
   if [[ $command == nodes ]]; then nodes ${@:2}; fi
   if [[ $command == install ]]; then install; fi
-  if [[ $command == manifest ]]; then manifest ${@:2}; fi
-  if [[ $command == script ]]; then script ${@:2}; fi
+  if [[ $command == render ]]; then render ${@:2}; fi
   if [[ $command == startup ]]; then startup; fi
   if [[ $command == unset ]]; then unsetter; fi
-  if [[ $command == version ]]; then echo $VERSION; fi
-
-  render usage main
-  exit 0
+  if [[ $command == version ]]; then version; fi
+  usage
 }
 
 # Kick off the KWM, removing any command line flags from the argument listing.

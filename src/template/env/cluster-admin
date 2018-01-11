@@ -1,5 +1,0 @@
-$(
-  showVar KWM_CLUSTER_NAME
-  showVar KWM_APISERVER_PUBLIC_IP
-  showVar KWM_LOCAL_PKI_PATH
-)

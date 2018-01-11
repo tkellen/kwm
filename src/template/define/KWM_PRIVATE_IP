@@ -3,9 +3,9 @@ Kubernetes components.
 
 Examples:
   # Show how this is used to configure etcd nodes.
-  KWM_PRIVATE_IP=10.100.0.1 kwm script etcd-node --ignore-missing-env
+  KWM_PRIVATE_IP=10.100.0.1 kwm render etcd-node --ignore-missing-env
 
-  KWM_CONNECT="dummy" KWM_HOSTNAME="host" KWM_PRIVATE_IP=10.100.0.1 kwm script etcd-node
+  KWM_CONNECT="dummy" KWM_HOSTNAME="host" KWM_PRIVATE_IP=10.100.0.1 kwm render etcd-node
 
 
 Note:

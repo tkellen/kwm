@@ -1,37 +1,37 @@
 #------------------------------------------------------------------------------#
-printf "%s\n" Sending shared PKI to $KWM_HOSTNAME.
+echo Sending shared PKI to $KWM_HOSTNAME.
 #------------------------------------------------------------------------------#
 $(files="etcd-ca-cert.pem etcd-ca-private-key.pem apiserver-to-etcd-private-key.pem apiserver-to-etcd-cert.pem" \
   exec="$KWM_CONNECT" \
   basePath="$KWM_CONFIG_PATH" \
-  sourcePath="$KWM_LOCAL_PKI_PATH" render util tar-copy
+  sourcePath="$KWM_LOCAL_PKI_PATH" template util tar-copy
 )
 #------------------------------------------------------------------------------#
-printf "%s\n" Installing $KWM_HOSTNAME.
+echo Installing $KWM_HOSTNAME.
 #------------------------------------------------------------------------------#
 $(exec="$KWM_CONNECT" content="
 #------------------------------------------------------------------------------#
-printf "%s\n" Generating private key for etcd server to etcd server communication.
+echo Generating private key for etcd server to etcd server communication.
 #------------------------------------------------------------------------------#
-$(basePath="$KWM_CONFIG_PATH" name="etcd-to-etcd" render pki private-key)
+$(basePath="$KWM_CONFIG_PATH" name="etcd-to-etcd" template pki private-key)
 #------------------------------------------------------------------------------#
-printf "%s\n" Generating etcd-ca signed certificate for etcd server to etcd server communication.
+echo Generating etcd-ca signed certificate for etcd server to etcd server communication.
 #------------------------------------------------------------------------------#
 $(name="etcd-to-etcd" \
   basePath="$KWM_CONFIG_PATH" \
   subj="/CN=etcd-to-etcd/O=etcd" \
   ext="subjectAltName = IP:$KWM_PRIVATE_IP,DNS:$KWM_HOSTNAME" \
-  ca="etcd" render pki signed-cert)
+  ca="etcd" template pki signed-cert)
 #------------------------------------------------------------------------------#
-printf "%s\n" Ensuring hostname and loopback reference are set.
+echo Ensuring hostname and loopback reference are set.
 #------------------------------------------------------------------------------#
-$(name="$KWM_HOSTNAME" render util set-hostname)
+$(name="$KWM_HOSTNAME" template util set-hostname)
 #------------------------------------------------------------------------------#
-printf "%s\n" Installing etcd at version $KWM_VERSION_ETCD.
+echo Installing etcd at version $KWM_VERSION_ETCD.
 #------------------------------------------------------------------------------#
-$(version="$KWM_VERSION_ETCD" render installer etcd)
+$(version="$KWM_VERSION_ETCD" template installer etcd)
 #------------------------------------------------------------------------------#
-printf "%s\n" Generating etcd service file.
+echo Generating etcd service file.
 #------------------------------------------------------------------------------#
 $(path="/etc/systemd/system/etcd.service" content="$(
   name="etcd" \
@@ -39,11 +39,11 @@ $(path="/etc/systemd/system/etcd.service" content="$(
   exec="$(
     name="$KWM_HOSTNAME" \
     privateIp="$KWM_PRIVATE_IP" \
-    initialCluster="$KWM_ETCD_INITIAL_CLUSTER" render service etcd
-  )" render service unit)" render util write-file
+    initialCluster="$KWM_ETCD_INITIAL_CLUSTER" template service etcd
+  )" template service unit)" template util write-file
 )
 #------------------------------------------------------------------------------#
-printf "%s\n" Enabling and restarting service.
+echo Enabling and restarting service.
 #------------------------------------------------------------------------------#
-$(name="etcd" render service enable)
-" render util remote-script)
+$(name="etcd" template service enable)
+" template util remote-script)

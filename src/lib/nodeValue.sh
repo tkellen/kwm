@@ -16,8 +16,6 @@ nodeValue() {
   local defaultLookup="KWM_${var}"
   local nodeValue=${!nodeLookup}
   local defaultValue=${!defaultLookup}
-  printf "%s\n" ${nodeValue:-$defaultValue}
+  printf "%s\n" "${nodeValue:-$defaultValue}"
 }
-
-# This must be exported to allow templates to render partial content.
-export -f nodeValue
+export -f nodeValue # allow subprocesses to access this method

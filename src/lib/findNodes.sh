@@ -13,6 +13,4 @@ findNodes() {
     fi
   done
 }
-
-# This must be exported to allow templates to render partial content.
-export -f findNodes
+export -f findNodes # allow subprocesses to access this method

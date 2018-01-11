@@ -1,9 +1,9 @@
-Sorry, cannot generate ${type} ${method} yet.
+Sorry, cannot render ${resource} yet.
 
 Please provide values for these variables:
 
-$(sed 's/^/  /' <<<"${errors:-None}")
+$(sed 's/^/  /' <<<"${missing:-None}")
 
 Note:
-  Run "kwm env ${type}" to see all required variables and their current values.
+  Run "kwm env ${resource}" to see all required variables and their current values.
   Run "kwm define <variable>" for more information about the listed variables.

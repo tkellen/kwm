@@ -1,27 +1,30 @@
-. src/lib/render.sh
-. src/lib/magicNodeMeta.sh
 . src/lib/error.sh
 . src/lib/highlight.sh
+. src/lib/magicNodeMeta.sh
+. src/lib/template.sh
 
 ##
-# Display current values in environment for a specified type of resource.
+# Display current values in environment for a specified resource.
 #
 getenv() {
-  local type=$1
+  local resource=$1
   local nodeKey=$2
-  if [[ -z $type ]]; then
-    render usage env
+  local envRequired="env_${resource/-/_}[*]"
+  if [[ -z $resource ]]; then
+    template usage env
     exit 1
   fi
-  if [[ $type =~ node ]]; then
+  if [[ $resource =~ node ]]; then
     magicNodeMeta $nodeKey
     if [[ -z $nodeKey ]]; then
-      type=$type error no-node-for-env
-      printf "\n"
+      error "$(resource=$resource template no-node-for-env)"
+      exit 1
     fi
   fi
   magicEtcdMeta
   highlight $STDOUT_IS_TERMINAL
-  VALIDATE=false render env $type
+  for key in ${!envRequired}; do
+    printf "%s\n" "${key}=\"${!key}\""
+  done
   exit 0
 }

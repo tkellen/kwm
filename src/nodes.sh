@@ -1,5 +1,5 @@
-. src/lib/render.sh
 . src/lib/error.sh
+. src/lib/template.sh
 . src/lib/findNodes.sh
 
 ##
@@ -8,12 +8,12 @@
 nodes() {
   local role=$1
   if [[ -z $role ]]; then
-    render usage nodes
+    template usage nodes
     exit 0
   fi
   local nodes="$(findNodes $role)"
   if [[ -z $nodes ]]; then
-    role=$role error no-nodes-for-role
+    error "$(role=$role template error no-nodes-for-role)"
     exit 1
   fi
   printf "%s\n" "$nodes"

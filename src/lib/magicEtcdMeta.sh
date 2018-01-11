@@ -1,5 +1,5 @@
-. src/lib/nodeValue.sh
 . src/lib/findNodes.sh
+. src/lib/nodeValue.sh
 
 ##
 # This "magic" function somewhat violates the premise of this project and may be

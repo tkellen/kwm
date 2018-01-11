@@ -1,6 +1,6 @@
-. src/lib/nodeValue.sh
-. src/lib/render.sh
 . src/lib/error.sh
+. src/lib/nodeValue.sh
+. src/lib/template.sh
 
 ##
 # Connect to a Node by executing the command specified under
@@ -11,7 +11,7 @@ connect() {
   local call
   call=$(nodeValue $nodeKey CONNECT) || return
   if [[ -z $nodeKey ]]; then
-    render usage connect
+    template usage connect
     exit 1
   fi
   if [[ -z $call ]]; then

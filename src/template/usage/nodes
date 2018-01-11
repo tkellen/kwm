@@ -5,7 +5,7 @@ Usage:
 
 Examples:
   # Display etcd install script for every etcd node.
-  kwm nodes etcd | xargs -n 1 kwm script etcd-node
+  kwm nodes etcd | xargs -n 1 kwm render etcd-node
 
   # Execute etcd install script for every etcd node.
-  kwm nodes etcd | xargs -n 1 -P 5 kwm script etcd-node | bash
+  kwm nodes etcd | xargs -n 1 -P 5 kwm render etcd-node | bash

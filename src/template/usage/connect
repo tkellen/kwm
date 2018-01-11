@@ -5,7 +5,7 @@ Usage:
 
 Examples:
   # Restart kublet on a specified node.
-  printf "%s\n" "systemctl status kubelet" | kwm connect <nodeKey>
+  echo "systemctl status kubelet" | kwm connect <nodeKey>
 
 Note:
   Try running "kwm nodes" to see which are available.

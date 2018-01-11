@@ -22,4 +22,4 @@ KWM_ETCD_INITIAL_CLUSTER=aws-etcd-0=https://10.100.0.5:2380,aws-etcd-1=https://1
 
 Examples:
   # Inspect this value by looking at the etcd node installation script.
-  kwm script etcd-node <nodeKey>
+  kwm render etcd-node <nodeKey>

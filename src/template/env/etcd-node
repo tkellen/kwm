@@ -1,9 +1,0 @@
-$(
-  showVar KWM_CONNECT
-  showVar KWM_PRIVATE_IP
-  showVar KWM_HOSTNAME
-  showVar KWM_ETCD_INITIAL_CLUSTER
-  showVar KWM_VERSION_ETCD
-  showVar KWM_LOCAL_PKI_PATH
-  showVar KWM_CONFIG_PATH
-)

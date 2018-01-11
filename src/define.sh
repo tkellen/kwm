@@ -1,4 +1,18 @@
-. src/lib/render.sh
+. src/lib/template.sh
+
+##
+# Display details about a KWM_* environment variable.
+#
+define() {
+  local var=$1
+  if [[ -z $var ]]; then
+    vars="$(_getDefinable)" template usage define
+    exit 1
+  fi
+  printf "%s\n" $var
+  template define $var
+  exit 0
+}
 
 ##
 # Get a list of possible environment values to be defined. In the development of
@@ -11,18 +25,4 @@ _getDefinable() {
   else
     printf "%s\n" "$(template_define)"
   fi
-}
-
-##
-# Display details about a KWM_* environment variable.
-#
-define() {
-  local var=$1
-  if [[ -z $var ]]; then
-    vars="$(_getDefinable)" render usage define
-    exit 1
-  fi
-  printf "%s\n" $var
-  render define $var
-  exit 0
 }
