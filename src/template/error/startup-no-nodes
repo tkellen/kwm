@@ -10,20 +10,29 @@ for getting things running quickly to play around.
 
 Here's some boilerplate to get you started:
 
-export KWM_ROLE_now="etcd controlplane worker"
-export KWM_HOSTNAME_now=tiny
-export KWM_PRIVATE_IP_now=[your-private-ip]
-export KWM_CONNECT_now="ssh [your-sudo-capable-user]@[your-ssh-accessible-ip]"
 export KWM_CLUSTER_NAME=kwm
 export KWM_APISERVER_PUBLIC_IP=[public-ip-of-only-node]
 export KWM_APISERVER_PRIVATE_IP=[private-ip-of-only-node]
 
-Once everything is defined, "kwm startup" will output a bash script that will
-bootstrap your cluster. After inspecting it, you can run it thusly:
+export KWM_ROLE_now="etcd controlplane worker"
+export KWM_HOSTNAME_now=tiny
+export KWM_PRIVATE_IP_now=[your-private-ip]
+export KWM_CONNECT_now="ssh [your-sudo-capable-user]@[your-ssh-accessible-ip]"
+^
+KWM calls the "_now" portion of these variables a "node key". By using different
+keys you can define multiple hosts for KWM to manage simultaneously. The value
+of they keys is entirely up to you, they have no impact on your deployments.
+
+To see which nodes are available for management, try running "kwm nodes".
+
+--
+
+Once you have everything defined, "kwm startup" will output a bash script that
+will bootstrap your cluster. After inspecting it, you can run it thusly:
 
   kwm startup | bash
 
 Good luck!
 
-Notes:
+Note:
   Run "kwm define <variable>" for more information about the listed variables.
