@@ -22,4 +22,5 @@ connect() {
   fi
   # Execute KWM_CONNECT for the specified node.
   $call
+  exit 0
 }
