@@ -7,3 +7,4 @@ $(sed 's/^/  /' <<<"${missing:-None}")
 Note:
   Run "kwm env ${resource}" to see all required variables and their current values.
   Run "kwm define <variable>" for more information about the listed variables.
+  Run "kwm render ${resource} --ignore-missing-env" to render anyway.
