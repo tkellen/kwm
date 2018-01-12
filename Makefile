@@ -5,8 +5,9 @@ TEST_FILES:=$(shell find test -type f)
 export VERSION
 
 test: $(TEST_FILES)
-	task/test -f tap $(TEST_FILES)
+	env -i TERM=${TERM} task/test -f tap $(TEST_FILES)
 
+.PHONY: test
 build: test kwm $(SOURCE_FILES)
 	task/build
 
