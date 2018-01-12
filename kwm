@@ -5,7 +5,7 @@
 # Give help system access to the current version of KWM.
 export VERSION=dev
 
-# Set some sane defaults.
+# Set some defaults.
 export KWM_POD_CIDR=${KWM_POD_CIDR:-10.1.0.0/16}
 export KWM_SERVICE_CIDR=${KWM_SERVICE_CIDR:-10.10.0.0/24}
 export KWM_KUBERNETES_SERVICE_IP=${KWM_KUBERNETES_SERVICE_IP:-10.10.0.1}
