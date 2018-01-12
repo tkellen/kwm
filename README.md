@@ -25,3 +25,4 @@ along the way:
 [Deploying Kubernetes from Scratch]: https://nixaid.com/deploying-kubernetes-cluster-from-scratch/
 [Kube-Linode]: https://github.com/kahkhang/kube-linode
 [Linux Networking Explained]: http://events.linuxfoundation.org/sites/events/files/slides/2016%20-%20Linux%20Networking%20explained_0.pdf
+[kubectl]: https://kubernetes.io/docs/tasks/tools/install-kubectl/
