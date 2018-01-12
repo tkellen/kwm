@@ -21,4 +21,4 @@ Examples:
   kwm render cni-manifest > cni.yml
 
   # Install container networking solution in your cluster.
-  kubecatl -f cni.yml
+  kubectl -f cni.yml

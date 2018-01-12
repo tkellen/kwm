@@ -40,6 +40,7 @@ fi
 # A convenience flag that allows users to generate invalid resources by
 # providing partially complete environment values. This makes it easy to
 # explore where individual enviroment values wind up.
+export IGNORE_MISSING_ENV=false
 case "$@" in
   *--ignore-missing-env*) export IGNORE_MISSING_ENV=true ;;
 esac
@@ -141,6 +142,5 @@ main() {
   usage
 }
 
-# Kick off the KWM, removing any command line flags from the argument listing.
-# TODO: should I bother with an options parser?
+# Kick off KWM, removing any command line flags from the argument listing.
 main $(sed 's/ --ignore-missing-env//g' <<< "$@")

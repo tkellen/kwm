@@ -1,5 +1,5 @@
-Sorry, unable to locate node "${requested}" in your environment.
+Sorry, unable to locate "${requested}" (KWM_CONNECT_${requested}) in your environment.
 
 You can view the nodes present in your environment with the following:
 
-  kwm nodes
+  kwm nodes all

@@ -8,15 +8,18 @@
 #
 connect() {
   local nodeKey=$1
-  local call
-  call=$(nodeValue $nodeKey CONNECT) || return
+  # Look up KWM_CONNECT_[nodeKey]
+  local call=$(nodeValue $nodeKey CONNECT)
+  # If no node is defined, bail with usage screen.
   if [[ -z $nodeKey ]]; then
     template usage connect
     exit 1
   fi
+  # If node cannot be found in environment, bail with a notification.
   if [[ -z $call ]]; then
-    requested=$nodeKey error invalid-node
+    error "$(requested=$nodeKey template error invalid-node)"
     exit 1
   fi
+  # Execute KWM_CONNECT for the specified node.
   $call
 }

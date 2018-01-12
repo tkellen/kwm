@@ -1,5 +1,5 @@
 ##
-# Convenience command to add the path to this script to current shell path.
+# Convenience command to add the directory of this script to PATH.
 #
 installer() {
   echo "export PATH=\$PATH:$SCRIPT_PATH"

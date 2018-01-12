@@ -2,6 +2,6 @@ cd ../../..
 
 . src/lib/template.sh
 
-test_render() {
+test_template() {
   : # tests needed
 }

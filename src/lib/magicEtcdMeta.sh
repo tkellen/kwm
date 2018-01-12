@@ -1,11 +1,12 @@
+##
+# These "magic" functions somewhat violate the premise of this project and may
+# be removed in future revisions.
+#
 . src/lib/findNodes.sh
 . src/lib/nodeValue.sh
 
 ##
-# This "magic" function somewhat violates the premise of this project and may be
-# removed at a future date.
-#
-# Populates etcd values based on configuration for any Node with a KWM_ROLE that
+# Populate etcd values based on configuration for any Node with a KWM_ROLE that
 # contains "etcd".
 #
 # During PKI generation, etcd cluster bootstrapping, and configuring
@@ -17,10 +18,8 @@ magicEtcdMeta() {
   export KWM_ETCD_CLIENT_SANS=${KWM_ETCD_CLIENT_SANS:-$(_magicEtcdClientSans)}
   export KWM_ETCD_SERVERS=${KWM_ETCD_SERVERS:-$(_magicEtcdServers)}
 }
+
 ##
-# This "magic" function somewhat violates the premise of this project and may be
-# removed at a future date.
-#
 # Generate all valid Subject Alternative Names for securing communication from
 # the apiserver to etcd.
 #
@@ -33,9 +32,6 @@ _magicEtcdClientSans() {
 }
 
 ##
-# This "magic" function somewhat violates the premise of this project and may be
-# removed at a future date.
-#
 # Generate the value passed to etcd's "--initial-cluster" flag when spinning up
 # a new cluster.
 #

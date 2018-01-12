@@ -1,4 +1,4 @@
-No nodes found with a role of "${role}" in your environment.
+No nodes found with the specified role.
 
 Check your environment with the following:
 

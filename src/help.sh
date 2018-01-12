@@ -1,7 +1,7 @@
 . src/lib/template.sh
 
 ##
-# Show help menu, duh.
+# Show explanation of what KWM is trying to accomplish.
 #
 function help() {
   template usage help
