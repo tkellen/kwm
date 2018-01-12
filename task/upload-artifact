@@ -2,7 +2,8 @@
 # Upload the latest built version of KWM as an artifact to the defined
 # release number on github.
 
-source $(dirname "$0")/config
+here="$(dirname "$0")"
+source $here/config
 
 curl --data-binary @build/kwm \
   -H "Content-Type:$(file -b --mime-type build/kwm)" \

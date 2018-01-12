@@ -1,6 +1,6 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Update version number for KWM download url in README.
 
-VERSION=${VERSION:?'please specify'}
+VERSION=${VERSION:?'needs to be defined.'}
 
 perl -p -i -e "s/(v\d+\.)(\d+\.)(\d)/$VERSION/g" README.md

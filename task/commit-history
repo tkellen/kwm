@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Generate a changelog listing based on commit history.
+
+SINCE=${SINCE:-$(git describe --abbrev=0 --tags)}
+
+git --no-pager log --format="%s (%h)" "$SINCE"..HEAD --invert-grep \
+  --grep=no-changelog

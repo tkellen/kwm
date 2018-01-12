@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Update CHANGELOG with commit history.
+
+here="$(dirname "$0")"
+VERSION=${VERSION:?'needs to be defined.'}
+CHANGES="$(cat <<EOF
+$VERSION:
+  date: ${DATE:-$(date +%Y-%m-%d)}
+  changes:
+$($here/commit-history | sed 's/^/    - /')
+EOF
+)"
+
+ex -sc "1i|${CHANGES}" -cx $here/../CHANGELOG

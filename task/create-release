@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 # Create a github release and tag to attach an artifact to.
 
-source $(dirname "$0")/config
+here="$(dirname "$0")"
+source $here/config
+
+CHANGES=$($here/commit-history | sed 's/^/  - /' | sed 's/$/\\n/' | tr -d '\n')
 
 data=$(cat <<EOF
 {
   "tag_name": "$VERSION",
   "name": "$VERSION",
-  "body": "Version $VERSION",
+  "body": "CHANGELOG:\n$CHANGES",
   "draft": false,
   "prerelease": false
 }
