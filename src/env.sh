@@ -21,8 +21,8 @@ getenv() {
   if [[ $resource =~ node ]]; then
     # If a nodeKey isn't defined for a node resource, bail with error.
     if [[ -z $nodeKey ]]; then
-      error "$(resource=$resource template no-node-for-env)"
-      exit 1
+      error "$(resource=$resource template error no-node-for-env)"
+      printf "\n\n"
     fi
     # Find KWM_*_[nodeKey] values and collapse into root namespace.
     magicNodeMeta $nodeKey
