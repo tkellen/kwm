@@ -79,7 +79,6 @@ export env_etcd_node=(
 )
 export env_startup=(
   KWM_CLUSTER_NAME
-  KWM_DOMAIN
   KWM_APISERVER_PUBLIC_IP
   KWM_APISERVER_PRIVATE_IP
   KWM_POD_CIDR
@@ -122,6 +121,7 @@ export env_worker_node=(
 . src/unsetter.sh
 . src/usage.sh
 . src/version.sh
+. src/workshop.sh
 
 ##
 # Wire command line arguments to method calls in the script.
@@ -139,6 +139,7 @@ main() {
   if [[ $command == startup ]]; then startup; fi
   if [[ $command == unset ]]; then unsetter; fi
   if [[ $command == version ]]; then version; fi
+  if [[ $command == workshop ]]; then workshop ${@:2}; fi
   usage
 }
 

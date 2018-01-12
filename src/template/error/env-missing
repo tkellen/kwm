@@ -4,7 +4,7 @@ Please provide values for these variables:
 
 $(sed 's/^/  /' <<<"${missing:-None}")
 
-Note:
+Notes:
   Run "kwm env ${resource}" to see all required variables and their current values.
   Run "kwm define <variable>" for more information about the listed variables.
   Run "kwm render ${resource} --ignore-missing-env" to render anyway.

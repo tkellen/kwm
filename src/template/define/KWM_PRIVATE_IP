@@ -7,6 +7,5 @@ Examples:
 
   KWM_CONNECT="dummy" KWM_HOSTNAME="host" KWM_PRIVATE_IP=10.100.0.1 kwm render etcd-node
 
-
-Note:
+Notes:
   Be sure to quote this environment variable or things will get strange fast.

@@ -1,32 +1,21 @@
 Welcome to Kubernetes Without Magic!
 
-This software aims to automate the creation and maintenance of Kubernetes
-clusters. It does so by generating shell scripts based on configuration you
-define in environment variables.
+This project aims to automate the creation and maintenance of production-quality
+Kubernetes clusters in the most transparent way possible: using bash scripts you
+can inspect before you run.
 
-A familiarity with UNIX fundamentals like environment variables, streams,
-pipelines and redirection is recommended to fully utilize this tool.
+A familiarity with UNIX fundamentals and systems administration is recommended
+to fully utilize this tool. If you're unsure you have the experience needed, try
+running through a few workshops:
 
-Though a cluster can be created with a single command, new operators are
-encouraged to examine and execute each step individually until the overall
-process is understood.
+  kwm workshop
 
-Care has been taken to avoid assumptions about the underlying infrastructure.
-This tool should work equally well for target environments in the cloud, on
-premises, using VMs or bare metal machines. This is an intentional design
-decision meant to eliminate reliance on vendor-specific functionality.
-
-Said differently:
-
-"Prepare a set of machines capable of running Kubernetes that can be reached
- over a network--a cluster should be able to run on them in a matter of minutes.
- From the perspective of correct operation the owner of the hardware should be
- irrelevant."
-
-Let's get started. Run the following:
+When you are ready, prepare an Ubuntu server that you can SSH to with root
+access (using any means you wish) and run this:
 
   kwm startup
 
 Unless you have already configured your environment, the first response will be
-an error. Don't worry, that's expected. Follow the breadcrumbs and you'll have
-a cluster running in no time.
+an error. Don't worry, that's expected.
+
+Read on and you'll have a cluster running in no time.

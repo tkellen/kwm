@@ -1,0 +1,17 @@
+Run workshops to confirm you are ready to use Kubernetes Without Magic.
+
+  kwm workshop environment-variables | less
+
+  TODO:
+  // kwm workshop streams
+  // kwm workshop redirection
+  // kwm workshop networking
+  // kwm workshop pki
+  // ...
+
+Notes:
+  It is recommended that you open a second terminal for running the exercises
+  in these workshops.
+
+  You can navigate the text of the workshop using the arrow keys. Typing the
+  letter q will exit. For more information, try running "man less".

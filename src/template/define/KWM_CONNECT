@@ -10,5 +10,5 @@ Examples:
   # If you don't care about trust-on-first-use.
   KWM_CONNECT="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no root@55.55.55.55"
 
-Note:
+Notes:
   Be sure to quote this environment variable or things will get strange fast.

@@ -11,7 +11,8 @@ Available Commands:
   render     generate a script or manifest from environment variables
   startup    generate a script to bootstrap a cluster in one command
   unset      unset all KWM_.* environment variables
-  version    show version
+  version    show current version
+  workshop   learn the fundamental skills required to use this tool
 
-Note:
-  Please run "kwm help | less" if you are just getting started.
+Notes:
+  Please run "kwm help" if you are just getting started.

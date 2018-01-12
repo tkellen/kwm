@@ -25,7 +25,7 @@ scheduling:
     --register-with-taints="note-role.kubernetes.io/controlplane=true:NoSchedule
   "
 
-Note:
+Notes:
   This should be removed as soon as it is possible to do this with environment
   variables or configuration manifests.
 

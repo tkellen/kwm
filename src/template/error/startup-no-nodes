@@ -1,4 +1,6 @@
-Almost there! If you want to use the startup script to bootstrap a cluster with
+Heads up, if you haven't run "kwm help" at least once, consider doing that now.
+
+Almost there! If you want to use the startup script to install Kubernetes with
 a single command, you'll need to include configuration for at least one node in
 each role (etcd, controlplane and worker).
 
@@ -8,10 +10,20 @@ for getting things running quickly to play around.
 
 Here's some boilerplate to get you started:
 
-export KWM_ROLE_now=etcd controlplane worker
+export KWM_ROLE_now="etcd controlplane worker"
 export KWM_HOSTNAME_now=tiny
 export KWM_PRIVATE_IP_now=[your-private-ip]
 export KWM_CONNECT_now="ssh [your-sudo-capable-user]@[your-ssh-accessible-ip]"
+export KWM_CLUSTER_NAME=kwm
+export KWM_APISERVER_PUBLIC_IP=[public-ip-of-only-node]
+export KWM_APISERVER_PRIVATE_IP=[private-ip-of-only-node]
 
-Note:
+Once everything is defined, "kwm startup" will output a bash script that will
+bootstrap your cluster. After inspecting it, you can run it thusly:
+
+  kwm startup | bash
+
+Good luck!
+
+Notes:
   Run "kwm define <variable>" for more information about the listed variables.

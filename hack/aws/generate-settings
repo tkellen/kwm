@@ -2,22 +2,21 @@
 
 cd $(dirname "$0")
 cat <<EOF
-export KWM_CLUSTER_NAME=$(terraform output NAME)
-export KWM_DOMAIN=test.com
-export KWM_APISERVER_PUBLIC_IP=$(terraform output PUBLIC_IP)
-export KWM_APISERVER_PRIVATE_IP=$(terraform output CONTROLPLANE_PRIVATE_IPS | head -n 1 | sed 's/,$//')
-export KWM_POD_CIDR=10.1.0.0/16
-export KWM_SERVICE_CIDR=10.10.0.0/24
-export KWM_KUBERNETES_SERVICE_IP=10.10.0.1
-export KWM_DNS_SERVICE_IP=10.10.0.2
-export KWM_CONFIG_PATH=/etc/kubernetes
-export KWM_LOCAL_PKI_PATH=pki
-export KWM_VERSION_ETCD=3.2.11
-export KWM_VERSION_KUBERNETES=1.9.1
-export KWM_VERSION_KUBE_DNS=1.14.7
-export KWM_VERSION_CNI_PLUGIN=0.6.0
-export KWM_VERSION_CRI_CONTAINERD=1.0.0-beta.0
-export KWM_VERSION_KUBE_ROUTER=0.0.20
+KWM_CLUSTER_NAME=$(terraform output NAME)
+KWM_APISERVER_PUBLIC_IP=$(terraform output PUBLIC_IP)
+KWM_APISERVER_PRIVATE_IP=$(terraform output CONTROLPLANE_PRIVATE_IPS | head -n 1 | sed 's/,$//')
+KWM_POD_CIDR=10.1.0.0/16
+KWM_SERVICE_CIDR=10.10.0.0/24
+KWM_KUBERNETES_SERVICE_IP=10.10.0.1
+KWM_DNS_SERVICE_IP=10.10.0.2
+KWM_CONFIG_PATH=/etc/kubernetes
+KWM_LOCAL_PKI_PATH=pki
+KWM_VERSION_ETCD=3.2.11
+KWM_VERSION_KUBERNETES=1.9.1
+KWM_VERSION_KUBE_DNS=1.14.7
+KWM_VERSION_CNI_PLUGIN=0.6.0
+KWM_VERSION_CRI_CONTAINERD=1.0.0-beta.0
+KWM_VERSION_KUBE_ROUTER=0.0.20
 EOF
 
 function key {
@@ -30,10 +29,10 @@ PRIVATE_IPS=($(terraform output ETCD_PRIVATE_IPS | tr ',\n' ' '))
 for idx in ${!HOSTNAMES[@]}; do
   nodeKey=$(key ${HOSTNAMES[$idx]})
   cat <<EOF
-export KWM_ROLE_${nodeKey}=etcd
-export KWM_HOSTNAME_${nodeKey}=${HOSTNAMES[$idx]}
-export KWM_CONNECT_${nodeKey}="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@${SSH_IPS[$idx]}"
-export KWM_PRIVATE_IP_${nodeKey}=${PRIVATE_IPS[$idx]}
+KWM_ROLE_${nodeKey}=etcd
+KWM_HOSTNAME_${nodeKey}=${HOSTNAMES[$idx]}
+KWM_CONNECT_${nodeKey}="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@${SSH_IPS[$idx]}"
+KWM_PRIVATE_IP_${nodeKey}=${PRIVATE_IPS[$idx]}
 EOF
 done
 
@@ -43,10 +42,10 @@ PRIVATE_IPS=($(terraform output CONTROLPLANE_PRIVATE_IPS | tr ',\n' ' '))
 for idx in ${!HOSTNAMES[@]}; do
   nodeKey=$(key ${HOSTNAMES[$idx]})
   cat <<EOF
-export KWM_ROLE_${nodeKey}="controlplane worker"
-export KWM_HOSTNAME_${nodeKey}=${HOSTNAMES[$idx]}
-export KWM_CONNECT_${nodeKey}="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@${SSH_IPS[$idx]}"
-export KWM_PRIVATE_IP_${nodeKey}=${PRIVATE_IPS[$idx]}
+KWM_ROLE_${nodeKey}="controlplane worker"
+KWM_HOSTNAME_${nodeKey}=${HOSTNAMES[$idx]}
+KWM_CONNECT_${nodeKey}="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@${SSH_IPS[$idx]}"
+KWM_PRIVATE_IP_${nodeKey}=${PRIVATE_IPS[$idx]}
 EOF
 done
 
@@ -56,9 +55,9 @@ PRIVATE_IPS=($(terraform output WORKER_PRIVATE_IPS | tr ',\n' ' '))
 for idx in ${!HOSTNAMES[@]}; do
   nodeKey=$(key ${HOSTNAMES[$idx]})
   cat <<EOF
-export KWM_ROLE_${nodeKey}=worker
-export KWM_HOSTNAME_${nodeKey}=${HOSTNAMES[$idx]}
-export KWM_CONNECT_${nodeKey}="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@${SSH_IPS[$idx]}"
-export KWM_PRIVATE_IP_${nodeKey}=${PRIVATE_IPS[$idx]}
+KWM_ROLE_${nodeKey}=worker
+KWM_HOSTNAME_${nodeKey}=${HOSTNAMES[$idx]}
+KWM_CONNECT_${nodeKey}="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ubuntu@${SSH_IPS[$idx]}"
+KWM_PRIVATE_IP_${nodeKey}=${PRIVATE_IPS[$idx]}
 EOF
 done

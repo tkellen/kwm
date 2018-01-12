@@ -1,0 +1,40 @@
+# Show all variables in your current environment.
+printenv
+
+# Display one variable using printenv.
+printenv HOME
+
+# Display one variable using echo.
+echo \$HOME
+
+# Set the value of MESSAGE for the duration of one command
+MESSAGE=hello printenv MESSAGE
+
+# Show that MESSAGE is no longer set
+echo \$MESSAGE
+
+# Export MESSAGE, making it available to all commands in the current session
+export MESSAGE=hello
+
+# Confirm that MESSAGE is still available.
+echo \$MESSAGE
+
+# Open a new terminal session and confirm that MESSAGE was not persisted to it.
+echo \$MESSAGE
+
+# Save environment variables to a file.
+cat > settings <<EOF
+SETTING_ONE=one
+SETTING_TWO=two
+EOF
+
+# "Source" the file you created into your shell.
+. ./settings
+
+# Confirm the variables are now available in your environment
+echo \$SETTING_ONE
+echo \$SETTING_TWO
+
+# Unset a variable, removing it from your environment
+unset \$SETTING_ONE
+echo \$SETTING_ONE
