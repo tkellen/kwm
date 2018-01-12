@@ -6,7 +6,6 @@ TEST_FILES:=$(shell find test -type f)
 clean:
 	rm -rf build
 
-.PHONY: test
 test: $(TEST_FILES)
 	task/test -f tap test/**/*.sh
 
