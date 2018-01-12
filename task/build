@@ -8,7 +8,7 @@ source $here/config
 
 main() {
   mkdir -p build
-  compile $root kwm | sed "s/VERSION=dev/VERSION=$VERSION/" > build/kwm
+  compile $root kwm | sed "s/VERSION=dev/VERSION=\"$VERSION \/ $(git rev-parse --short HEAD)\"/" > build/kwm
   chmod +x build/kwm
 }
 
