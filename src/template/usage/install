@@ -1,0 +1,2 @@
+  Script not found in PATH, run this to configure your shell:
+    . <($SCRIPT_PATH/$SCRIPT_NAME install)
