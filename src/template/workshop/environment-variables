@@ -24,8 +24,8 @@ echo \$MESSAGE
 
 # Save environment variables to a file.
 cat > settings <<EOF
-SETTING_ONE=one
-SETTING_TWO=two
+export SETTING_ONE=one
+export SETTING_TWO=two
 EOF
 
 # "Source" the file you created into your shell.
