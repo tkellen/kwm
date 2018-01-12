@@ -11,8 +11,8 @@ test_connect() {
     "should execute command defined at KWM_CONNECT_nodeKey"
 
   KWM_CONNECT="ls" assert_status_code 1 connect \
-    "should exit with static code 1 when no matching nodeKey is defined"
+    "should exit with status code 1 when no matching nodeKey is defined"
 
   KWM_CONNECT="ls" assert_status_code 1 connect does-not-exist\
-    "should exit with static code 1 when invalid nodeKey is defined"
+    "should exit with status code 1 when invalid nodeKey is defined"
 }

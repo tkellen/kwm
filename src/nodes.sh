@@ -10,7 +10,7 @@ nodes() {
   # If no role defined, bail with usage screen.
   if [[ -z $role ]]; then
     template usage nodes
-    exit 0
+    exit 1
   fi
   # Find all nodes for the specified role (e.g. search for unique KWM_ROLE_[nodeKey] entries).
   local nodes="$(findNodes $role)"

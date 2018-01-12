@@ -14,7 +14,7 @@ Available Commands:
   version    show version
 
 Note:
-  Please run "kwm help | less" if you are just getting started with KWM.
+  Please run "kwm help | less" if you are just getting started.
 $(
   if [[ "$(which $SCRIPT_NAME)" != "$SCRIPT_PATH/$SCRIPT_NAME" ]]; then
     tput setaf 1

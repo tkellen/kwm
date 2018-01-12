@@ -1,3 +1,4 @@
+. src/lib/findVars.sh
 . src/lib/template.sh
 
 ##
@@ -7,9 +8,9 @@ unsetter() {
   # If output is bound for a terminal, show usage screen.
   if [[ $STDOUT_IS_TERMINAL == true ]]; then
     template usage unset
-    exit 0
+    exit 1
   fi
-  # ...otherwise list unset calls for all KWM_.* environment variables.
-  env | grep KWM_.*\= | cut -f1 -d= | xargs -n 1 echo unset
+  # ...otherwise list unset calls for all KWM environment variables.
+  findVars "^KWM" | xargs -n 1 echo unset
   exit 0
 }

@@ -3,5 +3,5 @@ cd ../..
 . src/help.sh
 
 test_help() {
-  : # tests needed
+  assert_status_code 0 help
 }
