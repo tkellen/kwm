@@ -1,3 +1,10 @@
+v0.2.0:
+  date: 2018-01-12
+  sha256sum: dd279eddb2aaaeb93a04b3913890c4caccbb1b139181a71fb09f5c2fcfc8fb78
+  changes:
+    - [internal] add sha256 to changelogs (6022112)
+    - [internal] release process improvements (373d056)
+    - [bugfix] exit with 0 after connect ends (daedb81)
 v0.1.0
   date: 2018-01-12
   sha256sum: 3c47d4b95fb2fe3a5b3e108fd828fbca6de6fe086126e34a17f10d0e154c90f7

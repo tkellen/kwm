@@ -6,7 +6,7 @@ This is a learning exercise in operationalizing Kubernetes.
 
 ## Installation / Getting Started
 1. Install [kubectl] (to manage the cluster)
-2. `wget https://github.com/tkellen/kwm/releases/download/v0.1.0/kwm && chmod +x kwm`
+2. `wget https://github.com/tkellen/kwm/releases/download/v0.2.0/kwm && chmod +x kwm`
 3. Run `./kwm` and follow the prompts.
 
 ### Release Process
