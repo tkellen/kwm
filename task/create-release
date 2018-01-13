@@ -10,7 +10,7 @@ data=$(cat <<EOF
 {
   "tag_name": "$VERSION",
   "name": "$VERSION",
-  "body": "CHANGELOG:\n$CHANGES",
+  "body": "SHA256: \`$(shasum -a 256 build/kwm | cut -d " " -f1)\`\nCHANGELOG:\n$CHANGES",
   "draft": false,
   "prerelease": false
 }

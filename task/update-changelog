@@ -6,6 +6,7 @@ VERSION=${VERSION:?'needs to be defined.'}
 CHANGES="$(cat <<EOF
 $VERSION:
   date: ${DATE:-$(date +%Y-%m-%d)}
+  sha256sum: $(shasum -a 256 build/kwm | cut -d " " -f1)
   changes:
 $($here/commit-history | sed 's/^/    - /')
 EOF
