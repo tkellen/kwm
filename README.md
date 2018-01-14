@@ -26,24 +26,25 @@ After more than one hundred hours of reading documentation and debugging, I got
 to a place where spinning up a cluster seemed easy. I was ready to start using
 Kubernetes as the foundational piece of technology in my projects. Neat!
 
-As I looked at the installer ecosystem, the shell script I'd written started to
-look pretty appealing. It turns out that creating a one-size-fits-all solution
-for installing a system as configurable as Kubernetes is quite a challenge.
+As I looked at the installer ecosystem (full of awesome, ambitious projects),
+the shell script I'd written started to look pretty appealing. It turns out that
+creating a one-size-fits-all solution for installing a system as configurable as
+Kubernetes is quite a challenge.
 
 It's almost inevitable that tool authors will simplify the configurability of
 the system through a leaky abstraction of their own configuration files and
 command line flags. That's the whole point. Make the thing easier.
 
 As I dug in, I realized I didn't want any more layers of abstraction. I already
-had a shell script that did the job. Everything it did was right there in plain
-old bash. If I needed to configure something differently, I'd just change the
+had a shell script that worked. Everything it did was right there in plain old
+bash. If I needed to configure something differently, I'd just change the
 script.
 
-So, I wrapped the whole thing in a nice command line interface and joined the
-ranks of folks trying to tame this madness.
+So, I wrapped the whole thing in a command line interface and joined the ranks
+of folks trying to tame this madness.
 
 If you use this in production, feel free to check it into revision control and
-change it as you see fit. It's your installer now.
+change it as you see fit. It's your installer.
 
 If you use this for learning, I hope you'll be able to understand Kubernetes an
 order of magnitude faster than I did.
@@ -61,7 +62,7 @@ Enjoy!
 2. Run `make release`.
 
 ### Acknowledgements
-Here are some resources I used while building this project:
+Here are some resources I used while building this:
 
 * [Kubernetes Documentation] (read every single page)
 * [Kubernetes the Hard Way]
