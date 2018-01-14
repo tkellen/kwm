@@ -23,10 +23,9 @@ echo Waiting for container networking to start...
 echo HACK bouncing containerd to pick up cni settings from above.
 #------------------------------------------------------------------------------#
 sleep 30
-((kwm nodes controlplane && kwm nodes worker) | uniq | while read node; do
-  echo "sudo systemctl restart containerd" | kwm connect \$node &
-done
-wait) 2>&1 | sed 's/^/[hack] /'
+((kwm nodes controlplane && kwm nodes worker) | uniq | \
+  xargs -n1 -I {} bash -c "echo 'sudo systemctl restart containerd' | kwm connect {}"
+) 2>&1 | sed 's/^/[hack] /'
 #------------------------------------------------------------------------------#
 echo Installing kube-dns.
 #------------------------------------------------------------------------------#
