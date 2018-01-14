@@ -46,7 +46,12 @@ case "$@" in
 esac
 
 # Enumerate required environment variables for each resource type.
-export env_pki=(KWM_CLUSTER_NAME KWM_APISERVER_PUBLIC_IP KWM_LOCAL_PKI_PATH)
+export env_pki=(
+  KWM_CLUSTER_NAME
+  KWM_APISERVER_PUBLIC_IP
+  KWM_LOCAL_PKI_PATH
+  KWM_ETCD_CLIENT_SANS
+)
 export env_cni_manifest=(KWM_VERSION_KUBE_ROUTER)
 export env_controlplane_node=(
   KWM_CONNECT
@@ -143,5 +148,5 @@ main() {
   usage
 }
 
-# Kick off KWM, removing any command line flags from the argument listing.
 main $(sed 's/ --ignore-missing-env//g' <<< "$@")
+# Kick off KWM, removing any command line flags from the argument listing.
