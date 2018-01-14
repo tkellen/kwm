@@ -1,6 +1,6 @@
 cd /tmp
 mkdir -p /var/lib/etcd
-wget -q -O etcd.tar.gz https://github.com/coreos/etcd/releases/download/v${version}/etcd-v${version}-linux-amd64.tar.gz
+curl -sSLo etcd.tar.gz https://github.com/coreos/etcd/releases/download/v${version}/etcd-v${version}-linux-amd64.tar.gz
 tar xf etcd.tar.gz
 mkdir -p /usr/local/bin
 mv etcd-v${version}-linux-amd64/etcd* /usr/local/bin

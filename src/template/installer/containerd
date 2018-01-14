@@ -1,3 +1,3 @@
 cd /tmp
-wget -q -O cri-containerd.tar.gz https://github.com/kubernetes-incubator/cri-containerd/releases/download/v${version}/cri-containerd-${version}.linux-amd64.tar.gz
+curl -sSLo cri-containerd.tar.gz https://github.com/kubernetes-incubator/cri-containerd/releases/download/v${version}/cri-containerd-${version}.linux-amd64.tar.gz
 tar xf cri-containerd.tar.gz --directory /

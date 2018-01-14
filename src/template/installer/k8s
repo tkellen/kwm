@@ -1,5 +1,5 @@
 cd /tmp
-wget -q -O ${name} https://storage.googleapis.com/kubernetes-release/release/v${version}/bin/linux/amd64/${name}
+curl -sSLo ${name} https://storage.googleapis.com/kubernetes-release/release/v${version}/bin/linux/amd64/${name}
 chmod +x ${name}
 mkdir -p /usr/local/bin
 mv ${name} /usr/local/bin
