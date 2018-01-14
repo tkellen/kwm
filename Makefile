@@ -1,14 +1,17 @@
 VERSION:=$(shell cat VERSION)
-SOURCE_FILES:=$(shell find src -type f)
 TEST_FILES:=$(shell find test -type f)
+SHA:=$(shell git rev-parse --short HEAD)
 
 export VERSION
 
-test: kwm $(SOURCE_FILES) $(TEST_FILES)
+.PHONY: test
+test:
 	env -i TERM=${TERM} task/test -f tap $(TEST_FILES)
 
 build: test
-	task/build
+	mkdir -p build
+	task/build | sed "s/VERSION=dev/VERSION=\"$(VERSION) \/ $(SHA)\"/"> build/kwm
+	chmod +x build/kwm
 
 release: ensure-clean build
 	task/update-readme
