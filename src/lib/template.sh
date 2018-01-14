@@ -19,7 +19,11 @@ template() {
     # line continuations in strange ways. This must be resolvable with less
     # tail chasing?
     # TODO: fix this joke excuse of a solution.
-    templateContent="$(sed 's/\\/\\\\\\\\\\n/g' <<<"$($templateFn ${key//-/_})")"
+    if [[ $namespace == "workshop" ]]; then
+      templateContent="$(sed 's/\\/\\\\/g' <<<"$($templateFn ${key//-/_})")"
+    else
+      templateContent="$(sed 's/\\/\\\\\\\\\\n/g' <<<"$($templateFn ${key//-/_})")"
+    fi
   else
     # Same as a above but somehow a little less egregious when content comes
     # from files rather than disk?
