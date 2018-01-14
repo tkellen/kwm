@@ -38,3 +38,24 @@ echo \$SETTING_TWO
 # Unset a variable, removing it from your environment
 unset \$SETTING_ONE
 echo \$SETTING_ONE
+
+# Now try this with KWM!
+#
+# It can tell you what environment variables are needed to render commands
+# for your cluster. Let's see what is required to generate your public key
+# infrastructure:
+kwm env pki
+
+# You should see that some values are missing. Try supplying one
+KWM_CLUSTER_NAME=workshop kwm env pki
+
+# Now provide all of them, and render the commands
+export KWM_CLUSTER_NAME=workshop
+export KWM_APISERVER_PUBLIC_IP=55.55.55.55
+export KWM_ETCD_CLIENT_SANS=IP:55.55.55.55
+
+# Now render and inspect the script
+kwm render pki
+
+# If it looks good, run it!
+kwm render pki | bash
