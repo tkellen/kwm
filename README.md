@@ -135,7 +135,7 @@ kwm nodes worker
 ```
 
 In the future, when you're managing many nodes simultaneously, this will be a
-powerful feature for building a pipeline of commands.
+powerful feature for a pipeline of commands.
 
 #### Confirm you can connect to your node:
 This will execute the value of environment variable `KWM_CONNECT_[nodeKey]`. If
@@ -147,7 +147,7 @@ kwm connect soar
 #### Provision a single node cluster step by step.
 In each command that follows we'll start by having KWM show the commands that
 are planned to be run. Your configuration will appear in blue so you can see
-what is yours and what is boilerplate.
+what is specific to your installation and what is boilerplate.
 
 First, generate your public key infrastructure to ensure secure communication
 between your cluster components:
