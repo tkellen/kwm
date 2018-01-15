@@ -149,7 +149,7 @@ In each command that follows we'll start by having KWM show the commands that
 are planned to be run. Your configuration will appear in blue so you can see
 what is specific to your installation and what is boilerplate.
 
-First, generate your public key infrastructure to ensure secure communication
+First, generate your public key infrastructure to enable secure communication
 between your cluster components:
 ```
 kwm render pki
