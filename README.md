@@ -1,5 +1,5 @@
 # Kubernetes Without Magic [![Build Status](https://travis-ci.org/tkellen/kwm.svg?branch=master)](https://travis-ci.org/tkellen/kwm)
-> A shell script generator and text-based adventure game.
+> A shell script generator.
 
 ## Introduction
 This project aims to be a self-guided learning tool and solution for automating
@@ -13,7 +13,7 @@ operators have been using for 40 years: environment variables and shell scripts.
 
 > Learning to use KWM should be possible by running KWM itself. This is very
 > much a work in progress. If you try and find yourself stuck, please open an
-> issue.
+> issue, or better yet, a PR!
 
 ## Getting Started
 First, install [kubectl], you'll need that to interact with your cluster once it
@@ -76,6 +76,149 @@ this madness.
 So far, it's working well. If you try it, I hope it lowers the barrier of entry
 to running your own cluster.
 
+### First Time User Guide
+This guide illustrates how to set up a single-node cluster using KWM.
+
+#### Install KWM.
+```
+wget https://github.com/tkellen/kwm/releases/download/v0.2.0/kwm
+chmod +x kwm
+export PATH=$PATH:"$(pwd)"
+kwm
+```
+
+#### Start your server.
+Boot a throwaway server you have SSH and root access to using whatever means is
+familiar to you. Make a note of the public and private IPs.
+
+#### Ensure your environment is clean.
+KWM accepts configuration solely through environment variables. It includes a
+command to remove any previously set values. Ensure you're starting with a
+clean slate by running this:
+```
+. <(kwm unset)
+```
+
+#### Export the minimal configuration needed to bootstrap a cluster.
+Fill out this configuration. It is OK to use the same IP for public and private
+values if you only have one. It's not a great idea for production, though.
+```
+export KWM_CLUSTER_NAME=kwm
+export KWM_APISERVER_PUBLIC_IP=[ip-from-your-only-node]
+export KWM_APISERVER_PRIVATE_IP=[ip-from-your-only-node]
+export KWM_ROLE_soar="etcd controlplane worker"
+export KWM_HOSTNAME_soar=kubernetes-without-magic
+export KWM_PRIVATE_IP_soar=[ip-from-your-only-node]
+export KWM_CONNECT_now="ssh [your-sudo-capable-user]@[your-ssh-accessible-ip]"
+```
+
+> Try running `kwm define` for more detail about what these values do.
+
+#### Confirm your environment is fully populated for startup.
+You should see blue values populating each variable. Some defaults are being
+provided by KWM. You can override them if you wish:
+```
+kwm env startup
+```
+
+#### Show what nodes are being managed.
+These will all output `soar`. This is searching for `KWM_ROLE_[nodeKey]`
+environment variables and filtering on the argument you provide. Because the
+example config above defines only one node (with a key of `soar`) that's all
+you'll see:
+```
+kwm nodes all
+kwm nodes etcd
+kwm nodes controlplane
+kwm nodes worker
+```
+
+In the future, when you're managing many nodes simultaneously, this will be a
+powerful feature for chaining commands.
+
+#### Confirm you can connect to your node:
+This will execute the value of environment variable `KWM_CONNECT_[nodeKey]`. If
+this is successful you will connect to the server you are about to provision:
+```
+kwm connect soar
+```
+
+#### Provision a single node cluster step by step.
+In each command that follows we'll start by having KWM show the commands that
+are planned to be run. Your configuration will appear in blue so you can see
+what is yours and what is boilerplate.
+
+First, generate your public key infrastructure to ensure secure communication
+between your cluster components:
+```
+kwm render pki
+kwm render pki | bash
+```
+
+Configure kubectl with administrative access to your cluster-to-be:
+```
+kwm render cluster-admin
+kwm render cluster-admin | bash
+```
+
+Configure `soar` as an etcd node:
+```
+kwm render etcd-node soar
+kwm render etcd-node soar | bash
+```
+
+Configure `soar` as a controlplane node:
+```
+kwm render controlplane-node soar
+kwm render controlplane-node soar | bash
+```
+
+Configure `soar` as a worker node:
+```
+kwm render worker-node soar
+kwm render worker-node soar | bash
+```
+
+Configure container networking interface (KWM uses [kube-router] by default):
+```
+kwm render cni-manifest
+kwm render cni-manifest | kubectl --context=kwm apply -f -
+```
+
+Restart containerd to pick up CNI settings (TODO: can this be removed?):
+```
+wait 30
+echo "sudo systemctl restart containerd" | kwm connect soar
+```
+
+Install a kube-dns for cluster DNS:
+```
+sleep 30
+kwm render dns-manifest
+kwm render dns-manifest | kubectl --context=kwm apply -f -
+```
+
+Congratulations! You should now have a running cluster. It is outside the scope
+of this guide to explain how to use `kubectl`, but here are some quick commands
+to show its status:
+```
+kubectl --context=kwm get componentstatus
+kubectl --context=kwm get nodes -o wide
+kubectl --context=kwm get pods -o wide --all-namespaces
+```
+
+As a final note, all of the steps above can be executed for one or many nodes
+with this single command:
+```
+kwm render startup | bash
+```
+
+#### Next steps
+Try exploring the help system for `kwm`. You can also check out the [hack]
+folder in this repository for examples of other configurations. They are not
+guaranteed to be working, they are a record of various experiments. Please
+contribute your own!
+
 ### Ideas for Improvements
 - Expand built-in workshops for operators with less experience.
 - Support [Bootkube]-like functionality.
@@ -104,3 +247,5 @@ Thank you to the authors of those projects and guides!
 [kubectl]: https://kubernetes.io/docs/tasks/tools/install-kubectl/
 [This work began as a study on how to run my own cluster]: https://github.com/tkellen/kwm/blob/master/log/2017-10-30.md
 [k8s-conformance]: https://github.com/cncf/k8s-conformance
+[hack]: https://github.com/tkellen/kwm/tree/master/hack
+[kube-router]: https://github.com/cloudnativelabs/kube-router
