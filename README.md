@@ -69,9 +69,9 @@ and more. This isn't news. This is how computing works—it's a mind-blowing sta
 of abstractions.
 
 When I realized I had everything I needed in my humble shell script, I decided
-I didn't want more abstractions for this job. So, I wrapped it in a command line
-interface aimed at self-learning and joining the ranks of folks trying to tame
-this madness.
+I didn't want more abstractions for this job. So, I wrapped my installer in a
+command line interface aimed at self-learning and joined the ranks of folks
+trying to tame this madness.
 
 So far, it's working well. If you try it, I hope it lowers the barrier of entry
 to running your own cluster.
