@@ -24,7 +24,7 @@ shell script with all templates inlined as functions.
 
 **Bundled**
 ```
-wget https://github.com/tkellen/kwm/releases/download/v0.2.0/kwm
+wget https://github.com/tkellen/kwm/releases/download/v0.3.0/kwm
 chmod +x kwm
 ./kwm
 ```
@@ -32,8 +32,8 @@ chmod +x kwm
 **Unbundled**
 ```
 mkdir kwm && cd kwm
-wget https://github.com/tkellen/kwm/releases/download/v0.2.0/kwm-unbundled-v0.2.0.tar.gz
-tar xzf kwm-unbundled-v0.2.2.tar.gz
+wget https://github.com/tkellen/kwm/releases/download/v0.3.0/kwm-unbundled-v0.3.0.tar.gz
+tar xzf kwm-unbundled-v0.3.0.tar.gz
 ./kwm
 ```
 
@@ -81,7 +81,7 @@ This guide illustrates how to set up a single-node cluster using KWM.
 
 #### Install KWM.
 ```
-wget https://github.com/tkellen/kwm/releases/download/v0.2.0/kwm
+wget https://github.com/tkellen/kwm/releases/download/v0.3.0/kwm
 chmod +x kwm
 export PATH=$PATH:"$(pwd)"
 kwm

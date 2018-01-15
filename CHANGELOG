@@ -1,3 +1,17 @@
+v0.3.0:
+  date: 2018-01-15
+  sha256: d60683ed66252763542ad2d4342484360482f5b776664fc5ee1468f40c14c8a3
+  changes:
+    - [bugfix] fix invalid template name (cf848b0)
+    - [bugfix] better testing, remove -/_ conversion (f8b900a)
+    - [bugfix] remove hard-coded references to the script name (7f8042d)
+    - [bugfix] substantial refactoring (ea5f145)
+    - [bugfix] use xargs instead of while loop in startup script (a7851e4)
+    - [feature] add more exercises to environment variables workshop (cb336cb)
+    - [bugfix] fix workshop display so variable names are printed (21b4532)
+    - [bugfix] add missing environment variable to pki (b4294af)
+    - [feature] support hosts with yum package manager (99dcb1d)
+    - [feature] bump default versions for etcd, kube-dns and kube-router (180c428)
 v0.2.0:
   date: 2018-01-12
   sha256: dd279eddb2aaaeb93a04b3913890c4caccbb1b139181a71fb09f5c2fcfc8fb78
