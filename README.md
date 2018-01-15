@@ -23,18 +23,16 @@ tar xzf kwm-unbundled-v0.2.2.tar.gz
 ./kwm
 ```
 
-> It is a goal of this project that a new operator will be able to learn how to
-> use KWM and deploy a cluster using the command line only (assuming they have
-> already created servers). This is a work in progress. If you try this tool and
-> find yourself stuck, please open an issue!
-
 ## Introduction
 This project aims to be a self-guided learning tool and solution for automating
 the creation and maintenance of Kubernetes clusters.
 
 "Without Magic" refers to a design goal of supporting introspection and overall
-simplicity as a core tenant. This project is built using two simple tools that
-operators have relied on for 40 years: environment variables and shell scripts.
+simplicity as a core tenant. This project is built using two reliable tools that
+operators have been using for 40 years: environment variables and shell scripts.
+
+> Learning to use KWM should be possible by running KWM itself. This is a work
+> in progress. If you try and find yourself stuck, please open an issue.
 
 ### Why?
 [This work began as a study on how to run my own cluster]. As a consummate DIYer
@@ -55,9 +53,8 @@ the system through an abstraction of their own configuration file formats and
 command line flags. That's the whole point. Make the thing easier.
 
 As I dug in, I realized I didn't want more layers of abstraction. I'd already
-written everything I needed to do to my servers: it was right there in plain old
-bash. If I wanted to configure something differently, I'd just change the
-script.
+written everything I needed: it was right there in my plain old bash script. If
+I wanted to configure something differently, I'd just change the script.
 
 So, I wrapped the thing in a command line interface and joined the ranks of
 folks trying to tame this madness. So far, it's working well. Give it a try!
