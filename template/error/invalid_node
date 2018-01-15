@@ -2,4 +2,4 @@ Sorry, unable to locate "${requested}" (KWM_CONNECT_${requested}) in your enviro
 
 You can view the nodes present in your environment with the following:
 
-  kwm nodes all
+  $SCRIPT_NAME nodes all

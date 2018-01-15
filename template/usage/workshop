@@ -3,10 +3,10 @@ Run workshops to confirm you are ready to use Kubernetes Without Magic.
   $SCRIPT_NAME workshop environment-variables | less
 
   TODO:
-  // kwm workshop streams
-  // kwm workshop redirection
-  // kwm workshop networking
-  // kwm workshop pki
+  // $SCRIPT_NAME workshop streams
+  // $SCRIPT_NAME workshop redirection
+  // $SCRIPT_NAME workshop networking
+  // $SCRIPT_NAME workshop pki
   // ...
 
 Notes:

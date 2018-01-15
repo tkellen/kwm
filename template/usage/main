@@ -18,4 +18,4 @@ Script Location:
   ${BASE_PATH%%/}
 
 Notes:
-  Please run "kwm help" if you are just getting started.
+  Please run "$SCRIPT_NAME help" if you are just getting started.

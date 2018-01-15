@@ -1,8 +1,8 @@
 Supplied as the valid Subject Alternative Names to openssl when generating the
 certificate for securing communication from the apiserver to etcd.
 
-If not specified explicitly, this is "magically" produced by kwm using all hosts
-in the environment with a role of etcd.
+If not specified explicitly, this is "magically" produced by using all hosts in
+the environment with a role of etcd.
 
 For example, given the following hosts in the environment:
 

@@ -30,7 +30,7 @@ To see which nodes are available for management, try running "kwm nodes".
 Once you have everything defined, "kwm startup" will output a bash script that
 will bootstrap your cluster. After inspecting it, you can run it thusly:
 
-  kwm startup | bash
+  $SCRIPT_NAME startup | bash
 
 Good luck!
 
