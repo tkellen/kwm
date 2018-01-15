@@ -1,12 +1,11 @@
 # Kubernetes Without Magic [![Build Status](https://travis-ci.org/tkellen/kwm.svg?branch=master)](https://travis-ci.org/tkellen/kwm)
-> A glorified shell script generator and text-based adventure game.
+> A shell script generator and text-based adventure game.
 
 ## Introduction
 This project aims to be a self-guided learning tool and solution for automating
-the creation and maintenance of Kubernetes clusters. It is a glorified shell
-script generator and text-based adventure game. Though you can use it to start
-a cluster with a single command, new operators are encouraged to examine and
-execute each step individually until the overall process is understood.
+the creation and maintenance of Kubernetes clusters. Though you can use it to
+start a cluster with a single command, new operators are encouraged to examine
+and execute each step individually until the overall process is understood.
 
 "Without Magic" refers to a design goal of supporting introspection and overall
 simplicity as a core tenant. This project is built using two reliable tools that
@@ -59,10 +58,10 @@ the shell script I'd written started to look pretty appealing. It turns out the
 creation of a one-size-fits-all solution for managing a system as configurable
 as Kubernetes is quite a challenge.
 
-It is practically inevitable, based on what I've seen, (with this technology and
-many others) that we wind up with high level, tool-specific configuration files
-aimed at hiding the complexity of the systems we manage. That's the whole point,
-right? Make the thing easier.
+It is practically inevitable (with this technology and many others) that we wind
+up with high level, tool-specific configuration files aimed at hiding the
+complexity of the systems we manage. That's the whole point, right? Make the
+thing easier.
 
 Then, when we want to go "off script" we plug the holes with yet more indirect
 configuration: new command line flags to configure our actual command line flags
