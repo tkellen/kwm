@@ -135,7 +135,7 @@ kwm nodes worker
 ```
 
 In the future, when you're managing many nodes simultaneously, this will be a
-powerful feature for chaining commands.
+powerful feature for building a pipeline of commands.
 
 #### Confirm you can connect to your node:
 This will execute the value of environment variable `KWM_CONNECT_[nodeKey]`. If
