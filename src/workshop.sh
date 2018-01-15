@@ -9,6 +9,6 @@ workshop() {
     exit 1
   fi
   printf "%s\n\n" "${name/-/ }" | tr '[:lower:]' '[:upper:]'
-  template workshop ${name/-/_}
+  template workshop ${name}
   exit 0
 }

@@ -8,7 +8,7 @@ template() {
   # Look for requested template on disk
   local templatePath="${BASE_PATH}template/$namespace/$key"
   # Look for inline template function (built, single-file mode)
-  local templateFn="template_${namespace}_${key//-/_}"
+  local templateFn="template_${namespace}_${key}"
   # When operating in built mode, a lookup function for each namespace
   # exists. If that function can be found, use it to find the template content.
   if [[ $TEMPLATES_BUNDLED == true ]]; then
@@ -18,14 +18,14 @@ template() {
   fi
   # If rendering the requested template is blank, bail with error screen.
   if [[ -z $templateContent ]]; then
-    # Prevent recursive loop trying to find "resource_not_found" error.
+    # Prevent recursive loop trying to find "resource-not-found" error.
     if [[ $namespace == error ]]; then
       printf "%s\n" "This is pretty bad."
     else
       # Show error stating template couldn't be found. This could cause a
-      # recursive loop without the above conditional if the "resource_not_found"
+      # recursive loop without the above conditional if the "resource-not-found"
       # template could not be found.
-      error "$(missing=$key template error resource_not_found)"
+      error "$(missing=$key template error resource-not-found)"
     fi
     exit 1
   fi

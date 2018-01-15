@@ -10,7 +10,7 @@ locals {
 
 resource "packet_ssh_key" "ssh" {
   name = "${local.name}"
-  public_key = "${file("~/.ssh/id_rsa.pub")}"
+  public-key = "${file("~/.ssh/id_rsa.pub")}"
 }
 
 resource "packet_project" "main" {

@@ -4,7 +4,7 @@ echo Sending shared PKI to $KWM_HOSTNAME.
 $(files="cluster-ca-cert.pem cluster-ca-private-key.pem" \
   exec="$KWM_CONNECT" \
   basePath="$KWM_CONFIG_PATH" \
-  sourcePath="pki" template util tar_copy
+  sourcePath="pki" template util tar-copy
 )
 #------------------------------------------------------------------------------#
 echo Installing $KWM_HOSTNAME.
@@ -13,11 +13,11 @@ $(exec="$KWM_CONNECT" content="
 #------------------------------------------------------------------------------#
 echo Generating private key for kublet.
 #------------------------------------------------------------------------------#
-$(basePath="$KWM_CONFIG_PATH" name="kubelet" template pki private_key)
+$(basePath="$KWM_CONFIG_PATH" name="kubelet" template pki private-key)
 #------------------------------------------------------------------------------#
 echo Generating private key for kube-router.
 #------------------------------------------------------------------------------#
-$(basePath="$KWM_CONFIG_PATH" name="kube-router" template pki private_key)
+$(basePath="$KWM_CONFIG_PATH" name="kube-router" template pki private-key)
 #------------------------------------------------------------------------------#
 echo Generating cluster-ca signed certificate for kubelet to apiserver communication.
 #------------------------------------------------------------------------------#
@@ -25,26 +25,26 @@ $(name="kubelet" \
   basePath="$KWM_CONFIG_PATH" \
   subj="/CN=system:node:$KWM_HOSTNAME/O=system:nodes" \
   ext="subjectAltName = IP:$KWM_PRIVATE_IP,DNS:$KWM_HOSTNAME" \
-  ca="cluster" template pki signed_cert)
+  ca="cluster" template pki signed-cert)
 #------------------------------------------------------------------------------#
 echo Generating cluster-ca signed certificate for kube-router to apiserver communication.
 #------------------------------------------------------------------------------#
 $(name="kube-router" \
   basePath="$KWM_CONFIG_PATH" \
   subj="/CN=kube-router" \
-  ca="cluster" template pki signed_cert)
+  ca="cluster" template pki signed-cert)
 #------------------------------------------------------------------------------#
 echo Ensuring hostname and loopback reference are set.
 #------------------------------------------------------------------------------#
-$(name="$KWM_HOSTNAME" template util set_hostname)
+$(name="$KWM_HOSTNAME" template util set-hostname)
 #------------------------------------------------------------------------------#
 echo Generating CNI network configuration.
 #------------------------------------------------------------------------------#
 $(content='{ "cniVersion": "0.3.1", "type": "loopback" }' \
-  path="/etc/cni/net.d/99-loopback.conf" template util write_file
+  path="/etc/cni/net.d/99-loopback.conf" template util write-file
 )
 $(content='{"name": "kubernetes", "type": "bridge", "bridge": "kube-bridge", "ipam": { "type": "host-local" }, "isDefaultGateway": true }' \
-  path="/etc/cni/net.d/10-kuberouter.conf" template util write_file
+  path="/etc/cni/net.d/10-kuberouter.conf" template util write-file
 )
 #------------------------------------------------------------------------------#
 echo Installing cri-containerd.
@@ -55,7 +55,7 @@ $(name="cri-containerd" template service enable)
 #------------------------------------------------------------------------------#
 echo Installing container networking plugins at version $KWM_VERSION_CNI_PLUGIN.
 #------------------------------------------------------------------------------#
-$(version="$KWM_VERSION_CNI_PLUGIN" template installer cni_plugins)
+$(version="$KWM_VERSION_CNI_PLUGIN" template installer cni-plugins)
 #------------------------------------------------------------------------------#
 echo Generating kubelet config.
 #------------------------------------------------------------------------------#
@@ -65,8 +65,8 @@ $(path="/etc/kubernetes/kubelet.kubeconfig" \
     user="system:node:$KWM_HOSTNAME" \
     clusterName="$KWM_CLUSTER_NAME" \
     apiserver="$KWM_APISERVER_PRIVATE_IP" \
-    basePath="$KWM_CONFIG_PATH" template resource kubeconfig_manifest
-  )" template util write_file
+    basePath="$KWM_CONFIG_PATH" template resource kubeconfig-manifest
+  )" template util write-file
 )
 #------------------------------------------------------------------------------#
 echo Generating kube-router config.
@@ -77,8 +77,8 @@ $(path="/etc/kubernetes/kube-router.kubeconfig" \
     user="kube-router" \
     clusterName="$KWM_CLUSTER_NAME" \
     apiserver="$KWM_APISERVER_PRIVATE_IP" \
-    basePath="$KWM_CONFIG_PATH" template resource kubeconfig_manifest
-  )" template util write_file
+    basePath="$KWM_CONFIG_PATH" template resource kubeconfig-manifest
+  )" template util write-file
 )
 #------------------------------------------------------------------------------#
 echo Installing kubelet at version $KWM_VERSION_KUBERNETES.
@@ -97,7 +97,7 @@ $(path="/etc/systemd/system/kubelet.service" content="
       clusterDns="$KWM_DNS_SERVICE_IP" \
       podCidr="$KWM_POD_CIDR" template service kubelet
     )" template service unit
-)" template util write_file)
+)" template util write-file)
 #------------------------------------------------------------------------------#
 echo Enabling and restarting service.
 #------------------------------------------------------------------------------#
@@ -107,4 +107,4 @@ echo Installing socat to power kubectl proxy.
 #------------------------------------------------------------------------------#
 $(template installer socat)
 
-" template util remote_script)
+" template util remote-script)

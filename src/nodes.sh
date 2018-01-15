@@ -10,7 +10,7 @@ nodes() {
   # Find all unique KWM_ROLE_[nodeKey] entries for specifed role
   local nodes="$(findNodes $role)"
   # If none found, bail with error screen.
-  [[ -z $nodes ]] && error "$(template error no_nodes_for_role)" && exit 1
+  [[ -z $nodes ]] && error "$(template error no-nodes-for-role)" && exit 1
   # Print the node keys!
   printf "%s\n" "$nodes"
   exit 0

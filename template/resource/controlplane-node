@@ -4,7 +4,7 @@ echo Sending shared PKI to $KWM_HOSTNAME.
 $(files="cluster-ca-cert.pem cluster-ca-private-key.pem etcd-ca-cert.pem etcd-ca-private-key.pem apiserver-to-etcd-cert.pem apiserver-to-etcd-private-key.pem service-account-private-key.pem service-account-public-key.pem" \
   exec="$KWM_CONNECT" \
   basePath="$KWM_CONFIG_PATH" \
-  sourcePath="$KWM_LOCAL_PKI_PATH" template util tar_copy
+  sourcePath="$KWM_LOCAL_PKI_PATH" template util tar-copy
 )
 #------------------------------------------------------------------------------#
 echo Installing $KWM_HOSTNAME.
@@ -13,11 +13,11 @@ $(exec="$KWM_CONNECT" content="
 #------------------------------------------------------------------------------#
 echo Generating private key for client to apiserver communication.
 #------------------------------------------------------------------------------#
-$(basePath="$KWM_CONFIG_PATH" name="client-to-apiserver" template pki private_key)
+$(basePath="$KWM_CONFIG_PATH" name="client-to-apiserver" template pki private-key)
 #------------------------------------------------------------------------------#
 echo Generating private key for apiserver to kubelet communication.
 #------------------------------------------------------------------------------#
-$(basePath="$KWM_CONFIG_PATH" name="apiserver-to-kubelet" template pki private_key)
+$(basePath="$KWM_CONFIG_PATH" name="apiserver-to-kubelet" template pki private-key)
 #------------------------------------------------------------------------------#
 echo Generating cluster-ca signed certificate for client to apiserver communication.
 #------------------------------------------------------------------------------#
@@ -25,7 +25,7 @@ $(name="client-to-apiserver" \
   basePath="$KWM_CONFIG_PATH" \
   subj="/CN=kube-apiserver" \
   ext="subjectAltName = IP:$KWM_APISERVER_PUBLIC_IP,IP:$KWM_KUBERNETES_SERVICE_IP,IP:$KWM_PRIVATE_IP,DNS:$KWM_HOSTNAME,DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.cluster,DNS:kubernetes.default.svc.cluster.local" \
-  ca="cluster" template pki signed_cert
+  ca="cluster" template pki signed-cert
 )
 #------------------------------------------------------------------------------#
 echo Generating cluster-ca signed certificate for apiserver to kubelet communication.
@@ -33,12 +33,12 @@ echo Generating cluster-ca signed certificate for apiserver to kubelet communica
 $(name="apiserver-to-kubelet" \
   basePath="$KWM_CONFIG_PATH" \
   subj="/CN=kube-apiserver-client/O=system:masters" \
-  ca="cluster" template pki signed_cert
+  ca="cluster" template pki signed-cert
 )
 #------------------------------------------------------------------------------#
 echo Ensuring hostname and loopback reference are set.
 #------------------------------------------------------------------------------#
-$(name="$KWM_HOSTNAME" template util set_hostname)
+$(name="$KWM_HOSTNAME" template util set-hostname)
 #------------------------------------------------------------------------------#
 echo Installing kube-apiserver at version $KWM_VERSION_KUBERNETES.
 #------------------------------------------------------------------------------#
@@ -53,8 +53,8 @@ $(path="/etc/systemd/system/kube-apiserver.service" content="$(
     count="1" \
     privateIp="$KWM_PRIVATE_IP" \
     serviceCidr="$KWM_SERVICE_CIDR" \
-    etcdServers="$KWM_ETCD_SERVERS" template service kube_apiserver
-  )" template service unit)" template util write_file
+    etcdServers="$KWM_ETCD_SERVERS" template service kube-apiserver
+  )" template service unit)" template util write-file
 )
 #------------------------------------------------------------------------------#
 echo Enabling kube-apiserver service.
@@ -75,8 +75,8 @@ $(path="/etc/systemd/system/kube-controller-manager.service" content="$(
     clusterName="$KWM_CLUSTER_NAME" \
     serviceCidr="$KWM_SERVICE_CIDR" \
     podCidr="$KWM_POD_CIDR" \
-    template service kube_controller_manager
-  )" template service unit)" template util write_file
+    template service kube-controller-manager
+  )" template service unit)" template util write-file
 )
 #------------------------------------------------------------------------------#
 echo Enabling kube-controller-manager service.
@@ -93,7 +93,7 @@ $(path="/etc/systemd/system/kube-scheduler.service" content="$(
   name="kube-scheduler" \
   after="network.target" \
   requires="" \
-  exec="$(template service kube_scheduler)" template service unit)" template util write_file
+  exec="$(template service kube-scheduler)" template service unit)" template util write-file
 )
 #------------------------------------------------------------------------------#
 echo Enabling kube-scheduler service.
@@ -104,4 +104,4 @@ echo Installing kubectl at version $KWM_VERSION_KUBERNETES.
 #------------------------------------------------------------------------------#
 $(version="$KWM_VERSION_KUBERNETES" name="kubectl" template installer k8s)
 
-" template util remote_script)
+" template util remote-script)

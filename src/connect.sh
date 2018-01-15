@@ -11,7 +11,7 @@ connect() {
   # If no node is defined, bail with usage screen.
   [[ -z $nodeKey ]] && template usage connect && exit 1
   # If node cannot be found in environment, bail with a notification.
-  [[ -z $call ]] && error "$(requested=$nodeKey template error invalid_node)" && exit 1
+  [[ -z $call ]] && error "$(requested=$nodeKey template error invalid-nod)" && exit 1
   # Execute KWM_CONNECT for the specified node.
   $call
   exit 0

@@ -25,12 +25,12 @@ render() {
   )"
   # Allow skipping validation for the convenience of viewing templates.
   if [[ -n $missing && $IGNORE_MISSING_ENV != true ]]; then
-    error "$(missing="$missing" resource="$resource" template error env_missing)"
+    error "$(missing="$missing" resource="$resource" template error env-missing)"
     exit 1
   fi
   # If output is bound for a terminal, highlight all KWM_* variables.
   [[ $STDOUT_IS_TERMINAL == true ]] && highlightAll
   # Render the template
-  template resource ${resource/-/_}
+  template resource ${resource}
   exit 0
 }

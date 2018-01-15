@@ -14,7 +14,7 @@ startup() {
   # give user something useful to go on if no valid nodes are found.
   # at least one for each role is needed.
   if [[ -z "$(findNodes etcd)$(findNodes controlplane)$(findNodes worker)" ]]; then
-    error "$(template error startup_no_nodes)"
+    error "$(template error startup-no-nodes)"
     exit 1
   fi
   render startup

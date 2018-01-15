@@ -14,11 +14,11 @@ getenv() {
   # Look up required environment variables
   local requiredEnv="$(requiredEnv $resource)"
   # Bail as bad resource if none found.
-  [[ -z $requiredEnv ]] && error "$(missing=$resource template error resource_not_found)" && exit 1
+  [[ -z $requiredEnv ]] && error "$(missing=$resource template error resource-not-found)" && exit 1
   # If the resource type contains the string node...
   if [[ $resource =~ node ]]; then
     # If a nodeKey isn't defined for a node resource, show error.
-    [[ -z $nodeKey ]] && error "$(resource=$resource template error no_node_for_env)" && printf '\n\n'
+    [[ -z $nodeKey ]] && error "$(resource=$resource template error no-node-for-env)" && printf '\n\n'
     # Find KWM_*_[nodeKey] values and collapse into root namespace.
     magicNodeMeta $nodeKey
   fi

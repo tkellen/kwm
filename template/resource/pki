@@ -7,27 +7,27 @@ echo Generating cluster certificate authority.
 #------------------------------------------------------------------------------#
 $(basePath="$KWM_LOCAL_PKI_PATH" \
   name="cluster" \
-  subj="/CN=$KWM_CLUSTER_NAME" template pki init_ca)
+  subj="/CN=$KWM_CLUSTER_NAME" template pki init-ca)
 #------------------------------------------------------------------------------#
 echo Generating private key for cluster admin to apiserver communication.
 #------------------------------------------------------------------------------#
 $(basePath="$KWM_LOCAL_PKI_PATH" \
-  name="cluster-admin-to-apiserver" template pki private_key)
+  name="cluster-admin-to-apiserver" template pki private-key)
 #------------------------------------------------------------------------------#
 echo Generating cluster-ca signed certificate for cluster admin to apiserver communication.
 #------------------------------------------------------------------------------#
 $(basePath="$KWM_LOCAL_PKI_PATH" \
   name="cluster-admin-to-apiserver" \
   subj="/CN=root/O=system:masters" \
-  ca="cluster" template pki signed_cert)
+  ca="cluster" template pki signed-cert)
 #------------------------------------------------------------------------------#
 echo Generating etcd certificate authority.
 #------------------------------------------------------------------------------#
-$(basePath="$KWM_LOCAL_PKI_PATH" name="etcd" subj="/CN=etcd-ca" template pki init_ca)
+$(basePath="$KWM_LOCAL_PKI_PATH" name="etcd" subj="/CN=etcd-ca" template pki init-ca)
 #------------------------------------------------------------------------------#
 echo Generating private key for apiserver to etcd server communication.
 #------------------------------------------------------------------------------#
-$(basePath="$KWM_LOCAL_PKI_PATH" name="apiserver-to-etcd" template pki private_key)
+$(basePath="$KWM_LOCAL_PKI_PATH" name="apiserver-to-etcd" template pki private-key)
 #------------------------------------------------------------------------------#
 echo Generating etcd-ca signed certificate for apiserver to etcd communication.
 #------------------------------------------------------------------------------#
@@ -35,11 +35,11 @@ $(basePath="$KWM_LOCAL_PKI_PATH" \
   name="apiserver-to-etcd" \
   subj="/CN=etcd" \
   ext="subjectAltName = $KWM_ETCD_CLIENT_SANS" \
-  ca="etcd" template pki signed_cert)
+  ca="etcd" template pki signed-cert)
 #------------------------------------------------------------------------------#
 echo Generating public/private keypair for service accounts
 #------------------------------------------------------------------------------#
 # TODO: get TLS bootstrapping going to eliminate some PKI creation
 # https://kubernetes.io/docs/admin/bootstrap-tokens/
-$(basePath="$KWM_LOCAL_PKI_PATH" name="service-account" template pki private_key)
-$(basePath="$KWM_LOCAL_PKI_PATH" name="service-account" template pki public_key)
+$(basePath="$KWM_LOCAL_PKI_PATH" name="service-account" template pki private-key)
+$(basePath="$KWM_LOCAL_PKI_PATH" name="service-account" template pki public-key)

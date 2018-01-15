@@ -1,11 +1,17 @@
 # Enumerate required environment variables for each resource type.
 requiredEnv() {
-  local lookup="${1/-/_}[*]"
+  local key="${1/-/_}"
+  local lookup="$key[*]"
   local pki=(
     KWM_CLUSTER_NAME
     KWM_APISERVER_PUBLIC_IP
     KWM_LOCAL_PKI_PATH
     KWM_ETCD_CLIENT_SANS
+  )
+  local cluster_admin=(
+    KWM_CLUSTER_NAME
+    KWM_LOCAL_PKI_PATH
+    KWM_APISERVER_PUBLIC_IP
   )
   local cni_manifest=(KWM_VERSION_KUBE_ROUTER)
   local controlplane_node=(
@@ -68,5 +74,6 @@ requiredEnv() {
     KWM_LOCAL_PKI_PATH
     KWM_CONFIG_PATH
   )
+  [[ -z "${!lookup}" ]] && exit 1
   printf "${!lookup}"
 }
