@@ -189,6 +189,8 @@ kwm render cni-manifest | kubectl --context=kwm apply -f -
 Restart containerd to pick up CNI settings (TODO: can this be removed?):
 > Without restarting containerd after configuring kube-router, pods will fail to
 > start with "Failed create pod sandbox".
+> https://github.com/containerd/cri-containerd/issues/545
+> https://github.com/cloudnativelabs/kube-router/issues/286
 ```
 sleep 30
 echo "sudo systemctl restart containerd" | kwm connect soar
