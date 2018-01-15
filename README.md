@@ -19,8 +19,8 @@ operators have been using for 40 years: environment variables and shell scripts.
 First, install [kubectl], you'll need that to interact with your cluster once it
 is running. Then, choose your flavor of KWM. There are two release types:
 "unbundled" and "bundled". The unbundled version is a shell script and a folder
-of templates you can modify as you see fit. The bundled version a single file
-shell script with all templates inlined as functions.
+of templates you can modify as you see fit. The bundled version has all the
+templates inlined as functions.
 
 **Bundled**
 ```
@@ -48,10 +48,12 @@ to eliminate reliance on vendor-specific functionality.
 ### Why?
 [This work began as a study on how to run my own cluster]. As a consummate DIYer
 this involved me writing an installer. I didn't intend to keep using it, I just
-wanted to get the concepts down. After something like one hundred hours of
-reading documentation and debugging, I got to a place where spinning up a
-cluster seemed easy. I was ready to start using Kubernetes as the foundational
-piece of infrastructure in my work. Neat!
+wanted to get the concepts down. After *many* hours of reading documentation, I
+got to a place where spinning up a cluster and debugging myriad of ways it could
+fail seemed easy. I was ready to start using Kubernetes as the foundational
+piece of infrastructure in my work.
+
+Neat!
 
 As I looked at the installer ecosystem (full of awesome, ambitious projects),
 the shell script I'd written started to look pretty appealing. It turns out the
