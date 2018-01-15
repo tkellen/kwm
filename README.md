@@ -77,7 +77,8 @@ So far, it's working well. If you try it, I hope it lowers the barrier of entry
 to running your own cluster.
 
 ### First Time User Guide
-This guide illustrates how to set up a single-node cluster using KWM.
+This guide illustrates how to use KWM by taking you through the process of
+setting up a single-node cluster.
 
 #### Install KWM.
 ```
@@ -109,7 +110,7 @@ export KWM_APISERVER_PRIVATE_IP=[ip-from-your-only-node]
 export KWM_ROLE_soar="etcd controlplane worker"
 export KWM_HOSTNAME_soar=kubernetes-without-magic
 export KWM_PRIVATE_IP_soar=[ip-from-your-only-node]
-export KWM_CONNECT_now="ssh [your-sudo-capable-user]@[your-ssh-accessible-ip]"
+export KWM_CONNECT_soar="ssh [your-sudo-capable-user]@[your-ssh-accessible-ip]"
 ```
 
 > Try running `kwm define` for more detail about what these values do.
@@ -186,12 +187,14 @@ kwm render cni-manifest | kubectl --context=kwm apply -f -
 ```
 
 Restart containerd to pick up CNI settings (TODO: can this be removed?):
+> Without restarting containerd after configuring kube-router, pods will fail to
+> start with "Failed create pod sandbox".
 ```
-wait 30
+sleep 30
 echo "sudo systemctl restart containerd" | kwm connect soar
 ```
 
-Install a kube-dns for cluster DNS:
+Install kube-dns so your services-to-be can resolve internal DNS:
 ```
 sleep 30
 kwm render dns-manifest
