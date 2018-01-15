@@ -1,9 +1,24 @@
 # Kubernetes Without Magic [![Build Status](https://travis-ci.org/tkellen/kwm.svg?branch=master)](https://travis-ci.org/tkellen/kwm)
-> it just generates shell scripts
+> A glorified shell script generator and text-based adventure game.
+
+## Introduction
+This project aims to be a self-guided learning tool and solution for automating
+the creation and maintenance of Kubernetes clusters. It is a glorified shell
+script generator and text-based adventure game. Though you can use it to start
+a cluster with a single command, new operators are encouraged to examine and
+execute each step individually until the overall process is understood.
+
+"Without Magic" refers to a design goal of supporting introspection and overall
+simplicity as a core tenant. This project is built using two reliable tools that
+operators have been using for 40 years: environment variables and shell scripts.
+
+> Learning to use KWM should be possible by running KWM itself. This is very
+> much a work in progress. If you try and find yourself stuck, please open an
+> issue.
 
 ## Getting Started
 First, install [kubectl], you'll need that to interact with your cluster once it
-is running. Then, choose your flavor of KWM. There are two types of releases,
+is running. Then, choose your flavor of KWM. There are two release types:
 "unbundled" and "bundled". The unbundled version is a shell script and a folder
 of templates you can modify as you see fit. The bundled version a single file
 shell script with all templates inlined as functions.
@@ -23,41 +38,44 @@ tar xzf kwm-unbundled-v0.2.2.tar.gz
 ./kwm
 ```
 
-## Introduction
-This project aims to be a self-guided learning tool and solution for automating
-the creation and maintenance of Kubernetes clusters.
-
-"Without Magic" refers to a design goal of supporting introspection and overall
-simplicity as a core tenant. This project is built using two reliable tools that
-operators have been using for 40 years: environment variables and shell scripts.
-
-> Learning to use KWM should be possible by running KWM itself. This is a work
-> in progress. If you try and find yourself stuck, please open an issue.
+### B.Y.O.S.
+Care has been taken to make as few assumptions about your infrastructure as
+possible. This project expects that you will "bring your own servers", and that
+they will use systemd. If you satisfy that requirement, this tool should work
+equally well for target environments in the cloud, on premises, using VMs,
+containers, or bare metal machines. This is an intentional design decision meant
+to eliminate reliance on vendor-specific functionality.
 
 ### Why?
 [This work began as a study on how to run my own cluster]. As a consummate DIYer
-this necessarily involved me writing an installer. I didn't intend to keep using
-it, I just wanted to get the concepts down.
-
-After something like one hundred hours of reading documentation and debugging, I
-got to a place where spinning up a cluster seemed easy. I was ready to start
-using Kubernetes as the foundational piece of technology in my projects. Neat!
+this involved me writing an installer. I didn't intend to keep using it, I just
+wanted to get the concepts down. After something like one hundred hours of
+reading documentation and debugging, I got to a place where spinning up a
+cluster seemed easy. I was ready to start using Kubernetes as the foundational
+piece of infrastructure in my work. Neat!
 
 As I looked at the installer ecosystem (full of awesome, ambitious projects),
-the shell script I'd written started to look pretty appealing. It turns out that
-creating a one-size-fits-all solution for installing a system as configurable as
-Kubernetes is quite a challenge.
+the shell script I'd written started to look pretty appealing. It turns out the
+creation of a one-size-fits-all solution for managing a system as configurable
+as Kubernetes is quite a challenge.
 
-It's almost inevitable that tool authors will simplify the configurability of
-the system through an abstraction of their own configuration file formats and
-command line flags. That's the whole point. Make the thing easier.
+It is practically inevitable, based on what I've seen, (with this technology and
+many others) that we wind up with high level, tool-specific configuration files
+aimed at hiding the complexity of the systems we manage. That's the whole point,
+right? Make the thing easier.
 
-As I dug in, I realized I didn't want more layers of abstraction. I'd already
-written everything I needed: it was right there in my plain old bash script. If
-I wanted to configure something differently, I'd just change the script.
+Then, when we want to go "off script" we plug the holes with yet more indirect
+configuration: new command line flags to configure our actual command line flags
+and more. This isn't news. This is how computing works—it's a mind-blowing stack
+of abstractions.
 
-So, I wrapped the thing in a command line interface and joined the ranks of
-folks trying to tame this madness. So far, it's working well. Give it a try!
+When I realized I had everything I needed in my humble shell script, I decided
+I didn't want more abstractions for this job. So, I wrapped it in a command line
+interface aimed at self-learning and joining the ranks of folks trying to tame
+this madness.
+
+So far, it's working well. If you try it, I hope it lowers the barrier of entry
+to running your own cluster.
 
 ### Ideas for Improvements
 - Expand built-in workshops for operators with less experience.
