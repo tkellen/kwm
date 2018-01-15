@@ -1,9 +1,37 @@
 #!/usr/bin/env bash
 # Kubernetes Without Magic
-# A tool for learning how to operationalize Kubernetes.
+#
+# MIT License
+#
+# Copyright (c) 2018 Authors of Kubernetes Without Magic
+#
+# Permission is hereby granted, free of charge, to any person
+# obtaining a copy of this software and associated documentation
+# files (the "Software"), to deal in the Software without
+# restriction, including without limitation the rights to use,
+# copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following
+# conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+# OTHER DEALINGS IN THE SOFTWARE.
 
-# Give help system access to the current version of KWM.
+set -euo pipefail
+
 export VERSION=dev
+
+# Controls whether or not KWM will look to disk for templates.
+export TEMPLATES_BUNDLED=false
 
 # Set some defaults.
 export KWM_POD_CIDR=${KWM_POD_CIDR:-10.1.0.0/16}
@@ -20,7 +48,7 @@ export KWM_VERSION_CRI_CONTAINERD=${KWM_VERSION_CRI_CONTAINERD:-1.0.0-beta.1}
 export KWM_VERSION_KUBE_ROUTER=${KWM_VERSION_KUBE_ROUTER:-0.1.0-rc1}
 
 # Get an absolute path to KWM itself.
-export SCRIPT_PATH="$(cd "$(dirname "$0")"; pwd -P)"
+export BASE_PATH="$(cd "$(dirname "$0")"; pwd -P)/"
 
 # Get the name of KWM, just in case it has been changed.
 export SCRIPT_NAME="$(basename -- "$0")"
@@ -45,95 +73,22 @@ case "$@" in
   *--ignore-missing-env*) export IGNORE_MISSING_ENV=true ;;
 esac
 
-# Enumerate required environment variables for each resource type.
-export env_pki=(
-  KWM_CLUSTER_NAME
-  KWM_APISERVER_PUBLIC_IP
-  KWM_LOCAL_PKI_PATH
-  KWM_ETCD_CLIENT_SANS
-)
-export env_cni_manifest=(KWM_VERSION_KUBE_ROUTER)
-export env_controlplane_node=(
-  KWM_CONNECT
-  KWM_PRIVATE_IP
-  KWM_HOSTNAME
-  KWM_ROLE
-  KWM_APISERVER_PRIVATE_IP
-  KWM_CLUSTER_NAME
-  KWM_VERSION_KUBERNETES
-  KWM_VERSION_CNI_PLUGIN
-  KWM_VERSION_CRI_CONTAINERD
-  KWM_POD_CIDR
-  KWM_SERVICE_CIDR
-  KWM_KUBERNETES_SERVICE_IP
-  KWM_DNS_SERVICE_IP
-  KWM_APISERVER_PUBLIC_IP
-  KWM_ETCD_SERVERS
-  KWM_LOCAL_PKI_PATH
-  KWM_CONFIG_PATH
-)
-export env_dns_manifest=(KWM_VERSION_KUBE_DNS KWM_DNS_SERVICE_IP)
-export env_etcd_node=(
-  KWM_CONNECT
-  KWM_PRIVATE_IP
-  KWM_HOSTNAME
-  KWM_ETCD_INITIAL_CLUSTER
-  KWM_VERSION_ETCD
-  KWM_LOCAL_PKI_PATH
-  KWM_CONFIG_PATH
-)
-export env_startup=(
-  KWM_CLUSTER_NAME
-  KWM_APISERVER_PUBLIC_IP
-  KWM_APISERVER_PRIVATE_IP
-  KWM_POD_CIDR
-  KWM_SERVICE_CIDR
-  KWM_KUBERNETES_SERVICE_IP
-  KWM_DNS_SERVICE_IP
-  KWM_CONFIG_PATH
-  KWM_LOCAL_PKI_PATH
-  KWM_VERSION_ETCD
-  KWM_VERSION_KUBERNETES
-  KWM_VERSION_KUBE_DNS
-  KWM_VERSION_CNI_PLUGIN
-  KWM_VERSION_CRI_CONTAINERD
-  KWM_VERSION_KUBE_ROUTER
-)
-export env_worker_node=(
-  KWM_CONNECT
-  KWM_PRIVATE_IP
-  KWM_HOSTNAME
-  KWM_ROLE
-  KWM_APISERVER_PRIVATE_IP
-  KWM_CLUSTER_NAME
-  KWM_VERSION_KUBERNETES
-  KWM_VERSION_CNI_PLUGIN
-  KWM_VERSION_CRI_CONTAINERD
-  KWM_POD_CIDR
-  KWM_LOCAL_PKI_PATH
-  KWM_CONFIG_PATH
-)
+. ${BASE_PATH}src/connect.sh
+. ${BASE_PATH}src/define.sh
+. ${BASE_PATH}src/env.sh
+. ${BASE_PATH}src/help.sh
+. ${BASE_PATH}src/installer.sh
+. ${BASE_PATH}src/nodes.sh
+. ${BASE_PATH}src/render.sh
+. ${BASE_PATH}src/startup.sh
+. ${BASE_PATH}src/unsetter.sh
+. ${BASE_PATH}src/usage.sh
+. ${BASE_PATH}src/version.sh
+. ${BASE_PATH}src/workshop.sh
 
-# Load commands
-. src/connect.sh
-. src/define.sh
-. src/env.sh
-. src/help.sh
-. src/installer.sh
-. src/nodes.sh
-. src/render.sh
-. src/startup.sh
-. src/unsetter.sh
-. src/usage.sh
-. src/version.sh
-. src/workshop.sh
-
-##
 # Wire command line arguments to method calls in the script.
-# TODO: simplify with eval?
-#
 main() {
-  local command=$1
+  local command=${1:-usage}
   if [[ $command == connect ]]; then connect ${@:2}; fi
   if [[ $command == define ]]; then define ${@:2}; fi
   if [[ $command == env ]]; then getenv ${@:2}; fi
@@ -148,5 +103,5 @@ main() {
   usage
 }
 
-main $(sed 's/ --ignore-missing-env//g' <<< "$@")
 # Kick off KWM, removing any command line flags from the argument listing.
+main $(sed 's/ --ignore-missing-env//g' <<< "$@")

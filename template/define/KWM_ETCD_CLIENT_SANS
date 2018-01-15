@@ -1,0 +1,26 @@
+Supplied as the valid Subject Alternative Names to openssl when generating the
+certificate for securing communication from the apiserver to etcd.
+
+If not specified explicitly, this is "magically" produced by kwm using all hosts
+in the environment with a role of etcd.
+
+For example, given the following hosts in the environment:
+
+KWM_ROLE_node0=etcd
+KWM_HOSTNAME_node0=etcd0
+KWM_PRIVATE_IP_node0=10.100.0.5
+...
+KWM_ROLE_node1=etcd
+KWM_HOSTNAME_node1=etcd1
+KWM_PRIVATE_IP_node1=10.100.1.5
+...
+KWM_ROLE_node2=etcd
+KWM_HOSTNAME_node2=etcd2
+KWM_PRIVATE_IP_node0=10.100.2.5
+
+...the resultant value would be:
+KWM_ETCD_CLIENT_SANS=IP:10.100.0.5,DNS:etcd0,IP:10.100.1.5,DNS:etcd1,IP:10.100.2.5,DNS:etcd2
+
+Examples:
+  # Inspect this value by looking at the controlplane node installation script.
+  $SCRIPT_NAME render controlplane-node <nodeKey>

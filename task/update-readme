@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Update version number for KWM download url in README.
+# Update version number for KWM download urls in README.
+set -euo pipefail
 
 VERSION=${VERSION:?'needs to be defined.'}
 

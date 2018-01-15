@@ -1,0 +1,49 @@
+#------------------------------------------------------------------------------#
+echo Sending shared PKI to $KWM_HOSTNAME.
+#------------------------------------------------------------------------------#
+$(files="etcd-ca-cert.pem etcd-ca-private-key.pem apiserver-to-etcd-private-key.pem apiserver-to-etcd-cert.pem" \
+  exec="$KWM_CONNECT" \
+  basePath="$KWM_CONFIG_PATH" \
+  sourcePath="$KWM_LOCAL_PKI_PATH" template util tar_copy
+)
+#------------------------------------------------------------------------------#
+echo Installing $KWM_HOSTNAME.
+#------------------------------------------------------------------------------#
+$(exec="$KWM_CONNECT" content="
+#------------------------------------------------------------------------------#
+echo Generating private key for etcd server to etcd server communication.
+#------------------------------------------------------------------------------#
+$(basePath="$KWM_CONFIG_PATH" name="etcd-to-etcd" template pki private_key)
+#------------------------------------------------------------------------------#
+echo Generating etcd-ca signed certificate for etcd server to etcd server communication.
+#------------------------------------------------------------------------------#
+$(name="etcd-to-etcd" \
+  basePath="$KWM_CONFIG_PATH" \
+  subj="/CN=etcd-to-etcd/O=etcd" \
+  ext="subjectAltName = IP:$KWM_PRIVATE_IP,DNS:$KWM_HOSTNAME" \
+  ca="etcd" template pki signed_cert)
+#------------------------------------------------------------------------------#
+echo Ensuring hostname and loopback reference are set.
+#------------------------------------------------------------------------------#
+$(name="$KWM_HOSTNAME" template util set_hostname)
+#------------------------------------------------------------------------------#
+echo Installing etcd at version $KWM_VERSION_ETCD.
+#------------------------------------------------------------------------------#
+$(version="$KWM_VERSION_ETCD" template installer etcd)
+#------------------------------------------------------------------------------#
+echo Generating etcd service file.
+#------------------------------------------------------------------------------#
+$(path="/etc/systemd/system/etcd.service" content="$(
+  name="etcd" \
+  after="network.target" \
+  exec="$(
+    name="$KWM_HOSTNAME" \
+    privateIp="$KWM_PRIVATE_IP" \
+    initialCluster="$KWM_ETCD_INITIAL_CLUSTER" template service etcd
+  )" template service unit)" template util write_file
+)
+#------------------------------------------------------------------------------#
+echo Enabling and restarting service.
+#------------------------------------------------------------------------------#
+$(name="etcd" template service enable)
+" template util remote_script)

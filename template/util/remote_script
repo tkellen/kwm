@@ -1,0 +1,3 @@
+${exec} sudo -s <<"REMOTE_SCRIPT"
+${content}
+REMOTE_SCRIPT

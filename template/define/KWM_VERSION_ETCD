@@ -1,0 +1,4 @@
+Controls what version of etcd will be installed on Nodes with a KWM_ROLE that
+includes etcd.
+
+https://github.com/coreos/etcd/releases/

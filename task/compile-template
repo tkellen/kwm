@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Read files and output them as bash functions for inlining into script.
+set -euo pipefail
+
+templateFn() {
+  local key=${1//\//_}
+  local content=$2
+  local fn="template_${key}"
+  cat <<GENERATOR
+$fn() {
+cat <<'TEMPLATE'
+$content
+TEMPLATE
+}
+export -f ${fn}
+
+GENERATOR
+}
+
+for file in $@; do
+  templateFn ${file##*template/} "$(cat "$file")"
+done

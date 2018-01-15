@@ -36,9 +36,4 @@ test_magicNodeMeta() {
     "$KWM_PRIVATE_IP_fixture" \
     "should merge node-based values into root namespace"
 
-  assert_equals \
-    "$KWM_KUBELET_FLAGS" \
-    "--node-labels=\"node-role.kubernetes.io/controlplane=true\" --register-with-taints=\"node-role.kubernetes.io/controlplane=true:NoSchedule\"" \
-    "should be assigned a label for each role"
-
 }

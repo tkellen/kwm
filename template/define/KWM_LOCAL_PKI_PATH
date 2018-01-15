@@ -1,0 +1,9 @@
+Controls both where PKI will be generated, and, when securely copied to Nodes,
+during bootstrapping, where it will be sourced from.
+
+Examples:
+  # See how this value affects PKI generation.
+  $SCRIPT_NAME render pki
+
+  # See how this value affects copying PKI.
+  $SCRIPT_NAME render etcd-node <nodeKey> | head -n 10

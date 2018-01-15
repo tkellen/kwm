@@ -1,0 +1,6 @@
+Kubectl communicates with kube-apiserver using this value.
+
+Examples:
+  # See how this variable is used in defining configuration for kubectl.
+  KWM_APISERVER_PUBLIC_IP=55.55.55.55 KWM_CLUSTER_NAME=test KWM_LOCAL_PKI_PATH=pki $SCRIPT_NAME render cluster-admin
+  KWM_APISERVER_PUBLIC_IP=55.55.55.55 KWM_CLUSTER_NAME=test KWM_LOCAL_PKI_PATH=pki $SCRIPT_NAME render cluster-admin | grep "55.55.55.55"

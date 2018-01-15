@@ -5,7 +5,5 @@ cd ../../..
 test_error() {
   local expected="$(tput setaf 1)test$(tput op)"
   local actual="$(error test 2>&1)"
-
-  assert_equals "$expected" "$actual" \
-    "should print supplied input in red to stderr"
+  assert_equals "$expected" "$actual" "prints supplied input, in red, to stderr"
 }

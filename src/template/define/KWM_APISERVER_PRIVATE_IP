@@ -1,8 +1,0 @@
-Kubelets communicate with kube-apiserver using this value.
-
-See \$KWM_CONFIG_PATH/kubelet.kubeconfig on any worker node.
-
-# TODO: ensure there is HA support for this.
-# See how this variable is used in defining configuration for kubectl.
-KWM_CLUSTER_NAME=test KWM_LOCAL_PKI_PATH=pki kwm render cluster-admin
-KWM_CLUSTER_NAME=test KWM_LOCAL_PKI_PATH=pki kwm render cluster-admin | grep test

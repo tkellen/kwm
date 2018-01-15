@@ -1,0 +1,22 @@
+Controls the role a node plays in the cluster. Multiple roles can be applied by
+separating them with spaces, e.g.
+
+  etcd
+    Runs etcd.
+
+  controlplane
+    Runs kube-apiserver, kube-scheduler and kube-controller-manager.
+
+  worker
+    Runs kubelet, containerd, cri-containerd.
+
+For nodes marked as a worker, this controls the role applied to the Kubelet.
+
+For example:
+
+KWM_ROLE_nodeKey="controlplane worker"
+
+...will add these flags to Kubelet:
+
+  --node-labels="node-role.kubernetes.io/controlplane=true,node-role.kubernetes.io/worker=true"
+  --register-with-taints="note-role.kubernetes.io/controlplane=true:NoSchedule"

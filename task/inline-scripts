@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# Read a file line by line, inlining any external dependencies. Inlining is
+# triggered by lines that start with a '.', everything following must be a
+# full path to the file to inline.
+set -euo pipefail
+
+BASE_PATH="$(dirname "$0")/../"
+export depCache=""
+
+compile() {
+  local lastLineWasDep=false
+  while IFS= read -r line; do
+    # Check if the current line sources another file.
+    if [[ ${line:0:1} == . ]]; then
+      lastLineWasDep=true
+      # Get the absolute path to the dependency.
+      depPath="$(realpath $(eval echo "${line:2}"))"
+      # If we haven't inlined this dependency already, do it.
+      if [[ $depCache != *"$depPath"* ]]; then
+        depCache+="$depPath"
+        # Inline any dependencies in the dependency.
+        compile < $depPath
+        printf '\n'
+      fi
+    else
+      # Ensure there is only one line between each function.
+      if [[ $lastLineWasDep == true && -z $line ]]; then
+        lastLineWasDep=false
+      else
+        printf '%s\n' "$line"
+      fi
+    fi
+  done
+}
+
+compile

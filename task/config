@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Get variables needed for making releases.
+set -euo pipefail
 
 GITHUB_ACCESS_TOKEN=${GITHUB_ACCESS_TOKEN:?'needs to be defined.'}
 REPO=$(sed 's/.*:\(.*\).git/\1/' <<<"$(git config --get remote.origin.url)")

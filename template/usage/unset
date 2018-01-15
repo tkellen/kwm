@@ -1,0 +1,8 @@
+Unset all environment variables that begin with KWM_.
+
+Usage:
+  . <($SCRIPT_NAME unset)
+
+Examples:
+  # Show see what commands will be run.
+  $SCRIPT_NAME unset | cat

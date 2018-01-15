@@ -1,0 +1,60 @@
+$(header "# Show all variables in your current environment.")
+printenv
+
+$(header "# Display one variable using printenv.")
+printenv HOME
+
+$(header "# Display one variable using echo.")
+echo \$HOME
+
+$(header "# Set the value of MESSAGE for the duration of one command")
+MESSAGE=hello printenv MESSAGE
+
+$(header "# Show that MESSAGE is no longer set")
+echo \$MESSAGE
+
+$(header "# Export MESSAGE, making it available to all commands in the current session")
+export MESSAGE=hello
+
+$(header "# Confirm that MESSAGE is still available.")
+echo \$MESSAGE
+
+$(header "# Open a new terminal session and confirm that MESSAGE was not persisted to it.")
+echo \$MESSAGE
+
+$(header "# Save environment variables to a file.")
+cat > settings <<EOF
+export SETTING_ONE=one
+export SETTING_TWO=two
+EOF
+
+$(header "# "Source" the file you created into your shell.")
+. ./settings
+
+$(header "# Confirm the variables are now available in your environment")
+echo \$SETTING_ONE
+echo \$SETTING_TWO
+
+$(header "# Unset a variable, removing it from your environment")
+unset \$SETTING_ONE
+echo \$SETTING_ONE
+
+$(header "# Now try this with KWM.")
+$(header "# It can tell you what environment variables are needed to render commands")
+$(header "# for your cluster. Let's see what is required to generate your public key")
+$(header "# infrastructure:")
+$SCRIPT_NAME env pki
+
+$(header "# You should see that some values are missing. Try supplying one")
+KWM_CLUSTER_NAME=workshop $SCRIPT_NAME env pki
+
+$(header "# Now provide all of them, and render the commands")
+export KWM_CLUSTER_NAME=workshop
+export KWM_APISERVER_PUBLIC_IP=55.55.55.55
+export KWM_ETCD_CLIENT_SANS=IP:55.55.55.55
+
+$(header "# Now render and inspect the script")
+$SCRIPT_NAME render pki
+
+$(header "# If it looks good, run it!")
+$SCRIPT_NAME render pki | bash

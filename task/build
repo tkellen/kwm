@@ -1,96 +1,32 @@
 #!/usr/bin/env bash
+# Build a bundled and unbundled version of KWM.
+set -euo pipefail
 
-here="$(cd "$(dirname "$0")"; pwd -P)"
-root="$here/../"
-depCache=""
+VERSION=${VERSION:?'needs to be defined.'}
+SHA=${SHA:?'needs to be defined.'}
 
-source $here/config
+taskPath="$(dirname "$0")"
+rootPath="$taskPath/.."
+buildPath=$rootPath/build
 
-main() {
-  compile $root kwm
+setVersion() {
+  sed "s/VERSION=dev/VERSION=\"$VERSION \/ $SHA\"/"
 }
 
-# This inlines all dependencies and produces a single-file bash script for
-# consumption by end users.
-# TODO: surely something like this exists already? What have I missed here?
-compile() {
-  local basePath=$1
-  local file=$2
-  local depKey depRoot depName;
-  while IFS= read -r line; do
-    # check if the current line sources another file
-    if [[ ${line:0:1} == . ]]; then
-      # get the absolute path to the dependency
-      depKey="$(realpath "${line:2}")"
-      # if we already inlined it, bail out
-      if [[ $depCache == *"$depKey"* ]]; then
-        continue
-      fi
-      # otherwise, carry on!
-      depCache+="$depKey"
-      # find the base directory being sourced
-      depRoot="$(dirname ${line:2})"
-      # find the filename being sourced
-      depName="$(basename ${line:2})"
-      # otherwise, go a bit further down the rabbit hole!
-      compile "$depRoot" "$depName"
-    else
-      # ensure templates have been inlined before main is called
-      if [[ ${line:0:5} == "main " ]]; then
-        printf '%s\n' "$(compileTemplates "src/template")"
-      fi
-      printf '%s\n' "$line"
-    fi
-  done < $basePath/$file
+setTemplatesBundled() {
+  sed "s/TEMPLATES_BUNDLED=false/TEMPLATES_BUNDLED=true/"
 }
 
-# Convert all dashes and slahes to underscores. This is for giving templates
-# bash-friendly variable names when they are inlined.
-allUnderscores() {
-  sed 's/[\/-]/_/g'
-}
+rm -rf $buildPath
+mkdir -p $buildPath
+$taskPath/inline-scripts < $rootPath/kwm | setVersion > $buildPath/kwm
+(
+  # get everything except entry point
+  tail -r $buildPath/kwm | tail +3 | tail -r | setTemplatesBundled
+  # compile templates
+  task/compile-template $rootPath/template/**/*
+  # get entry point
+  tail -3 $buildPath/kwm
+) > $buildPath/kwm-bundled
 
-# Add an additional backslash so line continuations in templates
-# are not lost.
-escapeBackslashes() {
-  sed 's:\\:\\\\\\:g'
-}
-
-# This wrapper is needed to inline template files so they can be assigned
-# as variables.
-templateWrapper() {
-  printf "%b\n" "\$(cat <<'TEMPLATE'"
-  printf "%b\n" "$1"
-  printf "%b\n" "TEMPLATE"
-  printf "%b\n" ")"
-}
-
-compileTemplates() {
-  local basePath=$1
-  find $basePath/* -type directory | while read namespace; do
-    templateNamespace "$basePath" "${namespace##*/}"
-  done
-}
-
-templateNamespace() {
-  local basePath=$1
-  local namespace=$2
-  local templateList=""
-  local fn="template_$namespace"
-  printf "%s\n" "$fn() {"
-  while IFS= read -r template; do
-    key=${template##*/}
-    content="$(templateWrapper "$(escapeBackslashes <<<"$(cat $template)")")"
-    templateList+="$key\n"
-    printf "%b\n" "local ${key//-/_}=$content"
-  done <<<"$(find $basePath/$namespace/* -type file)"
-  printf "%s\n" '  if [[ $# -eq 0 ]]; then'
-  printf "%s\n" "    printf \"%b\" \"$templateList\""
-  printf "%s\n" '  else'
-  printf "%s\n" '    printf "%b" "${!1}"'
-  printf "%s\n" '  fi'
-  printf "%s\n" '}'
-  printf "%s\n" "export -f $fn"
-}
-
-main "@"
+chmod +x $buildPath/kwm*

@@ -1,0 +1,17 @@
+List all nodes of a given type which are present in your environment.
+
+Usage:
+  $SCRIPT_NAME nodes [all etcd controlplane worker]
+
+Examples:
+  # Quick hack illustrating how this command finds nodes.
+  KWM_ROLE_one=etcd KWM_ROLE_two="controlplane worker" $SCRIPT_NAME nodes all
+  KWM_ROLE_one=etcd KWM_ROLE_two="controlplane worker" $SCRIPT_NAME nodes etcd
+  KWM_ROLE_one=etcd KWM_ROLE_two="controlplane worker" $SCRIPT_NAME nodes worker
+  KWM_ROLE_one=etcd KWM_ROLE_two="controlplane worker" $SCRIPT_NAME nodes controlplane
+
+  # Display etcd install script for every etcd node.
+  $SCRIPT_NAME nodes etcd | xargs -n 1 $SCRIPT_NAME render etcd-node
+
+  # Execute etcd install script for every etcd node.
+  $SCRIPT_NAME nodes etcd | xargs -n 1 -P 5 $SCRIPT_NAME render etcd-node | bash

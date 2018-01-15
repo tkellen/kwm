@@ -8,7 +8,7 @@ test_highlight() {
 
   assert_equals "test" $KWM_TEST
 
-  highlight
+  highlightAll
 
   assert_equals "$expected" $KWM_TEST \
     "should eval all KWM* variables and highlight them if true is passed"

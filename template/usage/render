@@ -1,0 +1,24 @@
+Render a template for bootstrapping a Kubernetes cluster.
+
+Usage:
+  $SCRIPT_NAME render [cluster-admin pki startup cni-manifest dns-manifest]
+  $SCRIPT_NAME render [controlplane-node etcd-node worker-node] <nodeKey>
+
+Examples:
+  # Inspect script to generate public key infrastructure.
+  $SCRIPT_NAME render pki
+
+  # Run script to generate public key infrastructure.
+  $SCRIPT_NAME render pki | bash
+
+  # Save script to generate public key infrastructure (to share with others).
+  $SCRIPT_NAME render pki > generate-pki
+
+  # Inspect yaml manifest to install container networking interface.
+  $SCRIPT_NAME render cni-manifest
+
+  # Save yaml manifest to install container networking interface.
+  $SCRIPT_NAME render cni-manifest > cni.yml
+
+  # Install container networking solution in your cluster.
+  kubectl -f cni.yml

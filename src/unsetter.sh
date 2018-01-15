@@ -1,9 +1,7 @@
-. src/lib/findVars.sh
-. src/lib/template.sh
+. ${BASE_PATH}src/lib/findVars.sh
+. ${BASE_PATH}src/lib/template.sh
 
-##
 # Generate commands needed to unset all KWM_* values.
-#
 unsetter() {
   # If output is bound for a terminal, show usage screen.
   if [[ $STDOUT_IS_TERMINAL == true ]]; then

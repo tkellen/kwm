@@ -1,0 +1,5 @@
+No node defined to generate environment for. Only displaying shared values.``
+
+Notes:
+  Check for available nodes by running "kwm nodes ${resource%%-node}"
+  Then, specify a node key by running "kwm env ${resource} <nodeKey>"

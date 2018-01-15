@@ -1,45 +1,36 @@
-. src/lib/error.sh
-. src/lib/template.sh
-. src/lib/magicEtcdMeta.sh
-. src/lib/magicNodeMeta.sh
-. src/lib/highlight.sh
-. src/lib/findEmpty.sh
+. ${BASE_PATH}src/lib/error.sh
+. ${BASE_PATH}src/lib/highlight.sh
+. ${BASE_PATH}src/lib/magicEtcdMeta.sh
+. ${BASE_PATH}src/lib/magicNodeMeta.sh
+. ${BASE_PATH}src/lib/requiredEnv.sh
+. ${BASE_PATH}src/lib/template.sh
 
-##
 # Render a template for bootstrapping a Kubernetes cluster.
-#
 render() {
-  local resource=$1
-  local nodeKey=$2
+  local resource=${1:-""}
+  local nodeKey=${2:-""}
   # If no resource requested, bail with usage screen.
-  if [[ -z $resource ]]; then
-    template usage render
-    exit 1
-  fi
+  [[ -z $resource ]] && template usage render && exit 1
   # Look at all nodes and build environment variables for etcd.
   magicEtcdMeta
-  # If the resource type is node...
-  if [[ $resource =~ node ]]; then
-    # ...find all KWM_*_[nodeKey] values and collapse into root namespace.
-    magicNodeMeta $nodeKey
-  fi
+  # If the resource type is node, collapse all KWM_*_[nodeKey] values.
+  [[ $resource =~ node ]] && magicNodeMeta $nodeKey
+  # Look up required environment variables.
+  local requiredEnv="$(requiredEnv $resource)"
+  # Find those that are missing.
+  local missing="$(
+    for var in $requiredEnv; do
+      [[ -z ${!var:-""} ]] && printf "%s\n" "$var"
+    done
+  )"
   # Allow skipping validation for the convenience of viewing templates.
-  if [[ $IGNORE_MISSING_ENV == false ]]; then
-    # Find all required environment variables for the specified resource.
-    local envRequired="env_${resource/-/_}[*]"
-    # Find all missing environment variables for the specified resource.
-    local missing="$(findEmpty ${!envRequired})"
-    # If any environment variables are missing, bail out with an error.
-    if [[ -n $missing ]]; then
-      error "$(missing="$missing" resource="$resource" template error env-missing)"
-      exit 1
-    fi
+  if [[ -n $missing && $IGNORE_MISSING_ENV != true ]]; then
+    error "$(missing="$missing" resource="$resource" template error env_missing)"
+    exit 1
   fi
   # If output is bound for a terminal, highlight all KWM_* variables.
-  if [[ $STDOUT_IS_TERMINAL == true ]]; then
-    highlight
-  fi
-  # Render the template!
-  template resource $resource
+  [[ $STDOUT_IS_TERMINAL == true ]] && highlightAll
+  # Render the template
+  template resource ${resource/-/_}
   exit 0
 }

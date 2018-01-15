@@ -1,17 +1,36 @@
 # Kubernetes Without Magic [![Build Status](https://travis-ci.org/tkellen/kwm.svg?branch=master)](https://travis-ci.org/tkellen/kwm)
-> it's just a shell script.
+> it just generates shell scripts
 
-## Description
-This is a learning exercise in operationalizing Kubernetes.
+## Getting Started
+First, install [kubectl], you'll need that to interact with your cluster once it
+is running. Then, choose your flavor of KWM. There are two types of releases,
+"unbundled" and "bundled". The unbundled version is a shell script and a folder
+of templates you can modify as you see fit. The bundled version a single file
+shell script with all templates inlined as functions.
 
-## Installation / Getting Started
-1. Install [kubectl] (to manage the cluster)
-2. `wget https://github.com/tkellen/kwm/releases/download/v0.2.0/kwm && chmod +x kwm`
-3. Run `./kwm` and follow the prompts.
+**Bundled**
+```
+wget https://github.com/tkellen/kwm/releases/download/v0.2.0/kwm
+chmod +x kwm
+./kwm
+```
+
+**Unbundled**
+```
+mkdir kwm && cd kwm
+wget https://github.com/tkellen/kwm/releases/download/v0.2.0/kwm-unbundled-v0.2.0.tar.gz
+tar xzf kwm-unbundled-v0.2.2.tar.gz
+./kwm
+```
+
+> It is a goal of this project that a new operator will be able to learn how to
+> use KWM and deploy a cluster using the command line only (assuming they have
+> already created servers). This is a work in progress. If you try this tool and
+> find yourself stuck, please open an issue!
 
 ## Introduction
-This project aims to be a self-guided learning tool and powerful solution for
-automating the creation and maintenance of production Kubernetes clusters.
+This project aims to be a self-guided learning tool and solution for automating
+the creation and maintenance of Kubernetes clusters.
 
 "Without Magic" refers to a design goal of supporting introspection and overall
 simplicity as a core tenant. This project is built using two simple tools that
@@ -20,11 +39,11 @@ operators have relied on for 40 years: environment variables and shell scripts.
 ### Why?
 [This work began as a study on how to run my own cluster]. As a consummate DIYer
 this necessarily involved me writing an installer. I didn't intend to keep using
-it, I just wanted to get the concepts down. Then I'd pick a "real" solution.
+it, I just wanted to get the concepts down.
 
-After more than one hundred hours of reading documentation and debugging, I got
-to a place where spinning up a cluster seemed easy. I was ready to start using
-Kubernetes as the foundational piece of technology in my projects. Neat!
+After something like one hundred hours of reading documentation and debugging, I
+got to a place where spinning up a cluster seemed easy. I was ready to start
+using Kubernetes as the foundational piece of technology in my projects. Neat!
 
 As I looked at the installer ecosystem (full of awesome, ambitious projects),
 the shell script I'd written started to look pretty appealing. It turns out that
@@ -32,24 +51,16 @@ creating a one-size-fits-all solution for installing a system as configurable as
 Kubernetes is quite a challenge.
 
 It's almost inevitable that tool authors will simplify the configurability of
-the system through a leaky abstraction of their own configuration files and
+the system through an abstraction of their own configuration file formats and
 command line flags. That's the whole point. Make the thing easier.
 
-As I dug in, I realized I didn't want any more layers of abstraction. I already
-had a shell script that worked. Everything it did was right there in plain old
-bash. If I needed to configure something differently, I'd just change the
+As I dug in, I realized I didn't want more layers of abstraction. I'd already
+written everything I needed to do to my servers: it was right there in plain old
+bash. If I wanted to configure something differently, I'd just change the
 script.
 
-So, I wrapped the whole thing in a command line interface and joined the ranks
-of folks trying to tame this madness.
-
-If you use this in production, feel free to check it into revision control and
-change it as you see fit. It's your installer.
-
-If you use this for learning, I hope you'll be able to understand Kubernetes an
-order of magnitude faster than I did.
-
-Enjoy!
+So, I wrapped the thing in a command line interface and joined the ranks of
+folks trying to tame this madness. So far, it's working well. Give it a try!
 
 ### Ideas for Improvements
 - Expand built-in workshops for operators with less experience.

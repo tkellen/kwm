@@ -1,0 +1,11 @@
+Connect to a node being managed by Kubernetes Without Magic.
+
+Usage:
+  $SCRIPT_NAME connect <nodeKey>
+
+Examples:
+  # Restart kublet on a specified node.
+  echo "systemctl status kubelet" | $SCRIPT_NAME connect <nodeKey>
+
+Notes:
+  Try running "$SCRIPT_NAME nodes" to see which are available.

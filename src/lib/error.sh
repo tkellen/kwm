@@ -1,10 +1,9 @@
-##
 # Output supplied string in red color.
-#
 error() {
+  local message=${1:-""}
   (
     tput setaf 1
-    printf "%s" "$1"
+    printf "%s" "$message"
     tput op
   ) >&2
 }

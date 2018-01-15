@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Build Kubernetes Without Magic
+set -euo pipefail
+
+VERSION=${VERSION:?'needs to be defined.'}
+SHA=${SHA:?'needs to be defined.'}
+
+taskPath="$(dirname "$0")"
+rootPath="$taskPath/.."
+buildPath=$rootPath/build
+
+if git status --porcelain | grep -v VERSION > /dev/null; then
+  echo "working tree is not clean";
+  exit 1
+fi
+
+$taskPath/update-readme
+$taskPath/update-changelog
+
+git commit -a -m "[no-changelog] ${VERSION}"
+git push origin master
+$taskPath/build
+(
+  cd $rootPath
+  tar cf build/kwm.tar template
+  cd build
+  tar rf kwm.tar kwm
+  gzip kwm.tar
+)
+$taskPath/create-github-release
+
+ARTIFACT_FILEPATH=build/kwm-bundled \
+ARTIFACT_FILENAME=kwm \
+  $taskPath/upload-github-artifact
+
+ARTIFACT_FILEPATH=build/kwm.tar.gz \
+ARTIFACT_FILENAME=kwm-unbundled-$VERSION.tar.gz \
+  $taskPath/upload-github-artifact

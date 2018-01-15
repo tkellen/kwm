@@ -1,10 +1,8 @@
-. src/lib/findVars.sh
+. ${BASE_PATH}src/lib/findVars.sh
 
-##
 # Find all Node keys specified in the environment.
-#
 findNodes() {
-  local type=$1
+  local type=${1:-""}
   local nodeKey
   for hit in $(findVars "KWM_ROLE_.*"); do
     nodeKey="${hit##*_}"
