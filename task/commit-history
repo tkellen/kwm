@@ -2,7 +2,7 @@
 # Generate a changelog listing based on commit history.
 set -euo pipefail
 
-SINCE=${SINCE:-$(git describe --abbrev=0 --tags)}
+SINCE=${SINCE:-$(git describe --tags $(git rev-list --tags --max-count=1))}
 
 git --no-pager log --format="%s (%h)" "$SINCE"..HEAD --invert-grep \
   --grep=no-changelog
