@@ -68,17 +68,16 @@ thing easier.
 Then, when we want to go "off script" we plug the holes with yet more indirect
 configuration: new command line flags to configure our actual command line flags
 and more. This isn't news. This is how computing works—it's a mind-blowing stack
-of abstractions.
+of abstractions. When I realized I already had everything I needed in my shell
+script, I decided to roll with it.
 
-When I realized I had everything I needed in my humble shell script, I decided
-I didn't want more abstractions for this job. So, I wrapped my installer in a
-command line interface aimed at self-learning and joined the ranks of folks
-trying to tame this madness.
+It's now wrapped in a command line interface aimed at self-learning, and I've
+joined the ranks of folks trying to tame this madness.
 
 So far, it's working well. If you try it, I hope it lowers the barrier of entry
 to running your own cluster.
 
-### First Time User Guide
+## First Time User Guide
 This guide illustrates how to use KWM by taking you through the process of
 setting up a single-node cluster.
 
@@ -188,14 +187,14 @@ kwm render cni-manifest
 kwm render cni-manifest | kubectl --context=kwm apply -f -
 ```
 
-Restart containerd to pick up CNI settings (TODO: can this be removed?):
-> Without restarting containerd after configuring kube-router, pods will fail to
-> start with "Failed create pod sandbox".
-> https://github.com/containerd/cri-containerd/issues/545
-> https://github.com/cloudnativelabs/kube-router/issues/286
+Restart cri-containerd to pick up CNI settings (TODO: can this be removed?):
+> Without restarting cri-containerd after configuring kube-router, pods will
+> fail to start with "Failed create pod sandbox".
+> https://github.com/containerd/cri-containerd/issues/545  
+> https://github.com/cloudnativelabs/kube-router/issues/286  
 ```
 sleep 30
-echo "sudo systemctl restart containerd" | kwm connect soar
+echo "sudo systemctl restart cri-containerd" | kwm connect soar
 ```
 
 Install kube-dns so your services-to-be can resolve internal DNS:
