@@ -85,7 +85,7 @@ setting up a single-node cluster.
 ```
 wget https://github.com/tkellen/kwm/releases/download/v0.3.0/kwm
 chmod +x kwm
-export PATH=$PATH:"$(pwd)"
+export PATH=$PATH:$PWD
 kwm
 ```
 
