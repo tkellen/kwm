@@ -49,7 +49,7 @@ $(content='{"name": "kubernetes", "type": "bridge", "bridge": "kube-bridge", "ip
 #------------------------------------------------------------------------------#
 echo Installing cri-containerd.
 #------------------------------------------------------------------------------#
-$(version="$KWM_VERSION_CRI_CONTAINERD" template installer containerd)
+$(version="$KWM_VERSION_CRI_CONTAINERD" template installer cri-containerd)
 $(name="containerd" template service enable)
 $(name="cri-containerd" template service enable)
 #------------------------------------------------------------------------------#
