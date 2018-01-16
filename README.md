@@ -19,14 +19,15 @@ operators have been using for 40 years: environment variables and shell scripts.
 First, install [kubectl], you'll need that to interact with your cluster once it
 is running. Then, choose your flavor of KWM. There are two release types:
 "unbundled" and "bundled". The unbundled version is a shell script and a folder
-of templates you can modify as you see fit. The bundled version has all the
+of templates you can easily read and modify. The bundled version has all the
 templates inlined as functions.
 
 **Bundled**
 ```
 wget https://github.com/tkellen/kwm/releases/download/v0.3.0/kwm
 chmod +x kwm
-./kwm
+export PATH=$PATH:$PWD
+kwm
 ```
 
 **Unbundled**
@@ -34,60 +35,22 @@ chmod +x kwm
 mkdir kwm && cd kwm
 wget https://github.com/tkellen/kwm/releases/download/v0.3.0/kwm-unbundled-v0.3.0.tar.gz
 tar xzf kwm-unbundled-v0.3.0.tar.gz
-./kwm
+export PATH=$PATH:$PWD
+kwm
 ```
 
 ### B.Y.O.S.
 Care has been taken to make as few assumptions about your infrastructure as
 possible. This project expects that you will "bring your own servers", and that
 they will use systemd. If you satisfy that requirement, this tool should work
-equally well for target environments in the cloud, on premises, using VMs,
-containers, or bare metal machines. This is an intentional design decision meant
-to eliminate reliance on vendor-specific functionality.
-
-### Why?
-[This work began as a study on how to run my own cluster]. As a consummate DIYer
-this involved me writing an installer. I didn't intend to keep using it, I just
-wanted to get the concepts down. After *many* hours of reading documentation, I
-got to a place where spinning up a cluster and debugging myriad of ways it could
-fail seemed easy. I was ready to start using Kubernetes as the foundational
-piece of infrastructure in my work.
-
-Neat!
-
-As I looked at the installer ecosystem (full of awesome, ambitious projects),
-the shell script I'd written started to look pretty appealing. It turns out the
-creation of a one-size-fits-all solution for managing a system as configurable
-as Kubernetes is quite a challenge.
-
-It is practically inevitable (with this technology and many others) that we wind
-up with high level, tool-specific configuration files aimed at hiding the
-complexity of the systems we manage. That's the whole point, right? Make the
-thing easier.
-
-Then, when we want to go "off script" we plug the holes with yet more indirect
-configuration: new command line flags to configure our actual command line flags
-and more. This isn't news. This is how computing works—it's a mind-blowing stack
-of abstractions. When I realized I already had everything I needed in my shell
-script, I decided to roll with it.
-
-It's now wrapped in a command line interface aimed at self-learning, and I've
-joined the ranks of folks trying to tame this madness.
-
-So far, it's working well. If you try it, I hope it lowers the barrier of entry
-to running your own cluster.
+equally well for target environments in the cloud, on premises, using VMs, test
+containers, bare metal machines, you name it. This is an intentional design
+decision meant to eliminate reliance on vendor-specific functionality.
 
 ## First Time User Guide
 This guide illustrates how to use KWM by taking you through the process of
-setting up a single-node cluster.
-
-#### Install KWM.
-```
-wget https://github.com/tkellen/kwm/releases/download/v0.3.0/kwm
-chmod +x kwm
-export PATH=$PATH:$PWD
-kwm
-```
+setting up a single-node cluster. It assumes you have KWM installed and in your
+PATH.
 
 #### Start your server.
 Boot a throwaway server you have SSH and root access to using whatever means is
@@ -234,6 +197,39 @@ contribute your own!
 ### Release Process
 1. Update VERSION file to contain the next version.
 2. Run `make release`.
+
+### Why?
+[This work began as a study on how to run my own cluster]. As a consummate DIYer
+this involved me writing an installer. I didn't intend to keep using it, I just
+wanted to get the concepts down. After *many* hours of reading documentation, I
+got to a place where spinning up a cluster and debugging myriad of ways it could
+fail seemed easy. I was ready to start using Kubernetes as the foundational
+piece of infrastructure in my work.
+
+Neat!
+
+As I looked at the installer ecosystem (full of awesome, ambitious projects),
+the shell script I'd written started to look pretty appealing. It turns out the
+creation of a one-size-fits-all solution for managing a system as configurable
+as Kubernetes is quite a challenge.
+
+It is practically inevitable (with this technology and many others) that we wind
+up with high level, tool-specific configuration files aimed at hiding the
+complexity of the systems we manage. That's the whole point, right? Make the
+thing easier.
+
+Then, when we want to go "off script" we plug the holes with yet more indirect
+configuration: new command line flags to configure our actual command line flags
+and more. This isn't news. This is how computing works—it's a mind-blowing stack
+of abstractions.
+
+Eventually, I realized I already had everything I needed in my shell script. I
+didn't need much more abstraction. So I wrapped it in a command line interface
+aimed at self-learning, and joined the ranks of folks trying to tame this
+madness.
+
+So far, it's working well. If you try it, I hope it lowers the barrier of entry
+to running your own cluster.
 
 ### Acknowledgements
 Here are some resources I used while building this:
