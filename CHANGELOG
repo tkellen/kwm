@@ -1,3 +1,8 @@
+v0.3.1:
+  date: 2018-01-16
+  sha256: b67967fe1b05fb7f5a8d734b150f32fad7265b3ab1320a805cf6c942dfac1bcb
+  changes:
+    - [bugfix] replace hardcoded references to pki path with variable (0b7c02b)
 v0.3.0:
   date: 2018-01-15
   sha256: d60683ed66252763542ad2d4342484360482f5b776664fc5ee1468f40c14c8a3
