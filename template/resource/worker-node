@@ -4,7 +4,7 @@ echo Sending shared PKI to $KWM_HOSTNAME.
 $(files="cluster-ca-cert.pem cluster-ca-private-key.pem" \
   exec="$KWM_CONNECT" \
   basePath="$KWM_CONFIG_PATH" \
-  sourcePath="pki" template util tar-copy
+  sourcePath="$KWM_LOCAL_PKI_PATH" template util tar-copy
 )
 #------------------------------------------------------------------------------#
 echo Installing $KWM_HOSTNAME.
