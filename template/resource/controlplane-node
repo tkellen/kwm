@@ -3,8 +3,8 @@ echo Sending shared PKI to $KWM_HOSTNAME.
 #------------------------------------------------------------------------------#
 $(files="cluster-ca-cert.pem cluster-ca-private-key.pem etcd-ca-cert.pem etcd-ca-private-key.pem apiserver-to-etcd-cert.pem apiserver-to-etcd-private-key.pem service-account-private-key.pem service-account-public-key.pem" \
   exec="$KWM_CONNECT" \
-  basePath="$KWM_CONFIG_PATH" \
-  sourcePath="$KWM_LOCAL_PKI_PATH" template util tar-copy
+  basePath="$KWM_CONFIG_PATH_REMOTE" \
+  sourcePath="$KWM_CONFIG_PATH_LOCAL" template util tar-copy
 )
 #------------------------------------------------------------------------------#
 echo Installing $KWM_HOSTNAME.
@@ -13,16 +13,16 @@ $(exec="$KWM_CONNECT" content="
 #------------------------------------------------------------------------------#
 echo Generating private key for client to apiserver communication.
 #------------------------------------------------------------------------------#
-$(basePath="$KWM_CONFIG_PATH" name="client-to-apiserver" template pki private-key)
+$(basePath="$KWM_CONFIG_PATH_REMOTE" name="client-to-apiserver" template pki private-key)
 #------------------------------------------------------------------------------#
 echo Generating private key for apiserver to kubelet communication.
 #------------------------------------------------------------------------------#
-$(basePath="$KWM_CONFIG_PATH" name="apiserver-to-kubelet" template pki private-key)
+$(basePath="$KWM_CONFIG_PATH_REMOTE" name="apiserver-to-kubelet" template pki private-key)
 #------------------------------------------------------------------------------#
 echo Generating cluster-ca signed certificate for client to apiserver communication.
 #------------------------------------------------------------------------------#
 $(name="client-to-apiserver" \
-  basePath="$KWM_CONFIG_PATH" \
+  basePath="$KWM_CONFIG_PATH_REMOTE" \
   subj="/CN=kube-apiserver" \
   ext="subjectAltName = IP:$KWM_APISERVER_PUBLIC_IP,IP:$KWM_KUBERNETES_SERVICE_IP,IP:$KWM_PRIVATE_IP,DNS:$KWM_HOSTNAME,DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.cluster,DNS:kubernetes.default.svc.cluster.local" \
   ca="cluster" template pki signed-cert
@@ -31,7 +31,7 @@ $(name="client-to-apiserver" \
 echo Generating cluster-ca signed certificate for apiserver to kubelet communication.
 #------------------------------------------------------------------------------#
 $(name="apiserver-to-kubelet" \
-  basePath="$KWM_CONFIG_PATH" \
+  basePath="$KWM_CONFIG_PATH_REMOTE" \
   subj="/CN=kube-apiserver-client/O=system:masters" \
   ca="cluster" template pki signed-cert
 )
@@ -51,6 +51,7 @@ $(path="/etc/systemd/system/kube-apiserver.service" content="$(
   after="network.target" \
   exec="$(
     count="1" \
+    configPath="$KWM_CONFIG_PATH_REMOTE" \
     privateIp="$KWM_PRIVATE_IP" \
     serviceCidr="$KWM_SERVICE_CIDR" \
     etcdServers="$KWM_ETCD_SERVERS" template service kube-apiserver
@@ -72,6 +73,7 @@ $(path="/etc/systemd/system/kube-controller-manager.service" content="$(
   after="network.target" \
   requires="" \
   exec="$(
+    configPath="$KWM_CONFIG_PATH_REMOTE" \
     clusterName="$KWM_CLUSTER_NAME" \
     serviceCidr="$KWM_SERVICE_CIDR" \
     podCidr="$KWM_POD_CIDR" \

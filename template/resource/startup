@@ -2,6 +2,7 @@
 echo Configuring your PKI.
 #------------------------------------------------------------------------------#
 $SCRIPT_NAME render pki | bash 2>&1 | sed 's/^/[public key infrastructure] /'
+$SCRIPT_NAME render encryption-config > $KWM_CONFIG_PATH_LOCAL/encryption.config.yml
 #------------------------------------------------------------------------------#
 echo Configure your kubectl for cluster admin access.
 #------------------------------------------------------------------------------#
@@ -17,7 +18,7 @@ echo Installing a container networking plugin.
 #------------------------------------------------------------------------------#
 mkdir -p manifests/system
 $SCRIPT_NAME render cni-manifest > manifests/system/cni.yml
-kubectl --context=${KWM_CLUSTER_NAME} apply -f manifests/system/cni.yml | sed 's/^/[container networking] /'
+kubectl --context=$KWM_CLUSTER_NAME apply -f manifests/system/cni.yml | sed 's/^/[container networking] /'
 echo Waiting for container networking to start...
 #------------------------------------------------------------------------------#
 echo HACK bouncing containerd to pick up cni settings from above.
@@ -31,7 +32,7 @@ echo Installing kube-dns.
 #------------------------------------------------------------------------------#
 mkdir -p manifests/system
 $SCRIPT_NAME render dns-manifest > manifests/system/kube-dns.yml
-kubectl --context=${KWM_CLUSTER_NAME} apply -f manifests/system/kube-dns.yml | sed 's/^/[cluster dns] /'
+kubectl --context=$KWM_CLUSTER_NAME apply -f manifests/system/kube-dns.yml | sed 's/^/[cluster dns] /'
 echo Waiting for kube-dns to start...
 #------------------------------------------------------------------------------#
 echo Confirming the cluster is functional.

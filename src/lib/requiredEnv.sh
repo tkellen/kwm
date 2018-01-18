@@ -5,15 +5,18 @@ requiredEnv() {
   local pki=(
     KWM_CLUSTER_NAME
     KWM_APISERVER_PUBLIC_IP
-    KWM_LOCAL_PKI_PATH
+    KWM_CONFIG_PATH_LOCAL
     KWM_ETCD_CLIENT_SANS
   )
   local cluster_admin=(
     KWM_CLUSTER_NAME
-    KWM_LOCAL_PKI_PATH
+    KWM_CONFIG_PATH_LOCAL
     KWM_APISERVER_PUBLIC_IP
   )
-  local cni_manifest=(KWM_VERSION_KUBE_ROUTER)
+  local cni_manifest=(
+    KWM_CONFIG_PATH_REMOTE
+    KWM_VERSION_KUBE_ROUTER
+  )
   local controlplane_node=(
     KWM_CONNECT
     KWM_PRIVATE_IP
@@ -30,8 +33,8 @@ requiredEnv() {
     KWM_DNS_SERVICE_IP
     KWM_APISERVER_PUBLIC_IP
     KWM_ETCD_SERVERS
-    KWM_LOCAL_PKI_PATH
-    KWM_CONFIG_PATH
+    KWM_CONFIG_PATH_LOCAL
+    KWM_CONFIG_PATH_REMOTE
   )
   local dns_manifest=(KWM_VERSION_KUBE_DNS KWM_DNS_SERVICE_IP)
   local etcd_node=(
@@ -40,8 +43,8 @@ requiredEnv() {
     KWM_HOSTNAME
     KWM_ETCD_INITIAL_CLUSTER
     KWM_VERSION_ETCD
-    KWM_LOCAL_PKI_PATH
-    KWM_CONFIG_PATH
+    KWM_CONFIG_PATH_LOCAL
+    KWM_CONFIG_PATH_REMOTE
   )
   local startup=(
     KWM_CLUSTER_NAME
@@ -51,8 +54,8 @@ requiredEnv() {
     KWM_SERVICE_CIDR
     KWM_KUBERNETES_SERVICE_IP
     KWM_DNS_SERVICE_IP
-    KWM_CONFIG_PATH
-    KWM_LOCAL_PKI_PATH
+    KWM_CONFIG_PATH_REMOTE
+    KWM_CONFIG_PATH_LOCAL
     KWM_VERSION_ETCD
     KWM_VERSION_KUBERNETES
     KWM_VERSION_KUBE_DNS
@@ -71,9 +74,9 @@ requiredEnv() {
     KWM_VERSION_CNI_PLUGIN
     KWM_VERSION_CRI_CONTAINERD
     KWM_POD_CIDR
-    KWM_LOCAL_PKI_PATH
-    KWM_CONFIG_PATH
+    KWM_CONFIG_PATH_LOCAL
+    KWM_CONFIG_PATH_REMOTE
   )
-  [[ -z "${!lookup}" ]] && exit 1
+  [[ -z "${!lookup:-}" ]] && exit 1
   printf "${!lookup}"
 }

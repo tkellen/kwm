@@ -36,7 +36,7 @@ spec:
       containers:
       - name: kube-router
         image: cloudnativelabs/kube-router:v${KWM_VERSION_KUBE_ROUTER}
-        args: ["--run-router=true", "--run-firewall=true", "--run-service-proxy=true", "--kubeconfig=/etc/kubernetes/kube-router.kubeconfig"]
+        args: ["--run-router=true", "--run-firewall=true", "--run-service-proxy=true", "--kubeconfig=${KWM_CONFIG_PATH_REMOTE}/kube-router.kubeconfig"]
         securityContext:
           privileged: true
         imagePullPolicy: Always
@@ -52,7 +52,7 @@ spec:
         - name: cni-conf-dir
           mountPath: /etc/cni/net.d
         - name: kubeconfig
-          mountPath: /etc/kubernetes
+          mountPath: ${KWM_CONFIG_PATH_REMOTE}
           readOnly: true
       initContainers:
       - name: install-cni
@@ -91,7 +91,7 @@ spec:
           name: kube-router-cfg
       - name: kubeconfig
         hostPath:
-          path: /etc/kubernetes
+          path: ${KWM_CONFIG_PATH_REMOTE}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding

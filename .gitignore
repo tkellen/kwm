@@ -4,4 +4,4 @@ settings
 manifests
 .vagrant
 build/
-hack/**/pki
+assets

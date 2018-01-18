@@ -6,7 +6,7 @@ goodCall() {
   KWM_CLUSTER_NAME=test \
   KWM_APISERVER_PUBLIC_IP=test \
   KWM_ETCD_CLIENT_SANS=test \
-  KWM_LOCAL_PKI_PATH=test \
+  KWM_CONFIG_PATH_LOCAL=test \
     render pki
 }
 
