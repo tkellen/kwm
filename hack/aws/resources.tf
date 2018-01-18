@@ -100,63 +100,94 @@ resource "aws_route_table_association" "main" {
   route_table_id = "${aws_route_table.main.id}"
 }
 
-resource "aws_security_group" "etcd" {
-  name = "${local.name}-etcd"
+resource "aws_security_group" "node" {
+  name = "${local.name}-node"
   vpc_id = "${aws_vpc.main.id}"
-  ingress {
-    from_port = 0
-    to_port = 0
-    protocol = -1
-    cidr_blocks = ["0.0.0.0/0"]
-  }
   egress {
     from_port = 0
     to_port = 0
-    protocol = -1
+    protocol = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  tags {
-    Name = "${local.name}-etcd"
+  ingress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    self = true
+  }
+}
+
+resource "aws_security_group" "etcd" {
+  name = "${local.name}-etcd"
+  vpc_id = "${aws_vpc.main.id}"
+  egress {
+    from_port = 0
+    to_port = 0
+    protocol = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  # Allow etcd client traffic from controlplane.
+  ingress {
+    from_port = 2379
+    to_port = 2379
+    protocol = "tcp"
+    security_groups = [
+      "${aws_security_group.controlplane.id}"
+    ]
+  }
+  # Allow etcd peer traffic between hosts.
+  ingress {
+    from_port = 2380
+    to_port = 2380
+    protocol = "tcp"
+    self = true
   }
 }
 
 resource "aws_security_group" "controlplane" {
   name = "${local.name}-controlplane"
   vpc_id = "${aws_vpc.main.id}"
-  ingress {
-    from_port = 0
-    to_port = 0
-    protocol = -1
-    cidr_blocks = ["0.0.0.0/0"]
-  }
   egress {
     from_port = 0
     to_port = 0
     protocol = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  tags {
-    Name = "${local.name}-controlplane"
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  # Allow kubectl traffic to apiserver
+  ingress {
+    from_port = 6443
+    to_port = 6443
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
 resource "aws_security_group" "worker" {
   name = "${local.name}-worker"
   vpc_id = "${aws_vpc.main.id}"
-  ingress {
-    from_port = 0
-    to_port = 0
-    protocol = -1
-    cidr_blocks = ["0.0.0.0/0"]
-  }
   egress {
     from_port = 0
     to_port = 0
     protocol = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  tags {
-    Name = "${local.name}-worker"
+  ingress {
+    from_port = 22
+    to_port = 22
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
@@ -182,7 +213,8 @@ resource "aws_instance" "controlplane" {
   key_name = "${local.key_name}"
   subnet_id = "${element(aws_subnet.main.*.id, count.index)}"
   vpc_security_group_ids = [
-    "${aws_security_group.controlplane.id}"
+    "${aws_security_group.controlplane.id}",
+    "${aws_security_group.node.id}"
   ]
   private_ip = "${cidrhost(element(aws_subnet.main.*.cidr_block, count.index), 10)}"
   tags {
@@ -198,7 +230,8 @@ resource "aws_instance" "worker" {
   key_name = "${local.key_name}"
   subnet_id = "${element(aws_subnet.main.*.id, count.index)}"
   vpc_security_group_ids = [
-    "${aws_security_group.worker.id}"
+    "${aws_security_group.worker.id}",
+    "${aws_security_group.node.id}"
   ]
   tags {
     Name = "${local.name}-worker-${count.index}"

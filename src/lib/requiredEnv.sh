@@ -37,6 +37,9 @@ requiredEnv() {
     KWM_CONFIG_PATH_REMOTE
   )
   local dns_manifest=(KWM_VERSION_KUBE_DNS KWM_DNS_SERVICE_IP)
+  local encryption_config=(
+    KWM_ENCRYPTION_KEY
+  )
   local etcd_node=(
     KWM_CONNECT
     KWM_PRIVATE_IP
@@ -50,6 +53,7 @@ requiredEnv() {
     KWM_CLUSTER_NAME
     KWM_APISERVER_PUBLIC_IP
     KWM_APISERVER_PRIVATE_IP
+    KWM_ENCRYPTION_KEY
     KWM_POD_CIDR
     KWM_SERVICE_CIDR
     KWM_KUBERNETES_SERVICE_IP

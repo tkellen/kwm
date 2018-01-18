@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------#
-echo Sending shared PKI to $KWM_HOSTNAME.
+echo Sending shared config to $KWM_HOSTNAME.
 #------------------------------------------------------------------------------#
-$(files="cluster-ca-cert.pem cluster-ca-private-key.pem etcd-ca-cert.pem etcd-ca-private-key.pem apiserver-to-etcd-cert.pem apiserver-to-etcd-private-key.pem service-account-private-key.pem service-account-public-key.pem" \
+$(files="apiserver-to-etcd-cert.pem apiserver-to-etcd-private-key.pem cluster-ca-cert.pem cluster-ca-private-key.pem encryption-config.yml etcd-ca-cert.pem etcd-ca-private-key.pem service-account-private-key.pem service-account-public-key.pem" \
   exec="$KWM_CONNECT" \
   basePath="$KWM_CONFIG_PATH_REMOTE" \
   sourcePath="$KWM_CONFIG_PATH_LOCAL" template util tar-copy

@@ -15,6 +15,7 @@
   --etcd-keyfile=${configPath}/apiserver-to-etcd-private-key.pem \\
   --etcd-servers=${etcdServers} \\
   --event-ttl=1h \\
+  --experimental-encryption-provider-config=${configPath}/encryption-config.yml \\
   --insecure-bind-address=127.0.0.1 \\
   --kubelet-preferred-address-types=InternalIP,Hostname,ExternalIP \\
   --kubelet-certificate-authority=${configPath}/cluster-ca-cert.pem \\

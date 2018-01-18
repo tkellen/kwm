@@ -5,6 +5,7 @@ cat <<EOF
 export KWM_CLUSTER_NAME=$(terraform output NAME)
 export KWM_APISERVER_PUBLIC_IP=$(terraform output CONTROLPLANE_SSH_IPS | head -n 1 | sed 's/,$//')
 export KWM_APISERVER_PRIVATE_IP=$(terraform output CONTROLPLANE_PRIVATE_IPS | head -n 1 | sed 's/,$//')
+export KWM_ENCRYPTION_KEY="$(head -c 32 /dev/urandom | base64)"
 EOF
 
 function key {

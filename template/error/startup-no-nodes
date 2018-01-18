@@ -13,6 +13,7 @@ Here's some boilerplate to get you started:
 export KWM_CLUSTER_NAME=kwm
 export KWM_APISERVER_PUBLIC_IP=[public-ip-of-only-node]
 export KWM_APISERVER_PRIVATE_IP=[private-ip-of-only-node]
+export KWM_ENCRYPTION_KEY="\$(head -c 32 /dev/urandom | base64)"
 
 export KWM_ROLE_now="etcd controlplane worker"
 export KWM_HOSTNAME_now=tiny

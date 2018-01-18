@@ -1,0 +1,7 @@
+Controls the key that encrypts secrets.
+
+Examples:
+  KWM_ENCRYPTION_KEY=$(head -c 32 /dev/urandom | base64) kwm render encryption-key
+
+Resources:
+  https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/

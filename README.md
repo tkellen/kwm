@@ -71,6 +71,8 @@ values if you only have one. It's not a great idea for production, though.
 export KWM_CLUSTER_NAME=kwm
 export KWM_APISERVER_PUBLIC_IP=[ip-from-your-only-node]
 export KWM_APISERVER_PRIVATE_IP=[ip-from-your-only-node]
+export KWM_ENCRYPTION_KEY="$(head -c 32 /dev/urandom | base64)"
+
 export KWM_ROLE_soar="etcd controlplane worker"
 export KWM_HOSTNAME_soar=kubernetes-without-magic
 export KWM_PRIVATE_IP_soar=[ip-from-your-only-node]
@@ -118,6 +120,12 @@ between your cluster components:
 ```
 kwm render pki
 kwm render pki | bash
+```
+
+Generate configuration to ensure [secrets are encrypted] at rest:
+```
+kwm render encryption-config
+kwm render encryption-config > cluster/encryption-config.yml
 ```
 
 Configure kubectl with administrative access to your cluster-to-be:
@@ -251,3 +259,4 @@ Thank you to the authors of those projects and guides!
 [k8s-conformance]: https://github.com/cncf/k8s-conformance
 [hack]: https://github.com/tkellen/kwm/tree/master/hack
 [kube-router]: https://github.com/cloudnativelabs/kube-router
+[secrets are encrypted]: https://kubernetes.io/docs/tasks/administer-cluster/encrypt-data/#understanding-the-encryption-at-rest-configuration

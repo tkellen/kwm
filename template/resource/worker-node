@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------#
-echo Sending shared PKI to $KWM_HOSTNAME.
+echo Sending shared config to $KWM_HOSTNAME.
 #------------------------------------------------------------------------------#
 $(files="cluster-ca-cert.pem cluster-ca-private-key.pem" \
   exec="$KWM_CONNECT" \

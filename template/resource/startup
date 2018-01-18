@@ -2,7 +2,7 @@
 echo Configuring your PKI.
 #------------------------------------------------------------------------------#
 $SCRIPT_NAME render pki | bash 2>&1 | sed 's/^/[public key infrastructure] /'
-$SCRIPT_NAME render encryption-config > $KWM_CONFIG_PATH_LOCAL/encryption.config.yml
+$SCRIPT_NAME render encryption-config > $KWM_CONFIG_PATH_LOCAL/encryption-config.yml
 #------------------------------------------------------------------------------#
 echo Configure your kubectl for cluster admin access.
 #------------------------------------------------------------------------------#

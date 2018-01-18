@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------#
-echo Sending shared PKI to $KWM_HOSTNAME.
+echo Sending shared config to $KWM_HOSTNAME.
 #------------------------------------------------------------------------------#
 $(files="etcd-ca-cert.pem etcd-ca-private-key.pem apiserver-to-etcd-private-key.pem apiserver-to-etcd-cert.pem" \
   exec="$KWM_CONNECT" \
