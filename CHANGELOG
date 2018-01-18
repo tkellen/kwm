@@ -1,3 +1,11 @@
+v0.4.0:
+  date: 2018-01-18
+  sha256: c7c8e286f6339261aed20a08014a08554029f6fdf17157cc3710416aad776aa8
+  changes:
+    - [feature] add support for encryption configuration (c35d84e)
+    - [feature] generalize config path names to support more use-cases (f18967d)
+    - [bugfix] ensure template file exists before rendering (5cd2ad7)
+    - [bugfix] replace hardcoded references to pki path with variable (0b7c02b)
 v0.3.1:
   date: 2018-01-16
   sha256: b67967fe1b05fb7f5a8d734b150f32fad7265b3ab1320a805cf6c942dfac1bcb
