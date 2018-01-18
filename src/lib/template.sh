@@ -13,9 +13,10 @@ template() {
   # exists. If that function can be found, use it to find the template content.
   if [[ $TEMPLATES_BUNDLED == true ]]; then
     templateContent="$($templateFn)"
-  else
+  elif [[ -f "$templatePath" ]]; then
     templateContent="$(cat "$templatePath")"
   fi
+
   # If rendering the requested template is blank, bail with error screen.
   if [[ -z $templateContent ]]; then
     # Prevent recursive loop trying to find "resource-not-found" error.
