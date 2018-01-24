@@ -2,24 +2,17 @@
   --node-ip=${privateIp} \\
   --allow-privileged=true \\
   --anonymous-auth=false \\
-  --authorization-mode=Webhook \\
   --client-ca-file=${configPath}/cluster-ca-cert.pem \\
   --cluster-dns=${clusterDns} \\
   --cluster-domain=cluster.local \\
   --container-runtime=remote \\
   --container-runtime-endpoint=unix:///var/run/cri-containerd.sock \\
-  --image-pull-progress-deadline=2m \\
   --kubeconfig=${configPath}/kubelet.kubeconfig \\
   --network-plugin=cni \\
-  --cni-bin-dir=/opt/cni/bin \\
-  --cni-conf-dir=/etc/cni/net.d \\
   --pod-cidr=${podCidr} \\
-  --register-node=true \\
-  --runtime-request-timeout=15m \\
   --tls-cert-file=${configPath}/kubelet-cert.pem \\
   --tls-private-key-file=${configPath}/kubelet-private-key.pem \\
-  --fail-swap-on=false \\
-  --v=2 $(
+  --fail-swap-on=false $(
 output=""
 for role in $roles;
   do output+=",node-role.kubernetes.io/$role=true";

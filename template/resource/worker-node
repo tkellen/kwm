@@ -65,7 +65,7 @@ $(path="$KWM_CONFIG_PATH_REMOTE/kubelet.kubeconfig" \
     user="system:node:$KWM_HOSTNAME" \
     clusterName="$KWM_CLUSTER_NAME" \
     apiserver="$KWM_APISERVER_PRIVATE_IP" \
-    basePath="$KWM_CONFIG_PATH_REMOTE" template resource kubeconfig-manifest
+    configPath="$KWM_CONFIG_PATH_REMOTE" template resource kubeconfig-manifest
   )" template util write-file
 )
 #------------------------------------------------------------------------------#
@@ -77,7 +77,7 @@ $(path="$KWM_CONFIG_PATH_REMOTE/kube-router.kubeconfig" \
     user="kube-router" \
     clusterName="$KWM_CLUSTER_NAME" \
     apiserver="$KWM_APISERVER_PRIVATE_IP" \
-    basePath="$KWM_CONFIG_PATH_REMOTE" template resource kubeconfig-manifest
+    configPath="$KWM_CONFIG_PATH_REMOTE" template resource kubeconfig-manifest
   )" template util write-file
 )
 #------------------------------------------------------------------------------#

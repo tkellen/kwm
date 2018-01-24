@@ -12,7 +12,6 @@
   --listen-peer-urls https://${privateIp}:2380 \\
   --listen-client-urls https://${privateIp}:2379,http://127.0.0.1:2379 \\
   --advertise-client-urls https://${privateIp}:2379 \\
-  --initial-cluster-token etcd-cluster-0 \\
   --initial-cluster ${initialCluster} \\
   --initial-cluster-state new \\
   --data-dir=/var/lib/etcd
