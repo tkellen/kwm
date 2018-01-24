@@ -1,3 +1,9 @@
+v0.5.0:
+  date: 2018-01-24
+  sha256: d3c190be263c1206b4463e64fdabd9e6bb4222daa6de0546dfb5580e5f88b643
+  changes:
+    - [feature] further expand introspection capabilities (7c2dd60)
+    - [feature] review and simplify command line flags (0330a52)
 v0.4.0:
   date: 2018-01-18
   sha256: c7c8e286f6339261aed20a08014a08554029f6fdf17157cc3710416aad776aa8
