@@ -3,6 +3,14 @@ echo Rendering public key infrastructure.
 #------------------------------------------------------------------------------#
 mkdir -p $KWM_CONFIG_PATH_LOCAL
 #------------------------------------------------------------------------------#
+echo Generating encryption key.
+#------------------------------------------------------------------------------#
+$(path="$KWM_CONFIG_PATH_LOCAL/encryption-config.yml" \
+  content="$(
+    template resource encryption-config
+  )" template util write-file
+)
+#------------------------------------------------------------------------------#
 echo Generating cluster certificate authority.
 #------------------------------------------------------------------------------#
 $(basePath="$KWM_CONFIG_PATH_LOCAL" \
@@ -39,7 +47,5 @@ $(basePath="$KWM_CONFIG_PATH_LOCAL" \
 #------------------------------------------------------------------------------#
 echo Generating public/private keypair for service accounts
 #------------------------------------------------------------------------------#
-# TODO: get TLS bootstrapping going to eliminate some PKI creation
-# https://kubernetes.io/docs/admin/bootstrap-tokens/
 $(basePath="$KWM_CONFIG_PATH_LOCAL" name="service-account" template pki private-key)
 $(basePath="$KWM_CONFIG_PATH_LOCAL" name="service-account" template pki public-key)

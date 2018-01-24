@@ -41,20 +41,20 @@ echo \$SETTING_ONE
 
 $(header "# Now try this with KWM.")
 $(header "# It can tell you what environment variables are needed to render commands")
-$(header "# for your cluster. Let's see what is required to generate your public key")
-$(header "# infrastructure:")
-$SCRIPT_NAME env pki
+$(header "# for your cluster. Let's see what is required to generate your cluster")
+$(header "# assets:")
+$SCRIPT_NAME env assets
 
 $(header "# You should see that some values are missing. Try supplying one")
-KWM_CLUSTER_NAME=workshop $SCRIPT_NAME env pki
+KWM_CLUSTER_NAME=workshop $SCRIPT_NAME env assets
 
 $(header "# Now provide all of them, and render the commands")
 export KWM_CLUSTER_NAME=workshop
-export KWM_APISERVER_PUBLIC_IP=55.55.55.55
+export KWM_ENCRYPTION_KEY="\$(head -c 32 /dev/urandom | base64)"
 export KWM_ETCD_CLIENT_SANS=IP:55.55.55.55
 
 $(header "# Now render and inspect the script")
-$SCRIPT_NAME render pki
+$SCRIPT_NAME render assets
 
 $(header "# If it looks good, run it!")
-$SCRIPT_NAME render pki | bash
+$SCRIPT_NAME render assets | bash

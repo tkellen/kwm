@@ -1,0 +1,12 @@
+#------------------------------------------------------------------------------#
+echo Generating private key for etcd server to etcd server communication.
+#------------------------------------------------------------------------------#
+$(basePath="$KWM_CONFIG_PATH_REMOTE" name="etcd-to-etcd" template pki private-key)
+#------------------------------------------------------------------------------#
+echo Generating etcd-ca signed certificate for etcd server to etcd server communication.
+#------------------------------------------------------------------------------#
+$(name="etcd-to-etcd" \
+  basePath="$KWM_CONFIG_PATH_REMOTE" \
+  subj="/CN=etcd-to-etcd/O=etcd" \
+  ext="subjectAltName = IP:$KWM_PRIVATE_IP,DNS:$KWM_HOSTNAME" \
+  ca="etcd" template pki signed-cert)

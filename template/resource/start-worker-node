@@ -1,0 +1,13 @@
+$(getenv set-hostname | awk 1 ORS=' \\\n')
+  $SCRIPT_NAME render set-hostname
+
+$(getenv pki-worker | awk 1 ORS=' \\\n')
+  $SCRIPT_NAME render pki-worker
+
+$SCRIPT_NAME render install-socat
+
+$(getenv install-container-networking | awk 1 ORS=' \\\n')
+  $SCRIPT_NAME render install-container-networking
+
+$(getenv install-kubelet | awk 1 ORS=' \\\n')
+  $SCRIPT_NAME render install-kubelet

@@ -8,7 +8,7 @@
 4. `./generate-settings` (inspect output before using)
 5. `. <(kwm unset)` (clear any previous KWM_ values)
 6. `. <(./generate-settings)`
-7. `kwm startup | bash`
+7. `kwm start | bash`
 
 ## Notes
 Everything works!

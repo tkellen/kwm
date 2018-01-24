@@ -55,9 +55,9 @@ export SCRIPT_NAME="$(basename -- "$0")"
 
 # Many commands highlight user supplied input with coloring. This variable is
 # used to control instances where colors should not be applied. For example,
-# a user may run `kwm render pki` to inspect the commands needed to generate
+# a user may run `kwm render assets` to inspect the commands needed to generate
 # PKI for Kubernetes. If they actually want to execute those commands, as in
-# `kwm render pki | bash`, the highlighting of their values should not be
+# `kwm render assets | bash`, the highlighting of their values should not be
 # present.
 if [[ ! -t 1 ]]; then
   export STDOUT_IS_TERMINAL=false
@@ -80,7 +80,7 @@ esac
 . ${BASE_PATH}src/installer.sh
 . ${BASE_PATH}src/nodes.sh
 . ${BASE_PATH}src/render.sh
-. ${BASE_PATH}src/startup.sh
+. ${BASE_PATH}src/start.sh
 . ${BASE_PATH}src/unsetter.sh
 . ${BASE_PATH}src/usage.sh
 . ${BASE_PATH}src/version.sh
@@ -96,7 +96,7 @@ main() {
   if [[ $command == nodes ]]; then nodes ${@:2}; fi
   if [[ $command == install ]]; then installer; fi
   if [[ $command == render ]]; then render ${@:2}; fi
-  if [[ $command == startup ]]; then startup; fi
+  if [[ $command == start ]]; then start; fi
   if [[ $command == unset ]]; then unsetter; fi
   if [[ $command == version ]]; then version; fi
   if [[ $command == workshop ]]; then workshop ${@:2}; fi

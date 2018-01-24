@@ -1,0 +1,21 @@
+#------------------------------------------------------------------------------#
+echo Installing etcd at version $KWM_VERSION_ETCD.
+#------------------------------------------------------------------------------#
+$(version="$KWM_VERSION_ETCD" template installer etcd)
+#------------------------------------------------------------------------------#
+echo Generating etcd service file.
+#------------------------------------------------------------------------------#
+$(path="/etc/systemd/system/etcd.service" content="$(
+  name="etcd" \
+  after="network.target" \
+  exec="$(
+    configPath="$KWM_CONFIG_PATH_REMOTE" \
+    name="$KWM_HOSTNAME" \
+    privateIp="$KWM_PRIVATE_IP" \
+    initialCluster="$KWM_ETCD_INITIAL_CLUSTER" template service etcd
+  )" template service unit)" template util write-file
+)
+#------------------------------------------------------------------------------#
+echo Enabling and restarting service.
+#------------------------------------------------------------------------------#
+$(name="etcd" template service enable)

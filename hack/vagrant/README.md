@@ -6,7 +6,7 @@
 3. `. <(./kwm.env)`
 4. Choose CentOS or Ubuntu
 5. `vagrant up`
-6. `kwm startup | bash`
+6. `kwm start | bash`
 
 ## Notes
 Everything works!

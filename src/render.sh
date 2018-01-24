@@ -1,7 +1,7 @@
 . ${BASE_PATH}src/lib/error.sh
 . ${BASE_PATH}src/lib/highlight.sh
 . ${BASE_PATH}src/lib/magicEtcdMeta.sh
-. ${BASE_PATH}src/lib/magicNodeMeta.sh
+. ${BASE_PATH}src/lib/getNodeMeta.sh
 . ${BASE_PATH}src/lib/requiredEnv.sh
 . ${BASE_PATH}src/lib/template.sh
 
@@ -14,7 +14,7 @@ render() {
   # Look at all nodes and build environment variables for etcd.
   magicEtcdMeta
   # If the resource type is node, collapse all KWM_*_[nodeKey] values.
-  [[ $resource =~ node ]] && magicNodeMeta $nodeKey
+  [[ $resource =~ node || $resource =~ install ]] && getNodeMeta $nodeKey
   # Look up required environment variables.
   local requiredEnv="$(requiredEnv $resource)"
   # Find those that are missing.

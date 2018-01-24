@@ -15,7 +15,7 @@
 11. `./generate-settings` (inspect output before using)
 12. `. <(kwm unset)` (clear any previous KWM_ values)
 13. `. <(./generate-settings)`
-14. `kwm startup | bash`
+14. `kwm start | bash`
 
 ## Notes
 Cross-node pod communication doesn't work.

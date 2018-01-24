@@ -1,8 +1,8 @@
 cd ../../..
 
-. src/lib/magicNodeMeta.sh
+. src/lib/getNodeMeta.sh
 
-test_magicNodeMeta() {
+test_getNodeMeta() {
   export KWM_ROLE=controlplane
 
   export KWM_HOSTNAME_fixture=controlplane
@@ -14,7 +14,7 @@ test_magicNodeMeta() {
     "" \
     "root namespace environment is empty"
 
-  magicNodeMeta fixture
+  getNodeMeta fixture
 
   assert_equals \
     "controlplane" \

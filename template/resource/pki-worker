@@ -1,0 +1,23 @@
+#------------------------------------------------------------------------------#
+echo Generating private key for kubelet.
+#------------------------------------------------------------------------------#
+$(basePath="$KWM_CONFIG_PATH_REMOTE" name="kubelet" template pki private-key)
+#------------------------------------------------------------------------------#
+echo Generating private key for kube-router.
+#------------------------------------------------------------------------------#
+$(basePath="$KWM_CONFIG_PATH_REMOTE" name="kube-router" template pki private-key)
+#------------------------------------------------------------------------------#
+echo Generating cluster-ca signed certificate for kubelet to apiserver communication.
+#------------------------------------------------------------------------------#
+$(name="kubelet" \
+  basePath="$KWM_CONFIG_PATH_REMOTE" \
+  subj="/CN=system:node:$KWM_HOSTNAME/O=system:nodes" \
+  ext="subjectAltName = IP:$KWM_PRIVATE_IP,DNS:$KWM_HOSTNAME" \
+  ca="cluster" template pki signed-cert)
+#------------------------------------------------------------------------------#
+echo Generating cluster-ca signed certificate for kube-router to apiserver communication.
+#------------------------------------------------------------------------------#
+$(name="kube-router" \
+  basePath="$KWM_CONFIG_PATH_REMOTE" \
+  subj="/CN=kube-router" \
+  ca="cluster" template pki signed-cert)

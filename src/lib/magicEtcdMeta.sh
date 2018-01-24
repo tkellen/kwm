@@ -45,3 +45,9 @@ _magicEtcdServers() {
   done
   [[ -n $output ]] && printf "%s\n" ${output:1}
 }
+
+export -f \
+  magicEtcdMeta \
+  _magicEtcdClientSans \
+  _magicEtcdInitialCluster \
+  _magicEtcdServers # allow subprocesses to access these functions

@@ -47,4 +47,4 @@ _compile() {
   printf "%b\n" "$1"
   printf "%b\n" "RENDER"
 }
-export -f template header _compile  # allow subprocesses to access these functions
+export -f template header _compile # allow subprocesses to access these functions

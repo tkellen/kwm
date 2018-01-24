@@ -1,8 +1,8 @@
 cd ../..
 
-. src/startup.sh
+. src/start.sh
 
-test_startup() {
-  assert_status_code 1 startup \
+test_start() {
+  assert_status_code 1 start \
     "should exit with status code 1 when environment is missing"
 }

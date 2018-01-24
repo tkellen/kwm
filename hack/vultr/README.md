@@ -10,7 +10,7 @@
 7. `./generate-settings` (inspect output before using)
 8. `. <(kwm unset)` (clear any previous KWM_ values)
 9. `. <(./generate-settings)`
-10. `kwm startup | bash`
+10. `kwm start | bash`
 
 ## Notes
 Vultr offers private networking but the networks must be configured by the end

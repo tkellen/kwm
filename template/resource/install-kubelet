@@ -1,0 +1,35 @@
+#------------------------------------------------------------------------------#
+echo Generating kubelet config.
+#------------------------------------------------------------------------------#
+$(path="$KWM_CONFIG_PATH_REMOTE/kubelet.kubeconfig" \
+  content="$(
+    name="kubelet" \
+    user="system:node:$KWM_HOSTNAME" \
+    clusterName="$KWM_CLUSTER_NAME" \
+    apiserver="$KWM_APISERVER_PRIVATE_IP" \
+    configPath="$KWM_CONFIG_PATH_REMOTE" template resource kubeconfig-manifest
+  )" template util write-file
+)
+#------------------------------------------------------------------------------#
+echo Installing kubelet at version $KWM_VERSION_KUBERNETES.
+#------------------------------------------------------------------------------#
+$(name="kubelet" version="$KWM_VERSION_KUBERNETES" template installer k8s)
+#------------------------------------------------------------------------------#
+echo Generating kubelet service.
+#------------------------------------------------------------------------------#
+$(path="/etc/systemd/system/kubelet.service" content="
+  $(name="kubelet" \
+    after="cri-containerd.service" \
+    requires="cri-containerd.service" \
+    roles="$KWM_ROLE" \
+    exec="$(
+      configPath="$KWM_CONFIG_PATH_REMOTE" \
+      privateIp="$KWM_PRIVATE_IP" \
+      clusterDns="$KWM_DNS_SERVICE_IP" \
+      podCidr="$KWM_POD_CIDR" template service kubelet
+    )" template service unit
+)" template util write-file)
+#------------------------------------------------------------------------------#
+echo Enabling and restarting service.
+#------------------------------------------------------------------------------#
+$(name="kubelet" template service enable)

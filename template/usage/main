@@ -9,7 +9,7 @@ Available Commands:
   env        show environment variables needed to render a script or manifest
   nodes      show nodes present in your environment
   render     generate a script or manifest from environment variables
-  startup    generate a script to bootstrap a cluster in one command
+  start      generate a script to bootstrap a cluster in one command
   unset      unset all KWM_.* environment variables
   version    show current version
   workshop   learn the fundamental skills required to use this tool

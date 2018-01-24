@@ -1,0 +1,8 @@
+$(getenv set-hostname | awk 1 ORS=' \\\n')
+  $SCRIPT_NAME render set-hostname
+
+$(getenv pki-etcd | awk 1 ORS=' \\\n')
+  $SCRIPT_NAME render pki-etcd
+
+$(getenv install-etcd | awk 1 ORS=' \\\n')
+  $SCRIPT_NAME render install-etcd

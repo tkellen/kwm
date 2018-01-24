@@ -1,12 +1,12 @@
 # Enumerate required environment variables for each resource type.
 requiredEnv() {
-  local key="${1/-/_}"
-  local lookup="$key[*]"
-  local pki=(
-    KWM_CLUSTER_NAME
-    KWM_APISERVER_PUBLIC_IP
+  local key="${1//-/_}"
+  local lookup="$key[@]"
+  local assets=(
     KWM_CONFIG_PATH_LOCAL
+    KWM_CLUSTER_NAME
     KWM_ETCD_CLIENT_SANS
+    KWM_ENCRYPTION_KEY
   )
   local cluster_admin=(
     KWM_CLUSTER_NAME
@@ -17,22 +17,9 @@ requiredEnv() {
     KWM_CONFIG_PATH_REMOTE
     KWM_VERSION_KUBE_ROUTER
   )
-  local controlplane_node=(
-    KWM_CONNECT
-    KWM_PRIVATE_IP
-    KWM_HOSTNAME
+  local copy_node_assets=(
     KWM_ROLE
-    KWM_APISERVER_PRIVATE_IP
-    KWM_CLUSTER_NAME
-    KWM_VERSION_KUBERNETES
-    KWM_VERSION_CNI_PLUGIN
-    KWM_VERSION_CRI_CONTAINERD
-    KWM_POD_CIDR
-    KWM_SERVICE_CIDR
-    KWM_KUBERNETES_SERVICE_IP
-    KWM_DNS_SERVICE_IP
-    KWM_APISERVER_PUBLIC_IP
-    KWM_ETCD_SERVERS
+    KWM_CONNECT
     KWM_CONFIG_PATH_LOCAL
     KWM_CONFIG_PATH_REMOTE
   )
@@ -40,47 +27,112 @@ requiredEnv() {
   local encryption_config=(
     KWM_ENCRYPTION_KEY
   )
-  local etcd_node=(
-    KWM_CONNECT
+  local install_container_networking=(
+    KWM_CONFIG_PATH_REMOTE
+    KWM_CLUSTER_NAME
+    KWM_APISERVER_PRIVATE_IP
+    KWM_VERSION_CRI_CONTAINERD
+    KWM_VERSION_CNI_PLUGIN
+  )
+  local install_etcd=(
+    KWM_VERSION_ETCD
+    KWM_CONFIG_PATH_REMOTE
+    KWM_HOSTNAME
+    KWM_PRIVATE_IP
+    KWM_ETCD_INITIAL_CLUSTER
+  )
+  local install_kube_apiserver=(
+    KWM_VERSION_KUBERNETES
+    KWM_CONFIG_PATH_REMOTE
+    KWM_PRIVATE_IP
+    KWM_SERVICE_CIDR
+    KWM_ETCD_SERVERS
+  )
+  local install_kube_controller_manager=(
+    KWM_VERSION_KUBERNETES
+    KWM_CONFIG_PATH_REMOTE
+    KWM_CLUSTER_NAME
+    KWM_SERVICE_CIDR
+    KWM_POD_CIDR
+  )
+  local install_kube_scheduler=(
+    KWM_VERSION_KUBERNETES
+  )
+  local install_kubectl=(
+    KWM_VERSION_KUBERNETES
+  )
+  local install_kubelet=(
+    KWM_CONFIG_PATH_REMOTE
+    KWM_HOSTNAME
+    KWM_CLUSTER_NAME
+    KWM_APISERVER_PRIVATE_IP
+    KWM_VERSION_KUBERNETES
+    KWM_PRIVATE_IP
+    KWM_DNS_SERVICE_IP
+    KWM_POD_CIDR
+    KWM_ROLE
+  )
+  local install_socat=()
+  local pki_controlplane=(
+    KWM_CONFIG_PATH_REMOTE
+    KWM_APISERVER_PUBLIC_IP
+    KWM_KUBERNETES_SERVICE_IP
     KWM_PRIVATE_IP
     KWM_HOSTNAME
-    KWM_ETCD_INITIAL_CLUSTER
-    KWM_VERSION_ETCD
+  )
+  local pki_etcd=(
+    KWM_CONFIG_PATH_REMOTE
+    KWM_PRIVATE_IP
+    KWM_HOSTNAME
+  )
+  local pki_worker=(
+    KWM_CONFIG_PATH_REMOTE
+    KWM_HOSTNAME
+    KWM_PRIVATE_IP
+  )
+  local set_hostname=(
+    KWM_HOSTNAME
+  )
+  local start_controlplane_node=(
+    ${set_hostname[@]}
+    ${pki_controlplane[@]}
+    ${install_kube_apiserver[@]}
+    ${install_kube_controller_manager[@]}
+    ${install_kube_scheduler[@]}
+    ${install_kubectl[@]}
+  )
+  local start_etcd_node=(
+    ${set_hostname[@]}
+    ${pki_etcd[@]}
+    ${install_etcd[@]}
+  )
+  local start_worker_node=(
+    ${set_hostname[@]}
+    ${pki_worker[@]}
+    ${install_container_networking[@]}
+    ${install_kubelet[@]}
+  )
+  local start=(
+    KWM_APISERVER_PRIVATE_IP
+    KWM_APISERVER_PUBLIC_IP
+    KWM_CLUSTER_NAME
     KWM_CONFIG_PATH_LOCAL
     KWM_CONFIG_PATH_REMOTE
-  )
-  local startup=(
-    KWM_CLUSTER_NAME
-    KWM_APISERVER_PUBLIC_IP
-    KWM_APISERVER_PRIVATE_IP
+    KWM_DNS_SERVICE_IP
     KWM_ENCRYPTION_KEY
+    KWM_KUBERNETES_SERVICE_IP
     KWM_POD_CIDR
     KWM_SERVICE_CIDR
-    KWM_KUBERNETES_SERVICE_IP
-    KWM_DNS_SERVICE_IP
-    KWM_CONFIG_PATH_REMOTE
-    KWM_CONFIG_PATH_LOCAL
+    KWM_VERSION_CNI_PLUGIN
+    KWM_VERSION_CRI_CONTAINERD
     KWM_VERSION_ETCD
     KWM_VERSION_KUBERNETES
     KWM_VERSION_KUBE_DNS
-    KWM_VERSION_CNI_PLUGIN
-    KWM_VERSION_CRI_CONTAINERD
     KWM_VERSION_KUBE_ROUTER
   )
-  local worker_node=(
-    KWM_CONNECT
-    KWM_PRIVATE_IP
-    KWM_HOSTNAME
-    KWM_ROLE
-    KWM_APISERVER_PRIVATE_IP
-    KWM_CLUSTER_NAME
-    KWM_VERSION_KUBERNETES
-    KWM_VERSION_CNI_PLUGIN
-    KWM_VERSION_CRI_CONTAINERD
-    KWM_POD_CIDR
-    KWM_CONFIG_PATH_LOCAL
-    KWM_CONFIG_PATH_REMOTE
-  )
   [[ -z "${!lookup:-}" ]] && exit 1
-  printf "${!lookup}"
+  # return only unique values
+  tr ' ' '\n' <<<"${!lookup}" | sort -u | tr '\n' ' '
 }
+
+export -f requiredEnv # allow subprocesses to access these functions

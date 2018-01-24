@@ -22,16 +22,17 @@ export KWM_CONNECT_now="ssh [your-sudo-capable-user]@[your-ssh-accessible-ip]"
 ^
 KWM calls the "_now" portion of these variables a "node key". By using different
 keys you can define multiple hosts for KWM to manage simultaneously. The value
-of they keys is entirely up to you, they have no impact on your deployments.
+of they keys is entirely up to you, they have no impact on what happens to your
+servers.
 
-To see which nodes are available for management, try running "kwm nodes".
+To see which nodes are available for management, try running "$SCRIPT_NAME nodes".
 
 --
 
-Once you have everything defined, "kwm startup" will output a bash script that
+Once you have everything defined, "$SCRIPT_NAME start" will output a bash script that
 will bootstrap your cluster. After inspecting it, you can run it thusly:
 
-  $SCRIPT_NAME startup | bash
+  $SCRIPT_NAME start | bash
 
 Good luck!
 

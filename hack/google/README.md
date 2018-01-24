@@ -24,7 +24,7 @@
 20. `./generate-settings` (inspect output before using)
 21. `. <(kwm unset)` (clear any previous KWM_ values)
 22. `. <(./generate-settings)`
-23. `kwm startup | bash`
+23. `kwm start | bash`
 
 ## Notes
 Still setting stuff up. Non-functional.

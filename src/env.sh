@@ -1,7 +1,7 @@
 . ${BASE_PATH}src/lib/error.sh
 . ${BASE_PATH}src/lib/highlight.sh
 . ${BASE_PATH}src/lib/magicEtcdMeta.sh
-. ${BASE_PATH}src/lib/magicNodeMeta.sh
+. ${BASE_PATH}src/lib/getNodeMeta.sh
 . ${BASE_PATH}src/lib/requiredEnv.sh
 . ${BASE_PATH}src/lib/template.sh
 
@@ -18,17 +18,16 @@ getenv() {
   # If the resource type contains the string node...
   if [[ $resource =~ node ]]; then
     # If a nodeKey isn't defined for a node resource, show error.
-    [[ -z $nodeKey ]] && error "$(resource=$resource template error no-node-for-env)" && printf '\n\n'
+    # [[ -z $nodeKey ]] && error "$(resource=$resource template error no-node-for-env)" && printf '\n\n'
     # Find KWM_*_[nodeKey] values and collapse into root namespace.
-    magicNodeMeta $nodeKey
+    getNodeMeta $nodeKey
   fi
   # Look at all nodes and build environment variables for etcd.
   magicEtcdMeta
-  # If output is bound for a terminal, highlight all KWM_* variables.
-  [[ $STDOUT_IS_TERMINAL == true ]] && highlightAll
   # Display all vars needed for the specified resource + their current values.
   for key in $requiredEnv; do
-    printf "%s\n" "${key}=\"${!key:-""}\""
+    echo "${key}=\"${!key:-""}\""
   done
   exit 0
 }
+export -f getenv # allow subprocesses to access these functions

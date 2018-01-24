@@ -1,18 +1,42 @@
 Render a template for bootstrapping a Kubernetes cluster.
 
 Usage:
-  $SCRIPT_NAME render [cluster-admin pki startup cni-manifest dns-manifest]
-  $SCRIPT_NAME render [controlplane-node etcd-node worker-node] <nodeKey>
+  $SCRIPT_NAME render [
+    assets
+    cluster-admin
+    cni-manifest
+    dns-manifest
+    encryption-config
+    install-container-networking
+    install-etcd
+    install-kube-apiserver
+    install-kube-controller-manager
+    install-kube-scheduler
+    install-kubectl
+    install-kubelet
+    install-socat
+    pki-controlplane
+    pki-etcd
+    pki-worker
+    set-hostname
+    startup
+  ]
+  $SCRIPT_NAME render [
+    copy-node-assets
+    init-controlplane-node
+    init-etcd-node
+    init-worker-node
+  ] <nodeKey>
 
 Examples:
-  # Inspect script to generate public key infrastructure.
-  $SCRIPT_NAME render pki
+  # Inspect script to generate cluster assets
+  $SCRIPT_NAME render assets
 
-  # Run script to generate public key infrastructure.
-  $SCRIPT_NAME render pki | bash
+  # Run script to generate cluster assets
+  $SCRIPT_NAME render assets | bash
 
-  # Save script to generate public key infrastructure (to share with others).
-  $SCRIPT_NAME render pki > generate-pki
+  # Save script to generate cluster assets (to share with others).
+  $SCRIPT_NAME render assets > generate-pki
 
   # Inspect yaml manifest to install container networking interface.
   $SCRIPT_NAME render cni-manifest

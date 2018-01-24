@@ -1,0 +1,5 @@
+#------------------------------------------------------------------------------#
+echo Ensuring hostname and loopback reference are set.
+#------------------------------------------------------------------------------#
+grep -q -F "${KWM_HOSTNAME}" /etc/hosts || (printf "%s\n" "127.0.0.1 ${KWM_HOSTNAME}" | sudo tee -a /etc/hosts)
+hostname ${KWM_HOSTNAME}

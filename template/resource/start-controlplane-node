@@ -1,0 +1,17 @@
+$(getenv set-hostname | awk 1 ORS=' \\\n')
+  $SCRIPT_NAME render set-hostname
+
+$(getenv pki-controlplane | awk 1 ORS=' \\\n')
+  $SCRIPT_NAME render pki-controlplane
+
+$(getenv install-kube-apiserver | awk 1 ORS=' \\\n')
+  $SCRIPT_NAME render install-kube-apiserver
+
+$(getenv install-kube-controller-manager | awk 1 ORS=' \\\n')
+  $SCRIPT_NAME render install-kube-controller-manager
+
+$(getenv install-kube-scheduler | awk 1 ORS=' \\\n')
+  $SCRIPT_NAME render install-kube-scheduler
+
+$(getenv install-kubectl | awk 1 ORS=' \\\n')
+  $SCRIPT_NAME render install-kubectl

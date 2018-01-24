@@ -1,2 +1,0 @@
-sudo grep -q -F "${name}" /etc/hosts || (printf "%s\n" "127.0.0.1 ${name}" | sudo tee -a /etc/hosts)
-sudo hostname ${name}

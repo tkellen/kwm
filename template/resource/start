@@ -1,0 +1,49 @@
+#------------------------------------------------------------------------------#
+echo Preparing cluster assets.
+#------------------------------------------------------------------------------#
+$SCRIPT_NAME render assets | bash 2>&1 | sed 's/^/[rendering assets] /'
+$SCRIPT_NAME nodes all | xargs -n1 -I {nodeKey} $SCRIPT_NAME render copy-node-assets {nodeKey} | bash 2>&1 | sed 's/^/[copying assets] /'
+#------------------------------------------------------------------------------#
+echo Configuring your etcd nodes.
+#------------------------------------------------------------------------------#
+$SCRIPT_NAME nodes etcd | xargs -n1 -I {nodeKey} bash -c '
+  kwm connect {nodeKey} <<<"sudo su; \$($SCRIPT_NAME render start-etcd-node {nodeKey} | bash)"
+' 2>&1 | sed 's/^/[etcd] /'
+#------------------------------------------------------------------------------#
+echo Configuring your controlplane nodes.
+#------------------------------------------------------------------------------#
+$SCRIPT_NAME nodes controlplane | xargs -n1 -I {nodeKey} bash -c '
+  kwm connect {nodeKey} <<<"sudo su; \$($SCRIPT_NAME render start-controlplane-node {nodeKey} | bash)"
+' 2>&1 | sed 's/^/[controlplane] /'
+#------------------------------------------------------------------------------#
+echo Configuring your worker nodes.
+#------------------------------------------------------------------------------#
+$SCRIPT_NAME nodes worker | xargs -n1 -I {nodeKey} bash -c '
+  kwm connect {nodeKey} <<<"sudo su; \$($SCRIPT_NAME render start-worker-node {nodeKey} | bash)"
+' 2>&1 | sed 's/^/[worker] /'
+#------------------------------------------------------------------------------#
+echo Configuring kubectl for cluster-admin level access.
+#------------------------------------------------------------------------------#
+$SCRIPT_NAME render cluster-admin | bash 2>&1 | sed 's/^/[configuring kubectl] /'
+#------------------------------------------------------------------------------#
+echo Installing a container networking plugin.
+#------------------------------------------------------------------------------#
+$SCRIPT_NAME render cni-manifest | kubectl --context=$KWM_CLUSTER_NAME apply -f - | sed 's/^/[container networking] /'
+#------------------------------------------------------------------------------#
+echo Installing kube-dns.
+#------------------------------------------------------------------------------#
+$SCRIPT_NAME render dns-manifest | kubectl --context=$KWM_CLUSTER_NAME apply -f - | sed 's/^/[cluster dns] /'
+#------------------------------------------------------------------------------#
+echo HACK bouncing containerd to pick up cni settings.
+#------------------------------------------------------------------------------#
+sleep 30
+(($SCRIPT_NAME nodes controlplane && $SCRIPT_NAME nodes worker) | uniq |
+  xargs -n1 -I {nodeKey} bash -c "echo 'sudo systemctl restart containerd' | $SCRIPT_NAME connect {nodeKey}"
+) 2>&1 | sed 's/^/[hack] /'
+#------------------------------------------------------------------------------#
+echo Confirming the cluster is functional.
+#------------------------------------------------------------------------------#
+sleep 60
+kubectl --context=${KWM_CLUSTER_NAME} get componentstatus
+kubectl --context=${KWM_CLUSTER_NAME} get nodes -o wide
+kubectl --context=${KWM_CLUSTER_NAME} get pods -o wide --all-namespaces

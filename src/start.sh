@@ -5,7 +5,7 @@
 
 # Generate a one-shot script for bootstrapping a Kubernetes cluster. This
 # calls out extensively to KWM itself.
-startup() {
+start() {
   if [[ "$(which $SCRIPT_NAME)" != "$BASE_PATH$SCRIPT_NAME" ]]; then
     printf "\n"
     error "$(template usage install)"
@@ -14,9 +14,9 @@ startup() {
   # give user something useful to go on if no valid nodes are found.
   # at least one for each role is needed.
   if [[ -z "$(findNodes etcd)$(findNodes controlplane)$(findNodes worker)" ]]; then
-    error "$(template error startup-no-nodes)"
+    error "$(template error start-no-nodes)"
     exit 1
   fi
-  render startup
+  render start
   exit 0
 }

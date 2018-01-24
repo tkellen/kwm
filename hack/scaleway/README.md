@@ -8,7 +8,7 @@
 5. `./generate-settings` (inspect output before using)
 6. `. <(kwm unset)` (clear any previous KWM_ values)
 7. `. <(./generate-settings)`
-8. `kwm startup | bash`
+8. `kwm start | bash`
 
 ## Notes
 cri-containerd doesn't run.

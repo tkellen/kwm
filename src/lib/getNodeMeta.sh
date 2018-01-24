@@ -1,7 +1,4 @@
 . ${BASE_PATH}src/lib/nodeValue.sh
-# These "magic" functions somewhat violate the premise of this project and may
-# be removed in future revisions.
-
 # When generating scripts for nodes, try to assign environment values in the
 # main KWM namespace based on the provided "node key".
 #
@@ -19,10 +16,12 @@
 # KWM_CONNECT="ssh root@55.55.55.55"
 # KWM_PRIVATE_IP="10.100.10.1"
 # KWM_HOSTNAME="my-first-node"
-magicNodeMeta() {
+getNodeMeta() {
   local nodeKey=${1:-""}
   export KWM_ROLE="${KWM_ROLE:-$(nodeValue $nodeKey ROLE)}"
   export KWM_HOSTNAME="${KWM_HOSTNAME:-$(nodeValue $nodeKey HOSTNAME)}"
   export KWM_CONNECT="${KWM_CONNECT:-$(nodeValue $nodeKey CONNECT)}"
   export KWM_PRIVATE_IP="${KWM_PRIVATE_IP:-$(nodeValue $nodeKey PRIVATE_IP)}"
 }
+
+export -f getNodeMeta # allow subprocesses to access these functions

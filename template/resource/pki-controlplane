@@ -1,0 +1,25 @@
+#------------------------------------------------------------------------------#
+echo Generating private key for client to apiserver communication.
+#------------------------------------------------------------------------------#
+$(basePath="$KWM_CONFIG_PATH_REMOTE" name="client-to-apiserver" template pki private-key)
+#------------------------------------------------------------------------------#
+echo Generating private key for apiserver to kubelet communication.
+#------------------------------------------------------------------------------#
+$(basePath="$KWM_CONFIG_PATH_REMOTE" name="apiserver-to-kubelet" template pki private-key)
+#------------------------------------------------------------------------------#
+echo Generating cluster-ca signed certificate for client to apiserver communication.
+#------------------------------------------------------------------------------#
+$(name="client-to-apiserver" \
+  basePath="$KWM_CONFIG_PATH_REMOTE" \
+  subj="/CN=kube-apiserver" \
+  ext="subjectAltName = IP:$KWM_APISERVER_PUBLIC_IP,IP:$KWM_KUBERNETES_SERVICE_IP,IP:$KWM_PRIVATE_IP,DNS:$KWM_HOSTNAME,DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.cluster,DNS:kubernetes.default.svc.cluster.local" \
+  ca="cluster" template pki signed-cert
+)
+#------------------------------------------------------------------------------#
+echo Generating cluster-ca signed certificate for apiserver to kubelet communication.
+#------------------------------------------------------------------------------#
+$(name="apiserver-to-kubelet" \
+  basePath="$KWM_CONFIG_PATH_REMOTE" \
+  subj="/CN=kube-apiserver-client/O=system:masters" \
+  ca="cluster" template pki signed-cert
+)

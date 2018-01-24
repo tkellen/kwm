@@ -6,7 +6,7 @@ test_env() {
   local basename
   for resource in template/resource/*; do
     basename=${resource##*/}
-    [[ $basename == kubeconfig-manifest ]] && continue
+    [[ $basename == kubeconfig-manifest || $basename == install-socat ]] && continue
     assert_status_code 0 "requiredEnv $basename" "should know env for $basename"
   done
 }

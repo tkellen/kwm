@@ -1,9 +1,7 @@
-Controls where PKI and encryption keys will be generated, and, when securely
-copied to Nodes during bootstrapping, where it will be sourced from.
+Controls where cluster assets (like public key infrastructure and encryption
+keys) will be generated, and, when securely copied to Nodes during
+bootstrapping, where it will be sourced from.
 
 Examples:
-  # See how this value affects PKI generation.
-  KWM_CONFIG_PATH_LOCAL=test $SCRIPT_NAME render pki
-
-  # See how this value affects copying PKI.
-  KWM_CONFIG_PATH_LOCAL=test $SCRIPT_NAME render etcd-node <nodeKey> | head -n 10
+  # See how this value affects cluster asset generation.
+  KWM_CONFIG_PATH_LOCAL=test $SCRIPT_NAME render assets

@@ -7,7 +7,7 @@
 4. `terraform apply`
 5. `./generate-settings > settings`
 6. `. ./settings`
-7. `kwm startup | bash`
+7. `kwm start | bash`
 
 ## Notes
 Triton infrastructure containers do not permit direct access to the kernel.

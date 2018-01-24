@@ -82,10 +82,10 @@ export KWM_CONNECT_soar="ssh [your-sudo-capable-user]@[your-ssh-accessible-ip]"
 > Try running `kwm define` for more detail about what these values do.
 
 #### Confirm your environment is fully populated for startup.
-You should see blue values populating each variable. Some defaults are being
+You should see values populating each variable. Some defaults are being
 provided by KWM. You can override them if you wish:
 ```
-kwm env startup
+kwm env start
 ```
 
 #### Show what nodes are being managed.
@@ -115,41 +115,44 @@ In each command that follows we'll start by having KWM show the commands that
 are planned to be run. Your configuration will appear in blue so you can see
 what is specific to your installation and what is boilerplate.
 
-First, generate your public key infrastructure to enable secure communication
-between your cluster components:
+Generate and copy your cluster assets (public key infrastructure and encryption
+configuration):
 ```
-kwm render pki
-kwm render pki | bash
+kwm render assets
+kwm render assets | bash
 ```
 
-Generate configuration to ensure [secrets are encrypted] at rest:
+Copy assets to host:
 ```
-kwm render encryption-config
-kwm render encryption-config > cluster/encryption-config.yml
+kwm render copy-node-assets soar
+kwm render copy-node-assets soar | bash
+```
+
+Configure `soar` as an etcd node:
+```
+kwm render start-etcd-node soar
+kwm render start-etcd-node soar | bash
+kwm connect soar <<<"sudo su; $(kwm render start-etcd-node soar | bash)"
+```
+
+Configure `soar` as a controlplane node:
+```
+kwm render start-controlplane-node soar
+kwm render start-controlplane-node soar | bash
+kwm connect soar <<<"sudo su; $(kwm render start-controlplane-node soar | bash)"
+```
+
+Configure `soar` as a worker node:
+```
+kwm render start-worker-node soar
+kwm render start-worker-node soar | bash
+kwm connect soar <<<"sudo su; $(kwm render start-worker-node soar | bash)"
 ```
 
 Configure kubectl with administrative access to your cluster-to-be:
 ```
 kwm render cluster-admin
 kwm render cluster-admin | bash
-```
-
-Configure `soar` as an etcd node:
-```
-kwm render etcd-node soar
-kwm render etcd-node soar | bash
-```
-
-Configure `soar` as a controlplane node:
-```
-kwm render controlplane-node soar
-kwm render controlplane-node soar | bash
-```
-
-Configure `soar` as a worker node:
-```
-kwm render worker-node soar
-kwm render worker-node soar | bash
 ```
 
 Configure container networking interface (KWM uses [kube-router] by default):
@@ -165,7 +168,7 @@ Restart cri-containerd to pick up CNI settings (TODO: can this be removed?):
 > https://github.com/cloudnativelabs/kube-router/issues/286  
 ```
 sleep 30
-echo "sudo systemctl restart cri-containerd" | kwm connect soar
+kwm connect soar <<<"sudo systemctl restart cri-containerd"
 ```
 
 Install kube-dns so your services-to-be can resolve internal DNS:
@@ -187,7 +190,7 @@ kubectl --context=kwm get pods -o wide --all-namespaces
 As a final note, all of the steps above can be executed for one or many nodes
 with this single command:
 ```
-kwm render startup | bash
+kwm render start | bash
 ```
 
 #### Next steps

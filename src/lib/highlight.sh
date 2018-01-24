@@ -15,4 +15,4 @@ highlight() {
     printf "$1"
   fi
 }
-export -f highlight
+export -f highlight highlightAll # allow subprocesses to access these functions

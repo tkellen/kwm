@@ -1,0 +1,17 @@
+#------------------------------------------------------------------------------#
+echo Installing kube-scheduler at version $KWM_VERSION_KUBERNETES.
+#------------------------------------------------------------------------------#
+$(version="$KWM_VERSION_KUBERNETES" name="kube-scheduler" template installer k8s)
+#------------------------------------------------------------------------------#
+echo Generating kube-scheduler service file.
+#------------------------------------------------------------------------------#
+$(path="/etc/systemd/system/kube-scheduler.service" content="$(
+  name="kube-scheduler" \
+  after="network.target" \
+  requires="" \
+  exec="$(template service kube-scheduler)" template service unit)" template util write-file
+)
+#------------------------------------------------------------------------------#
+echo Enabling kube-scheduler service.
+#------------------------------------------------------------------------------#
+$(version="$KWM_VERSION_KUBERNETES" name="kube-scheduler" template service enable)
