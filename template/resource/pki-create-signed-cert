@@ -1,9 +1,9 @@
-openssl req -new -sha256 -key ${basePath}/${name}-private-key.pem -subj "${subj}" | \\
+openssl req -new -sha256 -key ${KWM_PKI_PATH}/${KWM_PKI_NAME}-private-key.pem -subj "${KWM_PKI_SUBJ}" | \\
   openssl x509 -req -sha256 \\
-    -CA ${basePath}/${ca}-ca-cert.pem \\
-    -CAkey ${basePath}/${ca}-ca-private-key.pem \\
+    -CA ${KWM_PKI_PATH}/${KWM_PKI_CA}-ca-cert.pem \\
+    -CAkey ${KWM_PKI_PATH}/${KWM_PKI_CA}-ca-private-key.pem \\
     -CAcreateserial \\
-    -out ${basePath}/${name}-cert.pem \\
+    -out ${KWM_PKI_PATH}/${KWM_PKI_NAME}-cert.pem \\
     -days 3650 \\
     -extensions ext \\
     -extfile <(printf "
@@ -14,5 +14,5 @@ distinguished_name = default
 basicConstraints = critical, CA:FALSE
 keyUsage = critical, digitalSignature, keyEncipherment
 extendedKeyUsage = serverAuth, clientAuth
-${ext}
+${KWM_PKI_EXT}
 ")

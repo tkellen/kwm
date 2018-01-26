@@ -1,8 +1,16 @@
 $(getenv set-hostname | awk 1 ORS=' \\\n')
   $SCRIPT_NAME render set-hostname
 
-$(getenv pki-etcd | awk 1 ORS=' \\\n')
-  $SCRIPT_NAME render pki-etcd
+KWM_PKI_NAME=etcd-to-etcd \\
+KWM_PKI_PATH="$KWM_CONFIG_PATH_REMOTE" \\
+  kwm render pki-create-private-key
+
+KWM_PKI_NAME="etcd-to-etcd" \\
+KWM_PKI_PATH="$KWM_CONFIG_PATH_REMOTE" \\
+KWM_PKI_SUBJ="/CN=etcd-to-etcd/O=etcd" \\
+KWM_PKI_CA=etcd \\
+KWM_PKI_EXT="subjectAltName = IP:$KWM_PRIVATE_IP,DNS:$KWM_HOSTNAME" \\
+  kwm render pki-create-signed-cert
 
 $(getenv install-etcd | awk 1 ORS=' \\\n')
   $SCRIPT_NAME render install-etcd

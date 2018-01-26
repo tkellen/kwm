@@ -10,8 +10,8 @@
   --kubeconfig=${configPath}/kubelet.kubeconfig \\
   --network-plugin=cni \\
   --pod-cidr=${podCidr} \\
-  --tls-cert-file=${configPath}/kubelet-cert.pem \\
-  --tls-private-key-file=${configPath}/kubelet-private-key.pem \\
+  --tls-cert-file=${configPath}/kubelet-to-apiserver-cert.pem \\
+  --tls-private-key-file=${configPath}/kubelet-to-apiserver-private-key.pem \\
   --fail-swap-on=false $(
 output=""
 for role in $roles;

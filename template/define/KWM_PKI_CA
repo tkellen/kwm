@@ -1,0 +1,9 @@
+The CA used to sign a certificate.
+
+Examples:
+  KWM_PKI_NAME=test \\
+  KWM_PKI_PATH=pki \\
+  KWM_PKI_CA=MYCA \\
+  KWM_PKI_SUBJ=/CN=test \\
+  KWM_PKI_EXT="subjectAltName = IP:10.100.0.10,IP:54.30.20.10,DNS:cluster.domain.com" \\
+    $SCRIPT_NAME render pki-create-signed-cert

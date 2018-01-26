@@ -1,9 +1,9 @@
 #------------------------------------------------------------------------------#
-echo Generating kubelet config.
+echo Creating kubelet config.
 #------------------------------------------------------------------------------#
 $(path="$KWM_CONFIG_PATH_REMOTE/kubelet.kubeconfig" \
   content="$(
-    name="kubelet" \
+    name="kubelet-to-apiserver" \
     user="system:node:$KWM_HOSTNAME" \
     clusterName="$KWM_CLUSTER_NAME" \
     apiserver="$KWM_APISERVER_PRIVATE_IP" \
@@ -15,7 +15,7 @@ echo Installing kubelet at version $KWM_VERSION_KUBERNETES.
 #------------------------------------------------------------------------------#
 $(name="kubelet" version="$KWM_VERSION_KUBERNETES" template installer k8s)
 #------------------------------------------------------------------------------#
-echo Generating kubelet service.
+echo Creating kubelet service.
 #------------------------------------------------------------------------------#
 $(path="/etc/systemd/system/kubelet.service" content="
   $(name="kubelet" \

@@ -7,11 +7,11 @@ goodCall() {
   KWM_ENCRYPTION_KEY=test \
   KWM_ETCD_CLIENT_SANS=test \
   KWM_CONFIG_PATH_LOCAL=test \
-    render assets
+    render pki
 }
 
 insufficientEnvIgnored() {
-  IGNORE_MISSING_ENV=true render assets
+  IGNORE_MISSING_ENV=true render pki
 }
 
 test_render() {

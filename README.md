@@ -118,8 +118,10 @@ what is specific to your installation and what is boilerplate.
 Generate and copy your cluster assets (public key infrastructure and encryption
 configuration):
 ```
-kwm render assets
-kwm render assets | bash
+mkdir -p $KWM_CONFIG_PATH_LOCAL
+kwm render encryption-config > $KWM_CONFIG_PATH_LOCAL/encryption-config.yml
+kwm render pki
+kwm render pki | bash
 ```
 
 Copy assets to host:

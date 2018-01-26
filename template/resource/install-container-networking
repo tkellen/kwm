@@ -1,9 +1,9 @@
 #------------------------------------------------------------------------------#
-echo Generating kube-router config.
+echo Creating kube-router config.
 #------------------------------------------------------------------------------#
 $(path="$KWM_CONFIG_PATH_REMOTE/kube-router.kubeconfig" \
   content="$(
-    name="kube-router" \
+    name="kube-router-to-apiserver" \
     user="kube-router" \
     clusterName="$KWM_CLUSTER_NAME" \
     apiserver="$KWM_APISERVER_PRIVATE_IP" \
@@ -11,7 +11,7 @@ $(path="$KWM_CONFIG_PATH_REMOTE/kube-router.kubeconfig" \
   )" template util write-file
 )
 #------------------------------------------------------------------------------#
-echo Generating CNI network configuration.
+echo Creating CNI network configuration.
 #------------------------------------------------------------------------------#
 $(content='{ "cniVersion": "0.3.1", "type": "loopback" }' \
   path="/etc/cni/net.d/99-loopback.conf" template util write-file

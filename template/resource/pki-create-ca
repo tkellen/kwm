@@ -1,8 +1,8 @@
-openssl ecparam -name secp521r1 -genkey -noout -out ${basePath}/${name}-ca-private-key.pem
+openssl ecparam -name secp521r1 -genkey -noout -out ${KWM_PKI_PATH}/${KWM_PKI_NAME}-ca-private-key.pem
 openssl req -x509 -new -sha256 -nodes -days 3650 \\
-  -key ${basePath}/${name}-ca-private-key.pem \\
-  -out ${basePath}/${name}-ca-cert.pem \\
-  -subj "${subj}" \\
+  -key ${KWM_PKI_PATH}/${KWM_PKI_NAME}-ca-private-key.pem \\
+  -out ${KWM_PKI_PATH}/${KWM_PKI_NAME}-ca-cert.pem \\
+  -subj "${KWM_PKI_SUBJ}" \\
   -extensions ext \\
   -config <(printf "
 [req]

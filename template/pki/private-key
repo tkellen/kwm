@@ -1,1 +1,0 @@
-openssl ecparam -name secp521r1 -genkey -noout -out ${basePath}/${name}-private-key.pem

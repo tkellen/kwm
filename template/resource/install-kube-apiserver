@@ -3,7 +3,7 @@ echo Installing kube-apiserver at version $KWM_VERSION_KUBERNETES.
 #------------------------------------------------------------------------------#
 $(version="$KWM_VERSION_KUBERNETES" name="kube-apiserver" template installer k8s)
 #------------------------------------------------------------------------------#
-echo Generating kube-apiserver service file.
+echo Creating kube-apiserver service file.
 #------------------------------------------------------------------------------#
 $(path="/etc/systemd/system/kube-apiserver.service" content="$(
   name="kube-apiserver" \

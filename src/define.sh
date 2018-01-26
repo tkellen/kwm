@@ -7,7 +7,7 @@ define() {
   # If no variable is defined, bail with a usage screen.
   [[ -z $var ]] && vars="$(_getDefinable)" template usage define && exit 1
   # Show variable name before definition.
-  printf "%s\n" "$var (current value: $(highlight "${!var:-"n/a"}"))"
+  printf "%s\n" "$var (current value: $(echo $(highlight "${!var:-"n/a"}")))"
   # Display definition!
   template define $var
   exit 0

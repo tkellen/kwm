@@ -3,7 +3,7 @@ echo Installing kube-controller-manager at version $KWM_VERSION_KUBERNETES.
 #------------------------------------------------------------------------------#
 $(version="$KWM_VERSION_KUBERNETES" name="kube-controller-manager" template installer k8s)
 #------------------------------------------------------------------------------#
-echo Generating kube-controller service file.
+echo Creating kube-controller service file.
 #------------------------------------------------------------------------------#
 $(path="/etc/systemd/system/kube-controller-manager.service" content="$(
   name="kube-controller-manager" \

@@ -1,0 +1,4 @@
+A prefix used for PKI files.
+
+Examples:
+  KWM_PKI_NAME=test KWM_PKI_PATH=pki $SCRIPT_NAME render pki-create-public-key

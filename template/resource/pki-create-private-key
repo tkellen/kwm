@@ -1,0 +1,1 @@
+openssl ecparam -name secp521r1 -genkey -noout -out ${KWM_PKI_PATH}/${KWM_PKI_NAME}-private-key.pem

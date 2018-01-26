@@ -15,25 +15,27 @@ Usage:
     install-kubectl
     install-kubelet
     install-socat
-    pki-controlplane
-    pki-etcd
-    pki-worker
+    pki
+    pki-create-ca
+    pki-create-private-key
+    pki-create-public-key
+    pki-create-signed-cert
     set-hostname
     startup
   ]
   $SCRIPT_NAME render [
     copy-node-assets
-    init-controlplane-node
-    init-etcd-node
-    init-worker-node
+    start-controlplane-node
+    start-etcd-node
+    start-worker-node
   ] <nodeKey>
 
 Examples:
   # Inspect script to generate cluster assets
-  $SCRIPT_NAME render assets
+  $SCRIPT_NAME render pki
 
   # Run script to generate cluster assets
-  $SCRIPT_NAME render assets | bash
+  $SCRIPT_NAME render pki | bash | bash
 
   # Save script to generate cluster assets (to share with others).
   $SCRIPT_NAME render assets > generate-pki

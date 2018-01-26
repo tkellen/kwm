@@ -2,12 +2,6 @@
 requiredEnv() {
   local key="${1//-/_}"
   local lookup="$key[@]"
-  local assets=(
-    KWM_CONFIG_PATH_LOCAL
-    KWM_CLUSTER_NAME
-    KWM_ETCD_CLIENT_SANS
-    KWM_ENCRYPTION_KEY
-  )
   local cluster_admin=(
     KWM_CLUSTER_NAME
     KWM_CONFIG_PATH_LOCAL
@@ -73,29 +67,38 @@ requiredEnv() {
     KWM_ROLE
   )
   local install_socat=()
-  local pki_controlplane=(
-    KWM_CONFIG_PATH_REMOTE
-    KWM_APISERVER_PUBLIC_IP
-    KWM_KUBERNETES_SERVICE_IP
-    KWM_PRIVATE_IP
-    KWM_HOSTNAME
+  local pki_create_ca=(
+    KWM_PKI_PATH
+    KWM_PKI_SUBJ
+    KWM_PKI_NAME
   )
-  local pki_etcd=(
-    KWM_CONFIG_PATH_REMOTE
-    KWM_PRIVATE_IP
-    KWM_HOSTNAME
+  local pki=(
+    KWM_CONFIG_PATH_LOCAL
+    KWM_CLUSTER_NAME
+    KWM_ETCD_CLIENT_SANS
   )
-  local pki_worker=(
-    KWM_CONFIG_PATH_REMOTE
-    KWM_HOSTNAME
-    KWM_PRIVATE_IP
+  local pki_create_private_key=(
+    KWM_PKI_PATH
+    KWM_PKI_NAME
+  )
+  local pki_create_public_key=(
+    KWM_PKI_PATH
+    KWM_PKI_NAME
+  )
+  local pki_create_signed_cert=(
+    KWM_PKI_PATH
+    KWM_PKI_NAME
+    KWM_PKI_SUBJ
+    KWM_PKI_CA
   )
   local set_hostname=(
     KWM_HOSTNAME
   )
   local start_controlplane_node=(
+    KWM_APISERVER_PUBLIC_IP
+    KWM_SERVICE_CIDR
+    KWM_KUBERNETES_SERVICE_IP
     ${set_hostname[@]}
-    ${pki_controlplane[@]}
     ${install_kube_apiserver[@]}
     ${install_kube_controller_manager[@]}
     ${install_kube_scheduler[@]}
@@ -103,12 +106,10 @@ requiredEnv() {
   )
   local start_etcd_node=(
     ${set_hostname[@]}
-    ${pki_etcd[@]}
     ${install_etcd[@]}
   )
   local start_worker_node=(
     ${set_hostname[@]}
-    ${pki_worker[@]}
     ${install_container_networking[@]}
     ${install_kubelet[@]}
   )
