@@ -1,3 +1,8 @@
+v0.6.1:
+  date: 2018-01-26
+  sha256: 34e02bbefa836170866cc3e9d0a467e1a0557b95e11959308d0b5bb32331023c
+  changes:
+    - [bugfix] fix cni manifest / cert generation / rbac linkage (d311f80)
 v0.6.0:
   date: 2018-01-26
   sha256: 06efaed83be665138d420eb7a5a25888486129a6b720ae707ad524e1bd246837
