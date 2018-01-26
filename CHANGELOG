@@ -1,3 +1,8 @@
+v0.6.0:
+  date: 2018-01-26
+  sha256: 06efaed83be665138d420eb7a5a25888486129a6b720ae707ad524e1bd246837
+  changes:
+    - [feature] destructure pki generation into kwm commands (2930f74)
 v0.5.0:
   date: 2018-01-24
   sha256: d3c190be263c1206b4463e64fdabd9e6bb4222daa6de0546dfb5580e5f88b643
