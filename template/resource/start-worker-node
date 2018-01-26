@@ -18,7 +18,7 @@ KWM_PKI_PATH="$KWM_CONFIG_PATH_REMOTE" \\
 
 KWM_PKI_NAME=kube-router-to-apiserver \\
 KWM_PKI_PATH="$KWM_CONFIG_PATH_REMOTE" \\
-KWM_PKI_SUBJ="/CN=kube-router" \\
+KWM_PKI_SUBJ="/CN=system:kube-router" \\
 KWM_PKI_CA=cluster \\
   kwm render pki-create-signed-cert
 
