@@ -260,7 +260,7 @@ Thank you to the authors of those projects and guides!
 [Deploying Kubernetes from Scratch]: https://nixaid.com/deploying-kubernetes-cluster-from-scratch/
 [Kube-Linode]: https://github.com/kahkhang/kube-linode
 [kubectl]: https://kubernetes.io/docs/tasks/tools/install-kubectl/
-[This work began as a study on how to run my own cluster]: https://github.com/tkellen/kwm/blob/master/log/2017-10-30.md
+[This work began as a study on how to run my own cluster]: https://github.com/aevitas-io/study/blob/master/kubernetes/2017-10-30.md
 [k8s-conformance]: https://github.com/cncf/k8s-conformance
 [hack]: https://github.com/tkellen/kwm/tree/master/hack
 [kube-router]: https://github.com/cloudnativelabs/kube-router
