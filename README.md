@@ -192,7 +192,7 @@ kubectl --context=kwm get pods -o wide --all-namespaces
 As a final note, all of the steps above can be executed for one or many nodes
 with this single command:
 ```
-kwm render start | bash
+kwm start | bash
 ```
 
 #### Next steps
