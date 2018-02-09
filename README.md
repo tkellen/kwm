@@ -8,7 +8,7 @@ start a cluster with a single command, new operators are encouraged to examine
 and execute each step individually until the overall process is understood.
 
 "Without Magic" refers to a design goal of supporting introspection and overall
-simplicity as a core tenant. This project is built using two reliable tools that
+simplicity as a core tenet. This project is built using two reliable tools that
 operators have been using for 40 years: environment variables and shell scripts.
 
 > Learning to use KWM should be possible by running KWM itself. This is very
