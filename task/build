@@ -22,7 +22,7 @@ mkdir -p $buildPath
 $taskPath/inline-scripts < $rootPath/kwm | setVersion > $buildPath/kwm
 (
   # get everything except entry point
-  tail -r $buildPath/kwm | tail +3 | tail -r | setTemplatesBundled
+  tac $buildPath/kwm | tail +3 | tac | setTemplatesBundled
   # compile templates
   task/compile-template $rootPath/template/**/*
   # get entry point
