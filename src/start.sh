@@ -6,7 +6,7 @@
 # Generate a one-shot script for bootstrapping a Kubernetes cluster. This
 # calls out extensively to KWM itself.
 start() {
-  if [[ "$(which $SCRIPT_NAME)" != "$BASE_PATH$SCRIPT_NAME" ]]; then
+  if [[ "$(which $SCRIPT_NAME 2> /dev/null)" != "$BASE_PATH$SCRIPT_NAME" ]]; then
     printf "\n"
     error "$(template usage install)"
     exit 1
