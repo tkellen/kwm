@@ -19,7 +19,7 @@ magicEtcdMeta() {
 # Generate all valid Subject Alternative Names for securing communication from
 # the apiserver to etcd.
 _magicEtcdClientSans() {
-  local output
+  local output=""
   for node in $(findNodes etcd); do
     output+=",IP:$(nodeValue $node PRIVATE_IP),DNS:$(nodeValue $node HOSTNAME)"
   done
@@ -39,7 +39,7 @@ _magicEtcdInitialCluster() {
 
 # Generate the value passed to kube-apiserver's "--etcd-servers" flag.
 _magicEtcdServers() {
-  local output
+  local output=""
   for node in $(findNodes etcd); do
     output+=",https://$(nodeValue $node PRIVATE_IP):2379"
   done

@@ -4,7 +4,7 @@
 template() {
   local namespace=${1:-""}
   local key=${2:-""}
-  local templateContent
+  local templateContent=""
   # Look for requested template on disk
   local templatePath="${BASE_PATH}template/$namespace/$key"
   # Look for inline template function (built, single-file mode)
