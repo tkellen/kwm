@@ -17,7 +17,7 @@ output=""
 for role in $roles;
   do output+=",node-role.kubernetes.io/$role=true";
 done
-[[ -n $output ]] && output="--node-labels=\"${output:1}\""
-[[ $roles == *"controlplane"* && $roles != *"worker"* ]] && output+=" --register-with-taints=\"node-role.kubernetes.io/controlplane=true:NoSchedule\""
+[[ -n $output ]] && output="--node-labels=${output:1}"
+[[ $roles == *"controlplane"* && $roles != *"worker"* ]] && output+=" --register-with-taints=node-role.kubernetes.io/controlplane=true:NoSchedule"
 [[ -n $output ]] && echo "$output"
 )
