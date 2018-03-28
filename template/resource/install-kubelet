@@ -19,8 +19,8 @@ echo Creating kubelet service.
 #------------------------------------------------------------------------------#
 $(path="/etc/systemd/system/kubelet.service" content="
   $(name="kubelet" \
-    after="cri-containerd.service" \
-    requires="cri-containerd.service" \
+    after="containerd.service" \
+    requires="containerd.service" \
     roles="$KWM_ROLE" \
     exec="$(
       configPath="$KWM_CONFIG_PATH_REMOTE" \

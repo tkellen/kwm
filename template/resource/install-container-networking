@@ -24,7 +24,6 @@ echo Installing cri-containerd.
 #------------------------------------------------------------------------------#
 $(version="$KWM_VERSION_CRI_CONTAINERD" template installer cri-containerd)
 $(name="containerd" template service enable)
-$(name="cri-containerd" template service enable)
 #------------------------------------------------------------------------------#
 echo Installing container networking plugins at version $KWM_VERSION_CNI_PLUGIN.
 #------------------------------------------------------------------------------#

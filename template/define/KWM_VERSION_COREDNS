@@ -1,0 +1,3 @@
+Controls what version of CoreDNS is used for DNS pods.
+
+https://coredns.io

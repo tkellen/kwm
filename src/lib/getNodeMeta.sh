@@ -18,10 +18,12 @@
 # KWM_HOSTNAME="my-first-node"
 getNodeMeta() {
   local nodeKey=${1:-""}
-  export KWM_ROLE="${KWM_ROLE:-$(nodeValue $nodeKey ROLE)}"
-  export KWM_HOSTNAME="${KWM_HOSTNAME:-$(nodeValue $nodeKey HOSTNAME)}"
-  export KWM_CONNECT="${KWM_CONNECT:-$(nodeValue $nodeKey CONNECT)}"
-  export KWM_PRIVATE_IP="${KWM_PRIVATE_IP:-$(nodeValue $nodeKey PRIVATE_IP)}"
+  if [[ -n $nodeKey ]]; then
+    export KWM_ROLE="${KWM_ROLE:-$(nodeValue $nodeKey ROLE)}"
+    export KWM_HOSTNAME="${KWM_HOSTNAME:-$(nodeValue $nodeKey HOSTNAME)}"
+    export KWM_CONNECT="${KWM_CONNECT:-$(nodeValue $nodeKey CONNECT)}"
+    export KWM_PRIVATE_IP="${KWM_PRIVATE_IP:-$(nodeValue $nodeKey PRIVATE_IP)}"
+  fi
 }
 
 export -f getNodeMeta # allow subprocesses to access these functions

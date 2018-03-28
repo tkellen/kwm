@@ -17,7 +17,7 @@ requiredEnv() {
     KWM_CONFIG_PATH_LOCAL
     KWM_CONFIG_PATH_REMOTE
   )
-  local dns_manifest=(KWM_VERSION_KUBE_DNS KWM_DNS_SERVICE_IP)
+  local dns_manifest=(KWM_VERSION_COREDNS KWM_DNS_SERVICE_IP)
   local encryption_config=(
     KWM_ENCRYPTION_KEY
   )
@@ -128,7 +128,7 @@ requiredEnv() {
     KWM_VERSION_CRI_CONTAINERD
     KWM_VERSION_ETCD
     KWM_VERSION_KUBERNETES
-    KWM_VERSION_KUBE_DNS
+    KWM_VERSION_COREDNS
     KWM_VERSION_KUBE_ROUTER
   )
   [[ -z "${!lookup:-}" ]] && exit 1

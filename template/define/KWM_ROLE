@@ -8,7 +8,7 @@ separating them with spaces, e.g.
     Runs kube-apiserver, kube-scheduler and kube-controller-manager.
 
   worker
-    Runs kubelet, containerd, cri-containerd.
+    Runs kubelet, containerd.
 
 For nodes marked as a worker, this controls the role applied to the Kubelet.
 

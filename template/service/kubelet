@@ -6,7 +6,7 @@
   --cluster-dns=${clusterDns} \\
   --cluster-domain=cluster.local \\
   --container-runtime=remote \\
-  --container-runtime-endpoint=unix:///var/run/cri-containerd.sock \\
+  --container-runtime-endpoint=unix:///run/containerd/containerd.sock \\
   --kubeconfig=${configPath}/kubelet.kubeconfig \\
   --network-plugin=cni \\
   --pod-cidr=${podCidr} \\
@@ -17,7 +17,7 @@ output=""
 for role in $roles;
   do output+=",node-role.kubernetes.io/$role=true";
 done
-[[ -n $output ]] && output="--node-labels=\"${output:1}\""
-[[ $roles == *"controlplane"* && $roles != *"worker"* ]] && output+=" --register-with-taints=\"node-role.kubernetes.io/controlplane=true:NoSchedule\""
+[[ -n $output ]] && output="--node-labels=${output:1}"
+[[ $roles == *"controlplane"* && $roles != *"worker"* ]] && output+=" --register-with-taints=node-role.kubernetes.io/controlplane=true:NoSchedule"
 [[ -n $output ]] && echo "$output"
 )
