@@ -1,1 +1,1 @@
-openssl ec -in ${KWM_PKI_PATH}/${KWM_PKI_NAME}-private-key.pem -outform PEM -pubout -out ${KWM_PKI_PATH}/${KWM_PKI_NAME}-public-key.pem
+openssl ec -in ${KWM_PKI_PATH}/${KWM_PKI_NAME}.key -outform PEM -pubout -out ${KWM_PKI_PATH}/${KWM_PKI_NAME}.pub

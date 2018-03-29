@@ -3,7 +3,7 @@ echo Creating kubelet config.
 #------------------------------------------------------------------------------#
 $(path="$KWM_CONFIG_PATH_REMOTE/kubelet.kubeconfig" \
   content="$(
-    name="kubelet-to-apiserver" \
+    name="apiserver-client" \
     user="system:node:$KWM_HOSTNAME" \
     clusterName="$KWM_CLUSTER_NAME" \
     apiserver="$KWM_APISERVER_PRIVATE_IP" \

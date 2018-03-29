@@ -8,15 +8,15 @@ KWM_PKI_SUBJ="/CN=$KWM_CLUSTER_NAME" \\
 #------------------------------------------------------------------------------#
 # Create private key for cluster admin to apiserver communication.
 #------------------------------------------------------------------------------#
-KWM_PKI_NAME="cluster-admin-to-apiserver" \\
+KWM_PKI_NAME="admin" \\
 KWM_PKI_PATH="$KWM_CONFIG_PATH_LOCAL" \\
   $SCRIPT_NAME render pki-create-private-key | bash
 #------------------------------------------------------------------------------#
 # Create cluster-ca signed cert for cluster admin to apiserver communication.
 #------------------------------------------------------------------------------#
-KWM_PKI_NAME="cluster-admin-to-apiserver" \\
+KWM_PKI_NAME="admin" \\
 KWM_PKI_PATH="$KWM_CONFIG_PATH_LOCAL" \\
-KWM_PKI_SUBJ="/CN=root/O=system:masters" \\
+KWM_PKI_SUBJ="/CN=admin/O=system:masters" \\
 KWM_PKI_CA="cluster" \\
   $SCRIPT_NAME render pki-create-signed-cert | bash
 #------------------------------------------------------------------------------#
@@ -30,13 +30,13 @@ KWM_PKI_EXT="subjectAltName = $KWM_ETCD_CLIENT_SANS" \\
 #------------------------------------------------------------------------------#
 # Create private key for apiserver to etcd server communication.
 #------------------------------------------------------------------------------#
-KWM_PKI_NAME="apiserver-to-etcd" \\
+KWM_PKI_NAME="etcd-client" \\
 KWM_PKI_PATH="$KWM_CONFIG_PATH_LOCAL" \\
   $SCRIPT_NAME render pki-create-private-key | bash
 #------------------------------------------------------------------------------#
 # Create etcd-ca signed cert for apiserver to etcd communication.
 #------------------------------------------------------------------------------#
-KWM_PKI_NAME="apiserver-to-etcd" \\
+KWM_PKI_NAME="etcd-client" \\
 KWM_PKI_PATH="$KWM_CONFIG_PATH_LOCAL" \\
 KWM_PKI_SUBJ="/CN=etcd" \\
 KWM_PKI_CA="etcd" \\
