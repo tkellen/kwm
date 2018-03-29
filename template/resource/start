@@ -38,14 +38,14 @@ $SCRIPT_NAME render dns-manifest | kubectl --context=$KWM_CLUSTER_NAME apply -f 
 #------------------------------------------------------------------------------#
 # HACK bouncing containerd to pick up cni settings.
 #------------------------------------------------------------------------------#
-sleep 30
+sleep 10
 (($SCRIPT_NAME nodes controlplane && $SCRIPT_NAME nodes worker) | uniq |
   xargs -n1 -I {nodeKey} bash -c "echo 'sudo systemctl restart containerd' | $SCRIPT_NAME connect {nodeKey}"
 ) 2>&1 | sed 's/^/[hack] /'
 #------------------------------------------------------------------------------#
 # Confirming the cluster is functional.
 #------------------------------------------------------------------------------#
-sleep 60
+sleep 10
 kubectl --context=${KWM_CLUSTER_NAME} get componentstatus
 kubectl --context=${KWM_CLUSTER_NAME} get nodes -o wide
 kubectl --context=${KWM_CLUSTER_NAME} get pods -o wide --all-namespaces

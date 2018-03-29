@@ -22,4 +22,4 @@ Examples:
   $SCRIPT_NAME render assets
 
   # Inspect this value by reading the generated cert directly.
-  openssl x509 -noout -text -in apiserver-to-etcd-cert.pem | grep DNS
+  openssl x509 -noout -text -in etcd-client.crt | grep DNS

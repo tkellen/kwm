@@ -1,25 +1,15 @@
 $(getenv set-hostname | awk 1 ORS=' \\\n')
   $SCRIPT_NAME render set-hostname
 
-KWM_PKI_NAME=client-to-apiserver \\
+KWM_PKI_NAME=apiserver \\
 KWM_PKI_PATH="$KWM_CONFIG_PATH_REMOTE" \\
   kwm render pki-create-private-key
 
-KWM_PKI_NAME=apiserver-to-kubelet \\
+KWM_PKI_NAME="apiserver" \\
 KWM_PKI_PATH="$KWM_CONFIG_PATH_REMOTE" \\
-  kwm render pki-create-private-key
-
-KWM_PKI_NAME="client-to-apiserver" \\
-KWM_PKI_PATH="$KWM_CONFIG_PATH_REMOTE" \\
-KWM_PKI_SUBJ="/CN=kube-apiserver" \\
+KWM_PKI_SUBJ="/CN=kube-apiserver/O=kube-master" \\
 KWM_PKI_CA=cluster \\
 KWM_PKI_EXT="subjectAltName = IP:$KWM_APISERVER_PUBLIC_IP,IP:$KWM_KUBERNETES_SERVICE_IP,IP:$KWM_PRIVATE_IP,DNS:$KWM_HOSTNAME,DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.cluster,DNS:kubernetes.default.svc.cluster.local" \\
-  kwm render pki-create-signed-cert
-
-KWM_PKI_NAME="apiserver-to-kubelet" \\
-KWM_PKI_PATH="$KWM_CONFIG_PATH_REMOTE" \\
-KWM_PKI_SUBJ="/CN=kube-apiserver-client/O=system:masters" \\
-KWM_PKI_CA=cluster \\
   kwm render pki-create-signed-cert
 
 $(getenv install-kube-apiserver | awk 1 ORS=' \\\n')

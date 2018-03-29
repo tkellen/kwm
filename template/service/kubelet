@@ -2,7 +2,7 @@
   --node-ip=${privateIp} \\
   --allow-privileged=true \\
   --anonymous-auth=false \\
-  --client-ca-file=${configPath}/cluster-ca-cert.pem \\
+  --client-ca-file=${configPath}/cluster-ca.crt \\
   --cluster-dns=${clusterDns} \\
   --cluster-domain=cluster.local \\
   --container-runtime=remote \\
@@ -10,8 +10,8 @@
   --kubeconfig=${configPath}/kubelet.kubeconfig \\
   --network-plugin=cni \\
   --pod-cidr=${podCidr} \\
-  --tls-cert-file=${configPath}/kubelet-to-apiserver-cert.pem \\
-  --tls-private-key-file=${configPath}/kubelet-to-apiserver-private-key.pem \\
+  --tls-cert-file=${configPath}/apiserver-client.crt \\
+  --tls-private-key-file=${configPath}/apiserver-client.key \\
   --fail-swap-on=false $(
 output=""
 for role in $roles;

@@ -1,11 +1,11 @@
 $(getenv set-hostname | awk 1 ORS=' \\\n')
   $SCRIPT_NAME render set-hostname
 
-KWM_PKI_NAME=kubelet-to-apiserver \\
+KWM_PKI_NAME=apiserver-client \\
 KWM_PKI_PATH="$KWM_CONFIG_PATH_REMOTE" \\
   kwm render pki-create-private-key
 
-KWM_PKI_NAME=kubelet-to-apiserver \\
+KWM_PKI_NAME=apiserver-client \\
 KWM_PKI_PATH="$KWM_CONFIG_PATH_REMOTE" \\
 KWM_PKI_SUBJ="/CN=system:node:$KWM_HOSTNAME/O=system:nodes" \\
 KWM_PKI_CA=cluster \\
