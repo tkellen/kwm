@@ -8,13 +8,13 @@ Usage:
     dns-manifest
     encryption-config
     install-container-networking
+    install-deps
     install-etcd
     install-kube-apiserver
     install-kube-controller-manager
     install-kube-scheduler
     install-kubectl
     install-kubelet
-    install-socat
     pki
     pki-create-ca
     pki-create-private-key

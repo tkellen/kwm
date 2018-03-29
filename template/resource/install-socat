@@ -1,2 +1,0 @@
-command -v apt-get &>/dev/null && (apt-get -qq update && apt-get -yqq install socat)
-command -v yum  &>/dev/null && yum install socat -y

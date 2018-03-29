@@ -22,7 +22,7 @@ KWM_PKI_SUBJ="/CN=system:kube-router" \\
 KWM_PKI_CA=cluster \\
   kwm render pki-create-signed-cert
 
-$SCRIPT_NAME render install-socat
+$SCRIPT_NAME render install-deps
 
 $(getenv install-container-networking | awk 1 ORS=' \\\n')
   $SCRIPT_NAME render install-container-networking
