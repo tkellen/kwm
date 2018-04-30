@@ -1,22 +1,30 @@
 #------------------------------------------------------------------------------#
 echo Installing kube-controller-manager at version $KWM_VERSION_KUBERNETES.
 #------------------------------------------------------------------------------#
-$(version="$KWM_VERSION_KUBERNETES" name="kube-controller-manager" template installer k8s)
+$(version="$KWM_VERSION_KUBERNETES" name="kube-controller-manager" template resource install-k8s-component)
 #------------------------------------------------------------------------------#
 echo Creating kube-controller service file.
 #------------------------------------------------------------------------------#
-$(path="/etc/systemd/system/kube-controller-manager.service" content="$(
-  name="kube-controller-manager" \
-  after="network.target" \
-  requires="" \
-  exec="$(
-    configPath="$KWM_CONFIG_PATH_REMOTE" \
-    clusterName="$KWM_CLUSTER_NAME" \
-    serviceCidr="$KWM_SERVICE_CIDR" \
-    podCidr="$KWM_POD_CIDR" \
-    template service kube-controller-manager
-  )" template service unit)" template util write-file
+cat <<"SERVICE" > /etc/systemd/system/kube-controller-manager.service
+[Unit]
+Description=kube-controller-manager
+After=network.target
+
+[Service]
+ExecStart=$(
+  configPath="$KWM_CONFIG_PATH_REMOTE" \
+  clusterName="$KWM_CLUSTER_NAME" \
+  serviceCidr="$KWM_SERVICE_CIDR" \
+  podCidr="$KWM_POD_CIDR" \
+  template service kube-controller-manager
 )
+Restart=always
+RestartSec=3
+StartLimitInterval=0
+
+[Install]
+WantedBy=multi-user.target
+SERVICE
 #------------------------------------------------------------------------------#
 echo Enabling kube-controller-manager service.
 #------------------------------------------------------------------------------#

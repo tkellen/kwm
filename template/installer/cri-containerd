@@ -1,3 +1,0 @@
-cd /tmp
-curl -sSLo cri-containerd.tar.gz https://storage.googleapis.com/cri-containerd-release/cri-containerd-1.1.0-rc.0.linux-amd64.tar.gz
-tar xf cri-containerd.tar.gz --directory /

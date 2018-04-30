@@ -1,30 +1,13 @@
 #------------------------------------------------------------------------------#
-echo Creating kube-router config.
+echo Installing container networking plugins at version $KWM_VERSION_CNI_PLUGIN.
 #------------------------------------------------------------------------------#
-$(path="$KWM_CONFIG_PATH_REMOTE/kube-router.kubeconfig" \
-  content="$(
-    name="kube-router-to-apiserver" \
-    user="kube-router" \
-    clusterName="$KWM_CLUSTER_NAME" \
-    apiserver="$KWM_APISERVER_PRIVATE_IP" \
-    configPath="$KWM_CONFIG_PATH_REMOTE" template resource kubeconfig-manifest
-  )" template util write-file
-)
+cd /tmp
+curl -sSLo cni.tgz https://github.com/containernetworking/plugins/releases/download/v${KWM_VERSION_CNI_PLUGIN}/cni-plugins-amd64-v${KWM_VERSION_CNI_PLUGIN}.tgz
+mkdir -p /opt/cni/bin /etc/cni/net.d
+tar xf cni.tgz --directory /opt/cni/bin
 #------------------------------------------------------------------------------#
 echo Creating CNI network configuration.
 #------------------------------------------------------------------------------#
-$(content='{ "cniVersion": "0.3.1", "type": "loopback" }' \
-  path="/etc/cni/net.d/99-loopback.conf" template util write-file
-)
-$(content='{"name": "kubernetes", "type": "bridge", "bridge": "kube-bridge", "ipam": { "type": "host-local" }, "isDefaultGateway": true }' \
-  path="/etc/cni/net.d/10-kuberouter.conf" template util write-file
-)
-#------------------------------------------------------------------------------#
-echo Installing cri-containerd.
-#------------------------------------------------------------------------------#
-$(version="$KWM_VERSION_CRI_CONTAINERD" template installer cri-containerd)
-$(name="containerd" template service enable)
-#------------------------------------------------------------------------------#
-echo Installing container networking plugins at version $KWM_VERSION_CNI_PLUGIN.
-#------------------------------------------------------------------------------#
-$(version="$KWM_VERSION_CNI_PLUGIN" template installer cni-plugins)
+cat <<"CONFIG" > /etc/cni/net.d/99-loopback.conf
+{ "cniVersion": "0.3.1", "type": "loopback" }
+CONFIG

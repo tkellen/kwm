@@ -11,18 +11,11 @@ KWM_PKI_SUBJ="/CN=system:node:$KWM_HOSTNAME/O=system:nodes" \\
 KWM_PKI_CA=cluster \\
 KWM_PKI_EXT="subjectAltName = IP:$KWM_PRIVATE_IP,DNS:$KWM_HOSTNAME" \\
   kwm render pki-create-signed-cert
-
-KWM_PKI_NAME=kube-router-to-apiserver \\
-KWM_PKI_PATH="$KWM_CONFIG_PATH_REMOTE" \\
-  kwm render pki-create-private-key
-
-KWM_PKI_NAME=kube-router-to-apiserver \\
-KWM_PKI_PATH="$KWM_CONFIG_PATH_REMOTE" \\
-KWM_PKI_SUBJ="/CN=system:kube-router" \\
-KWM_PKI_CA=cluster \\
-  kwm render pki-create-signed-cert
-
+  
 $SCRIPT_NAME render install-deps
+
+$(getenv install-container-runtime | awk 1 ORS=' \\\n')
+  $SCRIPT_NAME render install-container-runtime
 
 $(getenv install-container-networking | awk 1 ORS=' \\\n')
   $SCRIPT_NAME render install-container-networking

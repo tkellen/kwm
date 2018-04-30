@@ -8,7 +8,8 @@ requiredEnv() {
     KWM_APISERVER_PUBLIC_IP
   )
   local cni_manifest=(
-    KWM_CONFIG_PATH_REMOTE
+    KWM_APISERVER_PRIVATE_IP
+    KWM_POD_CIDR
     KWM_VERSION_KUBE_ROUTER
   )
   local copy_node_assets=(
@@ -25,8 +26,10 @@ requiredEnv() {
     KWM_CONFIG_PATH_REMOTE
     KWM_CLUSTER_NAME
     KWM_APISERVER_PRIVATE_IP
-    KWM_VERSION_CRI_CONTAINERD
     KWM_VERSION_CNI_PLUGIN
+  )
+  local install_container_runtime=(
+    KWM_VERSION_CONTAINERD
   )
   local install_etcd=(
     KWM_VERSION_ETCD
@@ -125,7 +128,7 @@ requiredEnv() {
     KWM_POD_CIDR
     KWM_SERVICE_CIDR
     KWM_VERSION_CNI_PLUGIN
-    KWM_VERSION_CRI_CONTAINERD
+    KWM_VERSION_CONTAINERD
     KWM_VERSION_ETCD
     KWM_VERSION_KUBERNETES
     KWM_VERSION_COREDNS

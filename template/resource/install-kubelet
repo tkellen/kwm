@@ -1,34 +1,56 @@
 #------------------------------------------------------------------------------#
 echo Creating kubelet config.
 #------------------------------------------------------------------------------#
-$(path="$KWM_CONFIG_PATH_REMOTE/kubelet.kubeconfig" \
-  content="$(
-    name="apiserver-client" \
-    user="system:node:$KWM_HOSTNAME" \
-    clusterName="$KWM_CLUSTER_NAME" \
-    apiserver="$KWM_APISERVER_PRIVATE_IP" \
-    configPath="$KWM_CONFIG_PATH_REMOTE" template resource kubeconfig-manifest
-  )" template util write-file
-)
+mkdir -p $KWM_CONFIG_PATH_REMOTE
+cat <<"MANIFEST" > $KWM_CONFIG_PATH_REMOTE/kubelet.kubeconfig
+apiVersion: v1
+kind: Config
+current-context: default
+clusters:
+  - cluster:
+      certificate-authority: ${KWM_CONFIG_PATH_REMOTE}/cluster-ca.crt
+      server: https://${KWM_APISERVER_PRIVATE_IP}:6443
+    name: $KWM_CLUSTER_NAME
+contexts:
+  - context:
+      cluster: $KWM_CLUSTER_NAME
+      user: system:node:$KWM_HOSTNAME
+    name: default
+users:
+  - name: system:node:$KWM_HOSTNAME
+    user:
+      client-certificate: ${KWM_CONFIG_PATH_REMOTE}/apiserver-client.crt
+      client-key: ${KWM_CONFIG_PATH_REMOTE}/apiserver-client.key
+MANIFEST
+
 #------------------------------------------------------------------------------#
 echo Installing kubelet at version $KWM_VERSION_KUBERNETES.
 #------------------------------------------------------------------------------#
-$(name="kubelet" version="$KWM_VERSION_KUBERNETES" template installer k8s)
+$(name="kubelet" version="$KWM_VERSION_KUBERNETES" template resource install-k8s-component)
 #------------------------------------------------------------------------------#
 echo Creating kubelet service.
 #------------------------------------------------------------------------------#
-$(path="/etc/systemd/system/kubelet.service" content="
-  $(name="kubelet" \
-    after="containerd.service" \
-    requires="containerd.service" \
-    roles="$KWM_ROLE" \
-    exec="$(
-      configPath="$KWM_CONFIG_PATH_REMOTE" \
-      privateIp="$KWM_PRIVATE_IP" \
-      clusterDns="$KWM_DNS_SERVICE_IP" \
-      podCidr="$KWM_POD_CIDR" template service kubelet
-    )" template service unit
-)" template util write-file)
+cat <<"SERVICE" > /etc/systemd/system/kubelet.service
+[Unit]
+Description=kubelet
+After=containerd.service
+Requires=containerd.service
+
+[Service]
+ExecStart=$(
+  configPath="$KWM_CONFIG_PATH_REMOTE" \
+  privateIp="$KWM_PRIVATE_IP" \
+  clusterDns="$KWM_DNS_SERVICE_IP" \
+  roles="$KWM_ROLE" \
+  podCidr="$KWM_POD_CIDR" template service kubelet
+)
+Restart=always
+RestartSec=3
+StartLimitInterval=0
+
+[Install]
+WantedBy=multi-user.target
+SERVICE
 #------------------------------------------------------------------------------#
 echo Enabling and restarting service.
 #------------------------------------------------------------------------------#

@@ -1,21 +1,30 @@
 #------------------------------------------------------------------------------#
 echo Installing kube-apiserver at version $KWM_VERSION_KUBERNETES.
 #------------------------------------------------------------------------------#
-$(version="$KWM_VERSION_KUBERNETES" name="kube-apiserver" template installer k8s)
+$(version="$KWM_VERSION_KUBERNETES" name="kube-apiserver" template resource install-k8s-component)
 #------------------------------------------------------------------------------#
 echo Creating kube-apiserver service file.
 #------------------------------------------------------------------------------#
-$(path="/etc/systemd/system/kube-apiserver.service" content="$(
-  name="kube-apiserver" \
-  after="network.target" \
-  exec="$(
-    count="1" \
-    configPath="$KWM_CONFIG_PATH_REMOTE" \
-    privateIp="$KWM_PRIVATE_IP" \
-    serviceCidr="$KWM_SERVICE_CIDR" \
-    etcdServers="$KWM_ETCD_SERVERS" template service kube-apiserver
-  )" template service unit)" template util write-file
+cat <<"SERVICE" > /etc/systemd/system/kube-apiserver.service
+[Unit]
+Description=kube-apiserver
+After=network.target
+
+[Service]
+ExecStart=$(
+  count="1" \
+  configPath="$KWM_CONFIG_PATH_REMOTE" \
+  privateIp="$KWM_PRIVATE_IP" \
+  serviceCidr="$KWM_SERVICE_CIDR" \
+  etcdServers="$KWM_ETCD_SERVERS" template service kube-apiserver
 )
+Restart=always
+RestartSec=3
+StartLimitInterval=0
+
+[Install]
+WantedBy=multi-user.target
+SERVICE
 #------------------------------------------------------------------------------#
 echo Enabling kube-apiserver service.
 #------------------------------------------------------------------------------#

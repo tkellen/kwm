@@ -1,0 +1,40 @@
+#------------------------------------------------------------------------------#
+echo Installing runc at version ${KWM_VERSION_RUNC}
+#------------------------------------------------------------------------------#
+cd /tmp
+curl -sSLo runc https://github.com/opencontainers/runc/releases/download/v${KWM_VERSION_RUNC}/runc.amd64
+chmod +x runc
+mkdir -p /usr/local/bin
+mv runc /usr/local/bin
+#------------------------------------------------------------------------------#
+echo Installing containerd at version ${KWM_VERSION_CONTAINERD}
+#------------------------------------------------------------------------------#
+cd /tmp
+curl -sSLo containerd.tar.gz https://github.com/containerd/containerd/releases/download/v1.1.0/containerd-${KWM_VERSION_CONTAINERD}.linux-amd64.tar.gz
+tar xf containerd.tar.gz
+mkdir -p /usr/local/bin
+mv bin/* /usr/local/bin
+#------------------------------------------------------------------------------#
+echo Generating containerd service file.
+#------------------------------------------------------------------------------#
+cat <<"SERVICE" > /etc/systemd/system/containerd.service
+[Unit]
+Description=containerd
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/containerd
+Restart=always
+RestartSec=3
+StartLimitInterval=0
+ExecStartPre=/sbin/modprobe overlay
+Delegate=yes
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
+SERVICE
+#------------------------------------------------------------------------------#
+echo Enabling and restarting service.
+#------------------------------------------------------------------------------#
+$(name="containerd" template service enable)

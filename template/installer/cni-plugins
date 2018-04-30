@@ -1,4 +1,0 @@
-cd /tmp
-curl -sSLo cni.tgz https://github.com/containernetworking/plugins/releases/download/v${version}/cni-plugins-amd64-v${version}.tgz
-mkdir -p /opt/cni/bin /etc/cni/net.d
-tar xf cni.tgz --directory /opt/cni/bin

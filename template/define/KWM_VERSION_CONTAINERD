@@ -1,0 +1,3 @@
+Controls what version of containerd is installed on all worker nodes.
+
+https://github.com/containerd/containerd

@@ -1,20 +1,34 @@
 #------------------------------------------------------------------------------#
 echo Installing etcd at version $KWM_VERSION_ETCD.
 #------------------------------------------------------------------------------#
-$(version="$KWM_VERSION_ETCD" template installer etcd)
+cd /tmp
+mkdir -p /var/lib/etcd
+curl -sSLo etcd.tar.gz https://github.com/coreos/etcd/releases/download/v$KWM_VERSION_ETCD/etcd-v$KWM_VERSION_ETCD-linux-amd64.tar.gz
+tar xf etcd.tar.gz
+mkdir -p /usr/local/bin
+mv etcd-v${KWM_VERSION_ETCD}-linux-amd64/etcd* /usr/local/bin
 #------------------------------------------------------------------------------#
 echo Generating etcd service file.
 #------------------------------------------------------------------------------#
-$(path="/etc/systemd/system/etcd.service" content="$(
-  name="etcd" \
-  after="network.target" \
-  exec="$(
-    configPath="$KWM_CONFIG_PATH_REMOTE" \
-    name="$KWM_HOSTNAME" \
-    privateIp="$KWM_PRIVATE_IP" \
-    initialCluster="$KWM_ETCD_INITIAL_CLUSTER" template service etcd
-  )" template service unit)" template util write-file
+cat <<"SERVICE" > /etc/systemd/system/etcd.service
+[Unit]
+Description=etcd
+After=network.target
+
+[Service]
+ExecStart=$(
+  configPath="$KWM_CONFIG_PATH_REMOTE" \
+  name="$KWM_HOSTNAME" \
+  privateIp="$KWM_PRIVATE_IP" \
+  initialCluster="$KWM_ETCD_INITIAL_CLUSTER" template service etcd
 )
+Restart=always
+RestartSec=3
+StartLimitInterval=0
+
+[Install]
+WantedBy=multi-user.target
+SERVICE
 #------------------------------------------------------------------------------#
 echo Enabling and restarting service.
 #------------------------------------------------------------------------------#

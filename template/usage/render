@@ -2,12 +2,12 @@ Render a template for bootstrapping a Kubernetes cluster.
 
 Usage:
   $SCRIPT_NAME render [
-    assets
     cluster-admin
     cni-manifest
     dns-manifest
     encryption-config
     install-container-networking
+    install-container-runtime
     install-deps
     install-etcd
     install-kube-apiserver
@@ -21,7 +21,7 @@ Usage:
     pki-create-public-key
     pki-create-signed-cert
     set-hostname
-    startup
+    start
   ]
   $SCRIPT_NAME render [
     copy-node-assets
@@ -37,13 +37,10 @@ Examples:
   # Run script to generate cluster assets
   $SCRIPT_NAME render pki | bash | bash
 
-  # Save script to generate cluster assets (to share with others).
-  $SCRIPT_NAME render assets > generate-pki
-
-  # Inspect yaml manifest to install container networking interface.
+  # Inspect yaml manifest to install container networking plugins.
   $SCRIPT_NAME render cni-manifest
 
-  # Save yaml manifest to install container networking interface.
+  # Save yaml manifest to install container networking plugins.
   $SCRIPT_NAME render cni-manifest > cni.yml
 
   # Install container networking solution in your cluster.

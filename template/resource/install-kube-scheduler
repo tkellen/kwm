@@ -1,16 +1,24 @@
 #------------------------------------------------------------------------------#
 echo Installing kube-scheduler at version $KWM_VERSION_KUBERNETES.
 #------------------------------------------------------------------------------#
-$(version="$KWM_VERSION_KUBERNETES" name="kube-scheduler" template installer k8s)
+$(version="$KWM_VERSION_KUBERNETES" name="kube-scheduler" template resource install-k8s-component)
 #------------------------------------------------------------------------------#
 echo Generating kube-scheduler service file.
 #------------------------------------------------------------------------------#
-$(path="/etc/systemd/system/kube-scheduler.service" content="$(
-  name="kube-scheduler" \
-  after="network.target" \
-  requires="" \
-  exec="$(template service kube-scheduler)" template service unit)" template util write-file
-)
+cat <<"SERVICE" > /etc/systemd/system/kube-scheduler.service
+[Unit]
+Description=kube-scheduler
+After=network.target
+
+[Service]
+ExecStart=$(template service kube-scheduler)
+Restart=always
+RestartSec=3
+StartLimitInterval=0
+
+[Install]
+WantedBy=multi-user.target
+SERVICE
 #------------------------------------------------------------------------------#
 echo Enabling kube-scheduler service.
 #------------------------------------------------------------------------------#
