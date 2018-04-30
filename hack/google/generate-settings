@@ -5,25 +5,5 @@ cat <<EOF
 export KWM_CLUSTER_NAME=$(terraform output NAME)
 export KWM_APISERVER_PUBLIC_IP="$(terraform output CONTROLPLANE_SSH_IPS | head -n 1 | sed 's/,$//')"
 export KWM_APISERVER_PRIVATE_IP="$(terraform output CONTROLPLANE_PRIVATE_IPS | head -n 1 | sed 's/,$//')"
-export KWM_POD_CIDR=10.1.0.0/16
-export KWM_SERVICE_CIDR=10.10.0.0/24
-export KWM_KUBERNETES_SERVICE_IP=10.10.0.1
-export KWM_DNS_SERVICE_IP=10.10.0.2
-export KWM_SSH_USER=root
-export KWM_VERSION_ETCD=3.2.14
-export KWM_VERSION_KUBERNETES=1.9.0
-export KWM_VERSION_COREDNS=1.1.1
-export KWM_VERSION_CNI_PLUGIN=0.6.0
-export KWM_VERSION_CRI_CONTAINERD=1.0.0-beta.1
-export KWM_VERSION_KUBE_ROUTER=0.1.0-rc1
-export KWM_VERSION_TRAEFIK=1.5.0-rc2
-export KWM_CONTROLPLANE_HOSTNAMES=$(terraform output CONTROLPLANE_HOSTNAMES | tr -d '\n')
-export KWM_CONTROLPLANE_SSH_IPS=$(terraform output CONTROLPLANE_SSH_IPS | tr -d '\n')
-export KWM_CONTROLPLANE_PRIVATE_IPS=$(terraform output CONTROLPLANE_PRIVATE_IPS | tr -d '\n')
-export KWM_ETCD_HOSTNAMES=$(terraform output ETCD_HOSTNAMES | tr -d '\n')
-export KWM_ETCD_SSH_IPS=$(terraform output ETCD_SSH_IPS | tr -d '\n')
-export KWM_ETCD_PRIVATE_IPS=$(terraform output ETCD_PRIVATE_IPS | tr -d '\n')
-export KWM_WORKER_HOSTNAMES=$(terraform output WORKER_HOSTNAMES | tr -d '\n')
-export KWM_WORKER_SSH_IPS=$(terraform output WORKER_SSH_IPS | tr -d '\n')
-export KWM_WORKER_PRIVATE_IPS=$(terraform output WORKER_PRIVATE_IPS | tr -d '\n')
+export KWM_ENCRYPTION_KEY="$(head -c 32 /dev/urandom | base64)"
 EOF
