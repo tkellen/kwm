@@ -1,3 +1,12 @@
+v0.8.2:
+  date: 2018-06-29
+  sha256: 92283f695929394ff38e5c7b152c0a6aef88feb7f9b58a18ec84a5a1fadbed4f
+  changes:
+    - [bugfix] insert pauses in demo startup (39484a5)
+    - [bugfix] ensure multi-role node receives all assets (312750d)
+    - [bugfix] replace hardcoded containerd version value with variable (ea19017)
+    - [feature] bump dependencies (4af899e)
+    - [bugfix] fix typo in help screen text (3bad3ba)
 v0.8.1:
   date: 2018-06-29
   sha256: 4e70dfbb51be5f8348fc48d130cfd34d956cdd32aed7f17a5052c0f4a0ed5e57

@@ -24,7 +24,7 @@ templates inlined as functions.
 
 **Bundled**
 ```
-wget https://github.com/tkellen/kwm/releases/download/v0.8.1/kwm
+wget https://github.com/tkellen/kwm/releases/download/v0.8.2/kwm
 chmod +x kwm
 export PATH=$PATH:$PWD
 kwm
@@ -33,8 +33,8 @@ kwm
 **Unbundled**
 ```
 mkdir kwm && cd kwm
-wget https://github.com/tkellen/kwm/releases/download/v0.8.1/kwm-unbundled-v0.8.1.tar.gz
-tar xzf kwm-unbundled-v0.8.1.tar.gz
+wget https://github.com/tkellen/kwm/releases/download/v0.8.2/kwm-unbundled-v0.8.2.tar.gz
+tar xzf kwm-unbundled-v0.8.2.tar.gz
 export PATH=$PATH:$PWD
 kwm
 ```
