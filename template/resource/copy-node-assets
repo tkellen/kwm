@@ -1,5 +1,6 @@
-[[ $KWM_ROLE =~ etcd ]] && files="etcd-ca.crt etcd-ca.key etcd-client.key etcd-client.crt"
-[[ $KWM_ROLE =~ controlplane ]] && files="etcd-client.crt etcd-client.key cluster-ca.crt cluster-ca.key encryption-config.yml etcd-ca.crt etcd-ca.key service-account.key service-account.pub"
-[[ $KWM_ROLE =~ worker ]] && files="cluster-ca.crt cluster-ca.key"
+files=""
+[[ "$KWM_ROLE" =~ etcd ]] && files+="etcd-ca.crt etcd-ca.key etcd-client.key etcd-client.crt "
+[[ "$KWM_ROLE" =~ controlplane ]] && files+="etcd-client.crt etcd-client.key cluster-ca.crt cluster-ca.key encryption-config.yml etcd-ca.crt etcd-ca.key service-account.key service-account.pub "
+[[ "$KWM_ROLE" =~ worker ]] && files+="cluster-ca.crt cluster-ca.key "
 
 tar c -C ${KWM_CONFIG_PATH_LOCAL} \${files} | $KWM_CONNECT "(sudo mkdir -p ${KWM_CONFIG_PATH_REMOTE}; cd ${KWM_CONFIG_PATH_REMOTE}; sudo tar xf -)"
