@@ -13,7 +13,7 @@ running through a few workshops:
 When you are ready, prepare an Ubuntu server that you can SSH to with root
 access (using any means you wish) and run this:
 
-  $SCRIPT_NAME startup
+  KWM_ENCRYPTION_KEY="$(head -c 32 /dev/urandom | base64)" $SCRIPT_NAME start
 
 Unless you have already configured your environment, the first response will be
 an error. Don't worry, that's expected.
