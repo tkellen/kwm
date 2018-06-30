@@ -10,7 +10,7 @@ mv runc /usr/local/bin
 echo Installing containerd at version ${KWM_VERSION_CONTAINERD}
 #------------------------------------------------------------------------------#
 cd /tmp
-curl -sSLo containerd.tar.gz https://github.com/containerd/containerd/releases/download/v1.1.0/containerd-${KWM_VERSION_CONTAINERD}.linux-amd64.tar.gz
+curl -sSLo containerd.tar.gz https://github.com/containerd/containerd/releases/download/v${KWM_VERSION_CONTAINERD}/containerd-${KWM_VERSION_CONTAINERD}.linux-amd64.tar.gz
 tar xf containerd.tar.gz
 mkdir -p /usr/local/bin
 mv bin/* /usr/local/bin
