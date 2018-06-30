@@ -27,6 +27,7 @@ $SCRIPT_NAME nodes worker | xargs -n1 -I {nodeKey} bash -c '
 # Configuring kubectl for cluster-admin level access.
 #------------------------------------------------------------------------------#
 $SCRIPT_NAME render cluster-admin | bash 2>&1 | sed 's/^/[configuring kubectl] /'
+sleep 60
 #------------------------------------------------------------------------------#
 # Installing a container networking plugin.
 #------------------------------------------------------------------------------#
@@ -38,7 +39,7 @@ $SCRIPT_NAME render dns-manifest | kubectl --context=$KWM_CLUSTER_NAME apply -f 
 #------------------------------------------------------------------------------#
 # HACK bouncing containerd to pick up cni settings.
 #------------------------------------------------------------------------------#
-sleep 10
+sleep 30
 (($SCRIPT_NAME nodes controlplane && $SCRIPT_NAME nodes worker) | uniq |
   xargs -n1 -I {nodeKey} bash -c "echo 'sudo systemctl restart containerd' | $SCRIPT_NAME connect {nodeKey}"
 ) 2>&1 | sed 's/^/[hack] /'
