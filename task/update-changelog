@@ -13,4 +13,7 @@ $($here/commit-history | sed 's/^/    - /')
 EOF
 )"
 
-ex -sc "1i|${CHANGES}" -cx $here/../CHANGELOG
+cat <<-EOF > $here/../CHANGELOG
+${CHANGES}
+$(cat $here/../CHANGELOG)
+EOF
