@@ -1,3 +1,30 @@
+v0.8.0:
+  date: 2018-04-30
+  sha256: 581e9dc1114d2aea50f82ac4e1886c0f2924df39a5d706d0047fe9caa9964e8d
+  changes:
+    - [feature] bump versions (2dc0dfa)
+    - [feature] simplify templates a bit (8badc59)
+    - [bugfix] correct name of service being restarted (af65d3a)
+    - [bugfix] ensure libsecomp-devel is installed (50b976f)
+    - [bugfix] use 'normal' tls filenames (11fd113)
+    - [feature] version bumps and bugfixes (cf04add)
+v0.7.0:
+  date: 2018-03-29
+  sha256: a17172c633fe77c087b25ea3084726a1fd1e7d8733427378cc4502fb19047596
+  changes:
+    - [bugfix] ensure libsecomp-devel is installed (50b976f)
+    - [bugfix] use 'normal' tls filenames (11fd113)
+    - [feature] version bumps and bugfixes (cf04add)
+v0.6.2:
+  date: 2018-02-28
+  sha256: 8443f21569f08a42995ab0b17240ce3b7f306820369261b1f5790c7923894cd1
+  changes:
+    - [feature] bump versions (2dc0dfa)
+    - [feature] simplify templates a bit (8badc59)
+    - [bugfix] correct name of service being restarted (af65d3a)
+    - [bugfix] ensure libsecomp-devel is installed (50b976f)
+    - [bugfix] use 'normal' tls filenames (11fd113)
+    - [feature] version bumps and bugfixes (cf04add)
 v0.6.1:
   date: 2018-01-26
   sha256: 34e02bbefa836170866cc3e9d0a467e1a0557b95e11959308d0b5bb32331023c
