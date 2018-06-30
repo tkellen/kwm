@@ -1,3 +1,9 @@
+v0.8.1:
+  date: 2018-06-29
+  sha256: 4e70dfbb51be5f8348fc48d130cfd34d956cdd32aed7f17a5052c0f4a0ed5e57
+  changes:
+    - [feature] bump dependencies (4af899e)
+    - [bugfix] fix typo in help screen text (3bad3ba)
 v0.8.0:
   date: 2018-04-30
   sha256: 581e9dc1114d2aea50f82ac4e1886c0f2924df39a5d706d0047fe9caa9964e8d
