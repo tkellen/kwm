@@ -7,5 +7,5 @@ source $here/config
 
 curl -X DELETE \
   -H "Accept: application/json" \
-  -H "Authorization: token $GITHUB_ACCESS_TOKEN" \
+  -H "Authorization: token $GITHUB_TOKEN" \
   $RELEASE_ENDPOINT/$RELEASE_ID

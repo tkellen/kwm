@@ -2,13 +2,13 @@
 # Get variables needed for making releases.
 set -euo pipefail
 
-GITHUB_ACCESS_TOKEN=${GITHUB_ACCESS_TOKEN:?'needs to be defined.'}
+GITHUB_TOKEN=${GITHUB_TOKEN:?'needs to be defined.'}
 REPO=$(sed 's/.*:\(.*\).git/\1/' <<<"$(git config --get remote.origin.url)")
 RELEASE_ENDPOINT=https://api.github.com/repos/$REPO/releases
 ARTIFACT_ENDPOINT=https://uploads.github.com/repos/$REPO/releases
 VERSION=${VERSION:?'needs to be defined.'}
 RELEASE_ID=$(
   curl -sS \
-    -H "Authorization: token $GITHUB_ACCESS_TOKEN" \
+    -H "Authorization: token $GITHUB_TOKEN" \
     $RELEASE_ENDPOINT/tags/$VERSION | jq '.id'
 )

@@ -11,5 +11,5 @@ ARTIFACT_FILEPATH=${ARTIFACT_FILEPATH:?'needs to be defined.'}
 
 curl --data-binary @${ARTIFACT_FILEPATH} \
   -H "Content-Type:$(file -b --mime-type ${ARTIFACT_FILEPATH})" \
-  -H "Authorization: token $GITHUB_ACCESS_TOKEN" \
+  -H "Authorization: token $GITHUB_TOKEN" \
   $ARTIFACT_ENDPOINT/$RELEASE_ID/assets?name=${ARTIFACT_FILENAME}
